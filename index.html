@@ -694,7 +694,7 @@ function syncFiltroFac() {
 function hayConflicto(n, excl=-1) {
   return reservas.some((r,i) =>
     i!==excl && r.ambiente===n.ambiente && r.fecha===n.fecha &&
-    n.inicio<r.fin && n.fin>n.inicio
+    n.inicio<r.fin && n.fin>r.inicio
   );
 }
 
@@ -732,7 +732,7 @@ function guardar() {
     }
     reservas.push(nueva);
     saveRsv(); mostrar(); actualizarStats();
-    ["docente","ambiente","fecha","inicio","fin"].forEach(id=>document.getElementById(id).value="");
+    ["ambiente","fecha","inicio","fin"].forEach(id=>document.getElementById(id).value="");
     document.getElementById("documento").value="";
     Swal.fire({icon:"success",title:"¡Reserva guardada!",timer:1600,showConfirmButton:false,background:"#131923",color:"#dde3f0"});
     cerrarDrawer();
