@@ -487,7 +487,61 @@ tbody td { padding: 9px 11px; vertical-align: middle; }
       </div>
       <div class="fg">
         <label>Software solicitado <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;">(opcional)</span></label>
-        <input type="text" id="software" placeholder="Ej: Microsoft Office, AutoCAD, SPSS…">
+        <select id="softwareSel" onchange="onSoftwareSel()" style="width:100%;padding:9px 11px;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.85rem;outline:none;margin-bottom:5px;">
+          <option value="">— Sin software / No aplica —</option>
+          <optgroup label="Microsoft Office">
+            <option>Microsoft Office 365</option>
+            <option>Microsoft Office 2019</option>
+            <option>Microsoft Office 2016</option>
+            <option>Microsoft Office 2013</option>
+            <option>Microsoft Office 2010</option>
+          </optgroup>
+          <optgroup label="Adobe">
+            <option>Adobe Photoshop</option>
+            <option>Adobe Illustrator</option>
+            <option>Adobe Premiere Pro</option>
+            <option>Adobe After Effects</option>
+            <option>Adobe Acrobat Pro</option>
+            <option>Adobe InDesign</option>
+            <option>Adobe Audition</option>
+          </optgroup>
+          <optgroup label="Autodesk">
+            <option>AutoCAD</option>
+            <option>AutoCAD Civil 3D</option>
+            <option>Revit</option>
+            <option>3ds Max</option>
+            <option>Maya</option>
+            <option>Inventor</option>
+          </optgroup>
+          <optgroup label="Estadística">
+            <option>SPSS Statistics</option>
+            <option>R / RStudio</option>
+            <option>STATA</option>
+            <option>SAS</option>
+            <option>Minitab</option>
+            <option>Eviews</option>
+            <option>MATLAB</option>
+          </optgroup>
+          <optgroup label="Geografía / SIG">
+            <option>ArcGIS</option>
+            <option>QGIS</option>
+            <option>Google Earth Pro</option>
+            <option>Global Mapper</option>
+            <option>ENVI</option>
+          </optgroup>
+          <optgroup label="Programación / BD">
+            <option>Visual Studio Code</option>
+            <option>NetBeans</option>
+            <option>Eclipse</option>
+            <option>MySQL Workbench</option>
+            <option>Oracle SQL Developer</option>
+            <option>Android Studio</option>
+          </optgroup>
+          <optgroup label="Otro">
+            <option value="__otro__">Otro (especificar)…</option>
+          </optgroup>
+        </select>
+        <input type="text" id="softwareCustom" placeholder="Especifica el software…" style="display:none;width:100%;padding:9px 11px;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.85rem;outline:none;">
       </div>
       <!-- Sección multi-fecha -->
       <div style="margin-bottom:9px;">
@@ -648,7 +702,23 @@ let estructura = JSON.parse(localStorage.getItem("est3")) || {
 const DIAS = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
 
 function saveEst() { localStorage.setItem("est3", JSON.stringify(estructura)); }
-function saveRsv() { localStorage.setItem("rsv3", JSON.stringify(reservas)); }
+function saveRsv() {
+  // Guardar reservas SIN el base64 del documento (se guarda por separado)
+  const livianas = reservas.map(r => {
+    const {_docData, ...rest} = r;
+    return rest;
+  });
+  localStorage.setItem("rsv3", JSON.stringify(livianas));
+}
+function saveDoc(docId, dataUrl) {
+  try { localStorage.setItem("doc_" + docId, dataUrl); } catch(e) { console.warn("Doc no guardado (cuota):", e); }
+}
+function getDoc(docId) {
+  return docId ? localStorage.getItem("doc_" + docId) : null;
+}
+function deleteDoc(docId) {
+  if (docId) localStorage.removeItem("doc_" + docId);
+}
 
 /* ─── SELECTORES FORMULARIO ─── */
 function initForm() {
@@ -758,7 +828,10 @@ function guardar() {
   const facultad = document.getElementById("facultad").value;
   const carrera  = document.getElementById("carrera").value;
   const materia  = document.getElementById("materia").value;
-  const software = document.getElementById("software").value.trim();
+  const swSel = document.getElementById("softwareSel").value;
+  const software = swSel === "__otro__"
+    ? document.getElementById("softwareCustom").value.trim()
+    : swSel;
   const file     = document.getElementById("documento").files[0];
 
   const procesarDoc = (docResult) => {
@@ -781,11 +854,14 @@ function guardar() {
     }
     // Guardar todas las fechas
     for (const fp of fechasPendientes) {
+      const rid = Date.now() + Math.random();
+      const docId = docResult ? ("d" + rid.toString(36)) : null;
+      if (docResult && docId) saveDoc(docId, docResult);
       reservas.push({
-        id: Date.now() + Math.random(),
+        id: rid,
         facultad, carrera, materia, docente, ambiente, software,
         fecha: fp.fecha, inicio: fp.inicio, fin: fp.fin,
-        documento: docResult
+        docId: docId
       });
     }
     saveRsv(); mostrar(); actualizarStats();
@@ -813,7 +889,7 @@ function eliminar(id) {
     icon:"warning", title:"¿Eliminar?", text:"Esta acción no se puede deshacer.",
     showCancelButton:true, confirmButtonText:"Sí, eliminar", cancelButtonText:"Cancelar",
     background:"#131923", color:"#dde3f0", confirmButtonColor:"#e02030"
-  }).then(r => { if(r.isConfirmed){ reservas=reservas.filter(x=>x.id!==id); saveRsv(); mostrar(); actualizarStats(); }});
+  }).then(r => { if(r.isConfirmed){ const eliminada = reservas.find(x=>x.id===id); if(eliminada?.docId) deleteDoc(eliminada.docId); reservas=reservas.filter(x=>x.id!==id); saveRsv(); mostrar(); actualizarStats(); }});
 }
 
 /* ─── HELPERS ─── */
@@ -888,7 +964,7 @@ function mostrar() {
           <td>${r.docente}</td>
           <td>${r.ambiente}</td>
           <td style="font-size:0.75rem;color:#a0c4ff;">${r.software||'<span style="color:var(--muted)">—</span>'}</td>
-          <td>${r.documento?`<a href="${r.documento}" target="_blank" style="color:#7eaaff;font-size:0.75rem;">Ver</a>`:'<span style="color:var(--muted)">—</span>'}</td>
+          <td>${r.docId?`<a href="${getDoc(r.docId)||'#'}" target="_blank" style="color:#7eaaff;font-size:0.75rem;">Ver</a>`:'<span style="color:var(--muted)">—</span>'}</td>
           <td><button class="btn btn-del" onclick="eliminar(${r.id})">✕</button></td>
         </tr>`).join('');
 
@@ -929,7 +1005,7 @@ function mostrar() {
           ${r.software?`<div class="rc-meta" style="color:#a0c4ff;">💻 ${r.software}</div>`:''}
           <div class="rc-meta" style="margin-top:2px;font-size:0.7rem;color:var(--muted);">${r.carrera}</div>
           <div class="rc-actions">
-            ${r.documento?`<a class="rc-doc" href="${r.documento}" target="_blank">📎 Ver documento</a>`:''}
+            ${r.docId?`<a class="rc-doc" href="${getDoc(r.docId)||'#'}" target="_blank">📎 Ver documento</a>`:''}
             <button class="btn btn-del" onclick="eliminar(${r.id})" style="margin-left:auto;">✕ Eliminar</button>
           </div>
         </div>`).join('');
@@ -1215,6 +1291,14 @@ function addMateria() {
 function delMat(f,c,m) {
   if(!confirm(`¿Eliminar materia "${m}"?`))return;
   estructura[f][c]=estructura[f][c].filter(x=>x!==m); saveEst(); renderLstMat();
+}
+
+/* ─── SOFTWARE SELECT ─── */
+function onSoftwareSel() {
+  const v = document.getElementById("softwareSel").value;
+  const custom = document.getElementById("softwareCustom");
+  custom.style.display = v === "__otro__" ? "block" : "none";
+  if (v !== "__otro__") custom.value = "";
 }
 
 /* ─── LIMPIAR STORAGE ─── */
