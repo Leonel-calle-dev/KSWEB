@@ -1,60 +1,53 @@
 <!DOCTYPE html><html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Gestión de Ambientes</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <style>
-    body { font-family: Arial; background:#f4f6f9; margin:0; }
-    .container { display:flex; gap:20px; padding:20px; }
-    .form, .tabla { background:white; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
-    .form { width:35%; }
-    .tabla { width:65%; }
-    input, select { width:100%; padding:8px; margin:5px 0; }
-    button { padding:10px; width:100%; background:#007bff; color:white; border:none; border-radius:5px; }
-    table { width:100%; border-collapse:collapse; margin-top:10px; }
-    th, td { border:1px solid #ddd; padding:8px; text-align:center; }
-    th { background:#007bff; color:white; }
-  </style>
-</head>
-<body><div class="container">  <div class="form">
-    <h3>Registrar Solicitud</h3><select id="facultad"></select>
+<meta charset="UTF-8">
+<title>Sistema de Reservas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><style>
+body { background:#121212; color:#fff; font-family:Arial; }
+.container { display:flex; gap:20px; padding:20px; }
+.card { background:#1e1e1e; padding:20px; border-radius:10px; width:100%; }
+input, select { width:100%; padding:8px; margin:5px 0; background:#2c2c2c; color:#fff; border:none; }
+button { padding:10px; margin-top:5px; background:#00c853; border:none; color:white; cursor:pointer; }
+table { width:100%; border-collapse:collapse; margin-top:10px; }
+th, td { border:1px solid #333; padding:8px; text-align:center; }
+th { background:#00c853; }
+</style></head>
+<body><div class="container"><div class="card">
+<h3>Registro</h3>
+<select id="facultad"></select>
 <select id="carrera"></select>
 <select id="materia"></select>
-
 <input type="text" id="docente" placeholder="Docente">
 <input type="text" id="ambiente" placeholder="Ambiente">
 <input type="date" id="fecha">
 <input type="time" id="inicio">
 <input type="time" id="fin">
-
-<label>Documento (PDF/Imagen)</label>
 <input type="file" id="documento">
-
 <button onclick="guardar()">Guardar</button>
+</div><div class="card">
+<h3>Filtros</h3>
+<input type="date" id="filtroFecha" onchange="mostrar()">
+<input type="text" id="busqueda" placeholder="Buscar docente o materia" oninput="mostrar()"><button onclick="exportExcel()">Exportar Excel</button> <button onclick="exportPDF()">Exportar PDF</button>
 
-  </div>  <div class="tabla">
-    <h3>Reservas</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Hora</th>
-          <th>Materia</th>
-          <th>Carrera</th>
-          <th>Ambiente</th>
-          <th>Documento</th>
-        </tr>
-      </thead>
-      <tbody id="tabla"></tbody>
-    </table>
-  </div></div><script>
+<table>
+<thead>
+<tr>
+<th>Hora</th>
+<th>Materia</th>
+<th>Docente</th>
+<th>Ambiente</th>
+<th>Doc</th>
+</tr>
+</thead>
+<tbody id="tabla"></tbody>
+</table>
+</div></div><script>
 
-let reservas = [];
+let reservas = JSON.parse(localStorage.getItem("reservas")) || [];
 
 const estructura = {
   "Ingeniería": {
-    "Sistemas": ["Programación", "Base de Datos"],
-    "Civil": ["Estructuras"]
+    "Sistemas": ["Programación", "Base de Datos"]
   }
 };
 
@@ -62,79 +55,93 @@ const facultad = document.getElementById("facultad");
 const carrera = document.getElementById("carrera");
 const materia = document.getElementById("materia");
 
-// cargar selects
-for (let f in estructura) {
-  facultad.innerHTML += `<option>${f}</option>`;
-}
+for (let f in estructura) facultad.innerHTML += `<option>${f}</option>`;
 
 facultad.onchange = () => {
-  carrera.innerHTML = "";
-  for (let c in estructura[facultad.value]) {
-    carrera.innerHTML += `<option>${c}</option>`;
-  }
+  carrera.innerHTML="";
+  for (let c in estructura[facultad.value]) carrera.innerHTML += `<option>${c}</option>`;
   carrera.onchange();
 };
 
 carrera.onchange = () => {
-  materia.innerHTML = "";
-  estructura[facultad.value][carrera.value].forEach(m => {
-    materia.innerHTML += `<option>${m}</option>`;
-  });
+  materia.innerHTML="";
+  estructura[facultad.value][carrera.value].forEach(m=> materia.innerHTML+=`<option>${m}</option>`);
 };
 
 facultad.onchange();
 
-function hayConflicto(nueva) {
-  return reservas.some(r =>
-    r.ambiente === nueva.ambiente &&
-    r.fecha === nueva.fecha &&
-    nueva.inicio < r.fin &&
-    nueva.fin > r.inicio
-  );
+function hayConflicto(nueva){
+ return reservas.some(r=> r.ambiente===nueva.ambiente && r.fecha===nueva.fecha && nueva.inicio<r.fin && nueva.fin>r.inicio);
 }
 
-function guardar() {
-  const file = document.getElementById("documento").files[0];
-  let url = file ? URL.createObjectURL(file) : "";
+function guardar(){
+ const file = document.getElementById("documento").files[0];
+ const reader = new FileReader();
 
+ reader.onload = function(){
   const nueva = {
-    facultad: facultad.value,
-    carrera: carrera.value,
-    materia: materia.value,
-    docente: document.getElementById("docente").value,
-    ambiente: document.getElementById("ambiente").value,
-    fecha: document.getElementById("fecha").value,
-    inicio: document.getElementById("inicio").value,
-    fin: document.getElementById("fin").value,
-    documento: url
+    facultad:facultad.value,
+    carrera:carrera.value,
+    materia:materia.value,
+    docente:docente.value,
+    ambiente:ambiente.value,
+    fecha:fecha.value,
+    inicio:inicio.value,
+    fin:fin.value,
+    documento:reader.result
   };
 
-  if (hayConflicto(nueva)) {
-    Swal.fire("Error", "Horario ocupado", "error");
-    return;
+  if(hayConflicto(nueva)){
+    Swal.fire("Error","Horario ocupado","error"); return;
   }
 
   reservas.push(nueva);
+  localStorage.setItem("reservas", JSON.stringify(reservas));
   mostrar();
-  Swal.fire("Éxito", "Reserva registrada", "success");
+  Swal.fire("Guardado","Correcto","success");
+ };
+
+ if(file) reader.readAsDataURL(file); else reader.onload();
 }
 
-function mostrar() {
-  const tabla = document.getElementById("tabla");
-  tabla.innerHTML = "";
+function mostrar(){
+ const tabla=document.getElementById("tabla");
+ tabla.innerHTML="";
+ const f=document.getElementById("filtroFecha").value;
+ const b=document.getElementById("busqueda").value.toLowerCase();
 
-  reservas.forEach(r => {
-    tabla.innerHTML += `
-      <tr>
-        <td>${r.inicio} - ${r.fin}</td>
-        <td>${r.materia}</td>
-        <td>${r.carrera}</td>
-        <td>${r.ambiente}</td>
-        <td>${r.documento ? `<a href="${r.documento}" target="_blank">Ver</a>` : "-"}</td>
-      </tr>
-    `;
-  });
+ reservas
+ .filter(r=> (!f || r.fecha===f) && (!b || r.docente.toLowerCase().includes(b) || r.materia.toLowerCase().includes(b)))
+ .forEach(r=>{
+  tabla.innerHTML+=`<tr>
+  <td>${r.inicio}-${r.fin}</td>
+  <td>${r.materia}</td>
+  <td>${r.docente}</td>
+  <td>${r.ambiente}</td>
+  <td>${r.documento?`<a href="${r.documento}" target="_blank">Ver</a>`:"-"}</td>
+  </tr>`;
+ });
 }
+
+function exportExcel(){
+ const ws = XLSX.utils.json_to_sheet(reservas);
+ const wb = XLSX.utils.book_new();
+ XLSX.utils.book_append_sheet(wb, ws, "Reservas");
+ XLSX.writeFile(wb, "reservas.xlsx");
+}
+
+function exportPDF(){
+ const { jsPDF } = window.jspdf;
+ const doc = new jsPDF();
+ let y=10;
+ reservas.forEach(r=>{
+  doc.text(`${r.fecha} ${r.inicio}-${r.fin} ${r.materia}`,10,y);
+  y+=10;
+ });
+ doc.save("reservas.pdf");
+}
+
+mostrar();
 
 </script></body>
 </html>
