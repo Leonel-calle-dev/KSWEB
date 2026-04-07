@@ -511,25 +511,34 @@ tbody td { padding: 9px 11px; vertical-align: middle; }
         <label>Ambiente / Aula</label>
         <input type="text" id="ambiente" placeholder="Ej: Aula 201, Lab. A">
       </div>
-      <div class="fg">
-        <label>Fecha</label>
-        <input type="date" id="fecha">
-      </div>
-      <div class="row2">
-        <div class="fg">
-          <label>Hora inicio</label>
-          <input type="time" id="inicio">
+      <!-- Sección multi-fecha -->
+      <div style="margin-bottom:9px;">
+        <label style="display:block;font-size:0.65rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Fechas y Horarios</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:end;margin-bottom:6px;">
+          <div>
+            <label style="display:block;font-size:0.6rem;color:var(--muted);margin-bottom:3px;">Fecha</label>
+            <input type="date" id="fecha" style="width:100%;padding:8px 9px;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.8rem;outline:none;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.6rem;color:var(--muted);margin-bottom:3px;">Inicio</label>
+            <input type="time" id="inicio" style="width:100%;padding:8px 9px;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.8rem;outline:none;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.6rem;color:var(--muted);margin-bottom:3px;">Fin</label>
+            <input type="time" id="fin" style="width:100%;padding:8px 9px;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.8rem;outline:none;">
+          </div>
+          <button onclick="agregarFecha()" style="padding:8px 10px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;font-weight:700;line-height:1;height:36px;align-self:end;" title="Agregar fecha">＋</button>
         </div>
-        <div class="fg">
-          <label>Hora fin</label>
-          <input type="time" id="fin">
-        </div>
+        <!-- Lista de fechas agregadas -->
+        <div id="listaFechas" style="display:flex;flex-direction:column;gap:5px;"></div>
+        <div id="listaFechasEmpty" style="font-size:0.72rem;color:var(--muted);text-align:center;padding:6px 0;display:block;">Sin fechas agregadas aún</div>
       </div>
+
       <div class="fg">
         <label>Documento (opcional)</label>
         <input type="file" id="documento">
       </div>
-      <button class="btn btn-save" onclick="guardar()">✦ Guardar Reserva</button>
+      <button class="btn btn-save" onclick="guardar()">✦ Guardar Reservas</button>
     </div>
 
     <!-- Botón estructura (solo en sidebar, visible en móvil) -->
@@ -690,6 +699,62 @@ function syncFiltroFac() {
     Object.keys(estructura).map(f=>`<option ${f===sel?'selected':''}>${f}</option>`).join('');
 }
 
+/* ─── MULTI-FECHA: lista temporal ─── */
+let fechasPendientes = []; // [{fecha, inicio, fin}]
+
+function agregarFecha() {
+  const fecha  = document.getElementById("fecha").value;
+  const inicio = document.getElementById("inicio").value;
+  const fin    = document.getElementById("fin").value;
+
+  if (!fecha || !inicio || !fin) {
+    Swal.fire({icon:"warning",title:"Completa fecha e horario",text:"Ingresa fecha, hora inicio y hora fin antes de agregar.",background:"#131923",color:"#dde3f0"});
+    return;
+  }
+  if (inicio >= fin) {
+    Swal.fire({icon:"error",title:"Horario inválido",text:"La hora fin debe ser posterior al inicio.",background:"#131923",color:"#dde3f0"});
+    return;
+  }
+  // Verificar duplicado en la lista pendiente
+  const duplicado = fechasPendientes.some(f => f.fecha===fecha && f.inicio===inicio && f.fin===fin);
+  if (duplicado) {
+    Swal.fire({icon:"warning",title:"Ya agregada",text:"Esa fecha y horario ya está en la lista.",background:"#131923",color:"#dde3f0"});
+    return;
+  }
+  fechasPendientes.push({fecha, inicio, fin});
+  renderFechasPendientes();
+  // Limpiar solo fecha/hora para agregar otra rápido
+  document.getElementById("fecha").value  = "";
+  document.getElementById("inicio").value = "";
+  document.getElementById("fin").value    = "";
+}
+
+function quitarFecha(idx) {
+  fechasPendientes.splice(idx, 1);
+  renderFechasPendientes();
+}
+
+function renderFechasPendientes() {
+  const cont  = document.getElementById("listaFechas");
+  const empty = document.getElementById("listaFechasEmpty");
+  if (!fechasPendientes.length) {
+    cont.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+  empty.style.display = "none";
+  cont.innerHTML = fechasPendientes.map((f, i) => {
+    const [y,m,d] = f.fecha.split('-');
+    const dow = DIAS[new Date(+y,+m-1,+d).getDay()];
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:0.78rem;">
+        <span style="color:#7eaaff;font-weight:700;">📅 ${d}/${m}/${y} <span style="color:var(--muted);font-weight:400;">(${dow})</span></span>
+        <span style="color:var(--text);margin:0 8px;">🕐 ${f.inicio} – ${f.fin}</span>
+        <button onclick="quitarFecha(${i})" style="background:transparent;border:1px solid rgba(224,32,48,0.35);color:var(--red);border-radius:6px;padding:2px 7px;font-size:0.7rem;cursor:pointer;font-weight:700;">✕</button>
+      </div>`;
+  }).join('');
+}
+
 /* ─── CONFLICTO ─── */
 function hayConflicto(n, excl=-1) {
   return reservas.some((r,i) =>
@@ -702,42 +767,64 @@ function hayConflicto(n, excl=-1) {
 function guardar() {
   const docente  = document.getElementById("docente").value.trim();
   const ambiente = document.getElementById("ambiente").value.trim();
-  const fecha    = document.getElementById("fecha").value;
-  const inicio   = document.getElementById("inicio").value;
-  const fin      = document.getElementById("fin").value;
 
-  if (!docente||!ambiente||!fecha||!inicio||!fin) {
-    Swal.fire({icon:"warning",title:"Campos incompletos",text:"Completa todos los campos obligatorios.",background:"#131923",color:"#dde3f0"});
+  if (!docente || !ambiente) {
+    Swal.fire({icon:"warning",title:"Campos incompletos",text:"Completa Docente y Ambiente.",background:"#131923",color:"#dde3f0"});
     return;
   }
-  if (inicio>=fin) {
-    Swal.fire({icon:"error",title:"Horario inválido",text:"La hora de fin debe ser posterior al inicio.",background:"#131923",color:"#dde3f0"});
+  if (!fechasPendientes.length) {
+    Swal.fire({icon:"warning",title:"Sin fechas",text:"Agrega al menos una fecha y horario con el botón ＋.",background:"#131923",color:"#dde3f0"});
     return;
   }
 
-  const file = document.getElementById("documento").files[0];
-  const reader = new FileReader();
-  reader.onload = () => {
-    const nueva = {
-      id: Date.now(),
-      facultad: document.getElementById("facultad").value,
-      carrera:  document.getElementById("carrera").value,
-      materia:  document.getElementById("materia").value,
-      docente, ambiente, fecha, inicio, fin,
-      documento: file ? reader.result : null
-    };
-    if (hayConflicto(nueva)) {
-      Swal.fire({icon:"error",title:"Conflicto de horario",text:`"${ambiente}" ya está reservado en ese horario.`,background:"#131923",color:"#dde3f0"});
+  const facultad = document.getElementById("facultad").value;
+  const carrera  = document.getElementById("carrera").value;
+  const materia  = document.getElementById("materia").value;
+  const file     = document.getElementById("documento").files[0];
+
+  const procesarDoc = (docResult) => {
+    // Verificar todos los conflictos antes de guardar cualquiera
+    const conflictos = [];
+    for (const fp of fechasPendientes) {
+      const candidata = {ambiente, fecha: fp.fecha, inicio: fp.inicio, fin: fp.fin};
+      if (hayConflicto(candidata)) {
+        const [y,m,d] = fp.fecha.split('-');
+        conflictos.push(`${d}/${m}/${y} (${fp.inicio}–${fp.fin})`);
+      }
+    }
+    if (conflictos.length) {
+      Swal.fire({
+        icon:"error", title:"Conflicto de horario",
+        html:`El ambiente <b>"${ambiente}"</b> ya está reservado en:<br><br>${conflictos.map(c=>`• ${c}`).join('<br>')}`,
+        background:"#131923", color:"#dde3f0"
+      });
       return;
     }
-    reservas.push(nueva);
+    // Guardar todas las fechas
+    for (const fp of fechasPendientes) {
+      reservas.push({
+        id: Date.now() + Math.random(),
+        facultad, carrera, materia, docente, ambiente,
+        fecha: fp.fecha, inicio: fp.inicio, fin: fp.fin,
+        documento: docResult
+      });
+    }
     saveRsv(); mostrar(); actualizarStats();
-    ["ambiente","fecha","inicio","fin"].forEach(id=>document.getElementById(id).value="");
-    document.getElementById("documento").value="";
-    Swal.fire({icon:"success",title:"¡Reserva guardada!",timer:1600,showConfirmButton:false,background:"#131923",color:"#dde3f0"});
+    // Limpiar lista de fechas pendientes
+    fechasPendientes = [];
+    renderFechasPendientes();
+    document.getElementById("documento").value = "";
+    Swal.fire({icon:"success",title:`¡${fechasPendientes.length || ''}Reservas guardadas!`,text:`Se registraron las clases correctamente.`,timer:1800,showConfirmButton:false,background:"#131923",color:"#dde3f0"});
     cerrarDrawer();
   };
-  if (file) reader.readAsDataURL(file); else reader.onload();
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => procesarDoc(reader.result);
+    reader.readAsDataURL(file);
+  } else {
+    procesarDoc(null);
+  }
 }
 
 /* ─── ELIMINAR ─── */
