@@ -784,15 +784,26 @@ function pdfTabla(doc,W,H,filas,titulo){
   pdfEncabezado(doc,W,titulo);
   doc.autoTable({
     head:[['Fecha','Horario','Ambiente','Facultad','Carrera','Materia / Asignatura','Docente','Software']],
-    body:filas,startY:46,theme:'grid',
+    body:filas,startY:48,theme:'grid',
     styles:{font:'helvetica',fontSize:7.5,cellPadding:3,textColor:[20,35,60],lineColor:[190,205,230],lineWidth:0.25},
     headStyles:{fillColor:[20,50,110],textColor:[255,255,255],fontStyle:'bold',fontSize:7,halign:'center'},
     alternateRowStyles:{fillColor:[237,242,255]},
     columnStyles:{0:{halign:'center',cellWidth:24,fontStyle:'bold',textColor:[20,60,160]},
       1:{halign:'center',cellWidth:20},2:{cellWidth:26},3:{cellWidth:28},
       4:{cellWidth:26},5:{cellWidth:42},6:{cellWidth:36},7:{cellWidth:35}},
-    margin:{left:5,right:5,bottom:14},
-    didDrawPage:function(d){if(d.pageNumber>1)pdfEncabezado(doc,W,titulo);pdfPie(doc,W,H);}
+    margin:{left:5,right:5,bottom:18},
+    didDrawPage:function(d){
+      // Solo pie en todas las paginas; encabezado ya fue dibujado antes de autoTable en pag 1
+      // En paginas 2+ dibujar encabezado reducido (solo barra de color + titulo pequeño)
+      if(d.pageNumber>1){
+        doc.setFillColor(10,25,60); doc.rect(0,0,W,14,'F');
+        doc.setFillColor(224,32,48); doc.rect(0,0,4,14,'F');
+        doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(8);
+        doc.text(norm(titulo),W/2,9,{align:'center'});
+        // mover tabla hacia abajo en pag 2+
+      }
+      pdfPie(doc,W,H);
+    }
   });
 }
 function buildFilas(lista){
@@ -819,15 +830,222 @@ function exportPDF(){
     html:'<div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">'
       +'<button id="pdfGeneral" class="btn btn-blue" style="width:100%;padding:12px;">&#128196; Reporte general (todas las fechas)</button>'
       +'<button id="pdfDia" class="btn btn-ghost" style="width:100%;padding:12px;">&#128197; Reporte por dia de la semana</button>'
+      +'<button id="pdfGrid" class="btn btn-ghost" style="width:100%;padding:12px;background:rgba(0,180,100,.15);color:#00c87a;border-color:rgba(0,180,100,.3);">&#128200; Horario semanal tipo grid (por ambiente)</button>'
       +'</div>',
     showConfirmButton:false,
     background:'#131923',color:'#dde3f0',
     didOpen:function(){
       document.getElementById('pdfGeneral').addEventListener('click',function(){Swal.close();exportPDFGeneral(datos);});
       document.getElementById('pdfDia').addEventListener('click',function(){Swal.close();exportPDFPorDia(datos);});
+      document.getElementById('pdfGrid').addEventListener('click',function(){Swal.close();exportPDFGrid(datos);});
     }
   });
 }
+
+/* PDF HORARIO GRID SEMANAL */
+function exportPDFGrid(datos){
+  var jsPDF=window.jspdf.jsPDF;
+  if(!datos.length) return;
+
+  // Paleta de colores por carrera (cycling)
+  var PALETA=[
+    [180,220,255],[200,240,200],[255,220,180],[220,200,255],
+    [255,240,180],[180,255,230],[255,200,210],[210,230,255],
+    [240,210,180],[210,255,210],[255,210,240],[230,220,255]
+  ];
+  var carreraColor={};
+  var colorIdx=0;
+  function getColor(carrera){
+    if(!carreraColor[carrera]){carreraColor[carrera]=PALETA[colorIdx%PALETA.length];colorIdx++;}
+    return carreraColor[carrera];
+  }
+
+  // Agrupar por ambiente
+  var ambientes={};
+  datos.forEach(function(r){
+    if(!ambientes[r.ambiente])ambientes[r.ambiente]=[];
+    ambientes[r.ambiente].push(r);
+  });
+
+  var DIAS_GRID=['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+  var DOW_MAP={Lunes:1,Martes:2,Miercoles:3,Jueves:4,Viernes:5,Sabado:6,Domingo:0};
+
+  Object.keys(ambientes).forEach(function(ambiente,aIdx){
+    var reservasAmb=ambientes[ambiente];
+
+    // Recolectar todos los slots de hora únicos y ordenar
+    var horasSet={};
+    reservasAmb.forEach(function(r){ horasSet[r.inicio+'|'+r.fin]=true; });
+    var horas=Object.keys(horasSet).map(function(k){var p=k.split('|');return{ini:p[0],fin:p[1]};});
+    horas.sort(function(a,b){return a.ini.localeCompare(b.ini);});
+
+    // Detectar qué días tienen datos
+    var diasConDatos=[];
+    DIAS_GRID.forEach(function(d){
+      var dow=DOW_MAP[d];
+      var tiene=reservasAmb.some(function(r){
+        var p=r.fecha.split('-');
+        return new Date(+p[0],+p[1]-1,+p[2]).getDay()===dow;
+      });
+      if(tiene) diasConDatos.push(d);
+    });
+    if(!diasConDatos.length) diasConDatos=DIAS_GRID;
+
+    var doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+    var W=doc.internal.pageSize.getWidth();
+    var H=doc.internal.pageSize.getHeight();
+
+    // ── Encabezado ──
+    doc.setFillColor(10,25,60); doc.rect(0,0,W,38,'F');
+    doc.setFillColor(224,32,48); doc.rect(0,0,4,38,'F');
+    try{doc.addImage(LOGO_B64,'PNG',6,2,30,30);}catch(e){}
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(16);
+    doc.text('Horario',W/2,13,{align:'center'});
+    doc.setFontSize(13);
+    doc.text(norm(ambiente),W/2,23,{align:'center'});
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(160,195,255);
+    doc.text('ADMINISTRACION - CAMPUS LAS PALMAS',W/2,31,{align:'center'});
+    doc.setTextColor(120,150,200);
+    doc.text('Generado: '+new Date().toLocaleDateString('es-ES'),W-6,8,{align:'right'});
+
+    // ── Dimensiones de la grilla ──
+    var marginL=5, marginR=5, marginT=42, marginB=14;
+    var gridW=W-marginL-marginR;
+    var gridH=H-marginT-marginB;
+    var colHora=22;
+    var numDias=diasConDatos.length;
+    var colDia=(gridW-colHora)/numDias;
+    var numFilas=horas.length;
+    var rowH=numFilas>0?Math.min(gridH/numFilas,22):22;
+    var headerH=9;
+
+    // ── Header dias ──
+    doc.setFillColor(20,50,110);
+    doc.rect(marginL,marginT,colHora,headerH,'F');
+    doc.setTextColor(180,210,255);doc.setFont('helvetica','bold');doc.setFontSize(7);
+    doc.text('Hora',marginL+colHora/2,marginT+6,{align:'center'});
+
+    diasConDatos.forEach(function(dia,di){
+      var x=marginL+colHora+di*colDia;
+      doc.setFillColor(20,50,110);
+      doc.rect(x,marginT,colDia,headerH,'F');
+      doc.setDrawColor(30,60,120); doc.setLineWidth(0.3);
+      doc.rect(x,marginT,colDia,headerH);
+      doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
+      doc.text(norm(dia),x+colDia/2,marginT+6,{align:'center'});
+    });
+
+    // ── Filas de horas ──
+    horas.forEach(function(h,hi){
+      var y=marginT+headerH+hi*rowH;
+
+      // Celda hora
+      doc.setFillColor(235,240,252);
+      doc.rect(marginL,y,colHora,rowH,'F');
+      doc.setDrawColor(190,205,230);doc.setLineWidth(0.25);
+      doc.rect(marginL,y,colHora,rowH);
+      doc.setTextColor(20,60,160);doc.setFont('helvetica','bold');doc.setFontSize(6.5);
+      doc.text(h.ini,marginL+colHora/2,y+rowH/2-1.5,{align:'center'});
+      doc.text(h.fin,marginL+colHora/2,y+rowH/2+2.5,{align:'center'});
+
+      // Celdas por dia
+      diasConDatos.forEach(function(dia,di){
+        var x=marginL+colHora+di*colDia;
+        var dow=DOW_MAP[dia];
+
+        // Buscar reserva para este dia+hora (puede haber varias fechas del mismo dia)
+        // Mostramos la primera encontrada (misma materia/docente suelen repetir)
+        var match=null;
+        reservasAmb.forEach(function(r){
+          if(!match&&r.inicio===h.ini&&r.fin===h.fin){
+            var p=r.fecha.split('-');
+            if(new Date(+p[0],+p[1]-1,+p[2]).getDay()===dow) match=r;
+          }
+        });
+
+        if(match){
+          var col=getColor(match.carrera);
+          doc.setFillColor(col[0],col[1],col[2]);
+          doc.rect(x,y,colDia,rowH,'F');
+          doc.setDrawColor(150,170,200);doc.setLineWidth(0.25);
+          doc.rect(x,y,colDia,rowH);
+
+          // Texto dentro de celda
+          doc.setTextColor(20,35,80);
+          var pad=2;
+          var lineH=3.2;
+          var yText=y+pad+lineH;
+          var maxW=colDia-pad*2;
+
+          // Hora pequeña arriba
+          doc.setFont('helvetica','bold');doc.setFontSize(5.5);
+          doc.setTextColor(40,60,120);
+          doc.text(match.inicio+' - '+match.fin,x+colDia/2,yText,{align:'center',maxWidth:maxW});
+          yText+=lineH;
+
+          // Materia
+          doc.setFont('helvetica','bold');doc.setFontSize(6);
+          doc.setTextColor(10,25,60);
+          var matLines=doc.splitTextToSize(norm(match.materia),maxW);
+          matLines.slice(0,2).forEach(function(l){
+            doc.text(l,x+colDia/2,yText,{align:'center'});
+            yText+=lineH;
+          });
+
+          // Docente
+          doc.setFont('helvetica','normal');doc.setFontSize(5.5);
+          doc.setTextColor(40,50,80);
+          doc.text(norm(match.docente||''),x+colDia/2,yText,{align:'center',maxWidth:maxW});
+          yText+=lineH;
+
+          // Carrera
+          doc.setFont('helvetica','italic');doc.setFontSize(5);
+          doc.setTextColor(60,80,120);
+          var carLines=doc.splitTextToSize(norm(match.carrera),maxW);
+          carLines.slice(0,1).forEach(function(l){
+            doc.text(l,x+colDia/2,yText,{align:'center'});
+          });
+
+        }else{
+          // Celda vacía
+          doc.setFillColor(248,250,255);
+          doc.rect(x,y,colDia,rowH,'F');
+          doc.setDrawColor(210,220,235);doc.setLineWidth(0.2);
+          doc.rect(x,y,colDia,rowH);
+        }
+      });
+    });
+
+    // Leyenda de colores
+    var leyY=H-marginB+2;
+    doc.setFont('helvetica','bold');doc.setFontSize(5.5);doc.setTextColor(80,100,140);
+    var leyX=marginL;
+    Object.keys(carreraColor).forEach(function(car){
+      var col=carreraColor[car];
+      doc.setFillColor(col[0],col[1],col[2]);
+      doc.rect(leyX,leyY,5,3,'F');
+      doc.setDrawColor(150,170,200);doc.setLineWidth(0.2);
+      doc.rect(leyX,leyY,5,3);
+      doc.setTextColor(20,35,80);
+      doc.text(norm(car),leyX+6,leyY+2.5);
+      leyX+=doc.getTextWidth(norm(car))+14;
+      if(leyX>W-40){leyY+=4;leyX=marginL;}
+    });
+
+    // Pie
+    pdfPie(doc,W,H);
+
+    if(aIdx<Object.keys(ambientes).length-1) doc.addPage();
+  });
+
+  // Guardar: si es un solo ambiente, nombre específico
+  var ambList=Object.keys(ambientes);
+  var nombre=ambList.length===1
+    ?'horario_'+norm(ambList[0]).replace(/\s+/g,'_')+'_'+new Date().toISOString().split('T')[0]+'.pdf'
+    :'horario_grid_'+new Date().toISOString().split('T')[0]+'.pdf';
+  doc.save(nombre);
+}
+
 function exportPDFGeneral(datos){
   var jsPDF=window.jspdf.jsPDF;
   var doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
