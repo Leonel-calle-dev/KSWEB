@@ -179,6 +179,7 @@ tbody td{padding:8px 11px;vertical-align:middle;}
   </div>
   <div class="header-actions">
     <span class="badge-live">&#9679; EN LINEA</span>
+    <button class="btn btn-ghost" onclick="abrirBackup()" style="font-size:.65rem;padding:6px 10px;" title="Exportar / Importar datos">&#x1F4BE; Respaldo</button>
     <button class="btn btn-ghost" onclick="limpiarStorage()" style="font-size:.65rem;padding:6px 10px;">&#x1F5D1; Limpiar datos</button>
     <button class="btn btn-struct" onclick="abrirModal()">&#9881; Estructura</button>
   </div>
@@ -842,13 +843,17 @@ function limpiarFiltros(){['filtroFecha','filtroFacultad','busqueda'].forEach(fu
 
 /* DELEGACION DE EVENTOS */
 document.addEventListener('click',function(e){
+  // Buscar el ancestro mas cercano con data-action (para que clicks en spans hijos funcionen)
+  var actionEl=e.target.closest('[data-action]');
+  if(actionEl){
+    var action=actionEl.getAttribute('data-action');
+    if(action==='del'){eliminar(actionEl.getAttribute('data-id'));return;}
+    if(action==='edit'){abrirEditar(actionEl.getAttribute('data-id'));return;}
+    if(action==='qfecha'){quitarFecha(+actionEl.getAttribute('data-i'));return;}
+    if(action==='qsw'){quitarSoftware(+actionEl.getAttribute('data-i'));return;}
+    if(action==='toggle-past'){togglePasadas();return;}
+  }
   var el=e.target;
-  var action=el.getAttribute('data-action');
-  if(action==='del'){eliminar(el.getAttribute('data-id'));}
-  if(action==='edit'){abrirEditar(el.getAttribute('data-id'));}
-  if(action==='qfecha'){quitarFecha(+el.getAttribute('data-i'));}
-  if(action==='qsw'){quitarSoftware(+el.getAttribute('data-i'));}
-  if(action==='toggle-past'){togglePasadas();}
   if(el.classList.contains('js-del-fac')){var f=el.getAttribute('data-f');if(!confirm('Eliminar '+f+'?'))return;delete estructura[f];saveEst();renderLstFac();syncModalSelects();}
   if(el.classList.contains('js-del-car')){var f=el.getAttribute('data-f'),c=el.getAttribute('data-c');if(!confirm('Eliminar carrera '+c+'?'))return;delete estructura[f][c];saveEst();renderLstCar();}
   if(el.classList.contains('js-del-mat')){var f=el.getAttribute('data-f'),c=el.getAttribute('data-c'),m=el.getAttribute('data-m');if(!confirm('Eliminar materia '+m+'?'))return;estructura[f][c]=estructura[f][c].filter(function(x){return x!==m;});saveEst();renderLstMat();}
@@ -1012,10 +1017,8 @@ function pdfEncabezado(doc,W,titulo){
   doc.text('Generado: '+new Date().toLocaleDateString('es-ES'),W-6,10,{align:'right'});
 }
 function pdfPie(doc,W,H){
-  doc.setDrawColor(50,70,110);doc.setLineWidth(0.3);doc.line(6,H-10,W-6,H-10);
-  doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(120,140,170);
-  doc.text('Administracion Campus Las Palmas - Sistema de Reservas',8,H-6);
-  doc.text(String(new Date().getFullYear()),W-8,H-6,{align:'right'});
+  // Pie eliminado a peticion del usuario - tapaba la leyenda en reportes tipo grid/calendario
+  return;
 }
 function pdfTabla(doc,W,H,filas,titulo){
   pdfEncabezado(doc,W,titulo);
@@ -1176,7 +1179,7 @@ function exportPDFGrid(datos){
     // ==================================================================
 
     var marginL=5, marginT=41;
-    var marginB=12+LEYENDA_ALTURA; // reserva espacio para leyenda + pie
+    var marginB=4+LEYENDA_ALTURA; // sin pie: solo espacio para leyenda
     var gridW=W-marginL-5;
     var colHora=20;
     var numDias=diasConDatos.length;
@@ -1431,7 +1434,7 @@ function dibujarCalendario(datos,lunesStr){
   var leyAlt=linL*5+10;
 
   // Geometria del grid
-  var marginL=5, marginT=41, marginB=12+leyAlt;
+  var marginL=5, marginT=41, marginB=4+leyAlt;
   var gridW=W-marginL-5;
   var colHora=15;
   var colDia=(gridW-colHora)/7;
@@ -1675,6 +1678,331 @@ function addMateria(){var f=document.getElementById('selFacMat').value,c=documen
 
 /* LIMPIAR */
 function limpiarStorage(){Swal.fire({icon:'warning',title:'Limpiar todos los datos?',html:'Esto eliminara <b>todas las reservas</b>. No se puede deshacer.',showCancelButton:true,confirmButtonText:'Si, limpiar',cancelButtonText:'Cancelar',background:'#131923',color:'#dde3f0',confirmButtonColor:'#e02030'}).then(function(r){if(r.isConfirmed){localStorage.removeItem('rsv3');reservas=[];mostrar();actualizarStats();Swal.fire({icon:'success',title:'Datos limpiados',timer:1400,showConfirmButton:false,background:'#131923',color:'#dde3f0'});}});}
+
+/* =================================================================
+   RESPALDO: Exportar/Importar datos (JSON completo y Excel)
+   ================================================================= */
+function abrirBackup(){
+  cerrarDrawer();
+  var total=reservas.length;
+  var facs=Object.keys(estructura).length;
+  var docs=0;
+  try{
+    for(var i=0;i<localStorage.length;i++){
+      if(localStorage.key(i).indexOf('doc_')===0)docs++;
+    }
+  }catch(e){}
+
+  Swal.fire({
+    title:'&#x1F4BE; Respaldo de datos',
+    html:'<div style="text-align:left;font-size:.85rem;color:#dde3f0;margin-bottom:12px;">'
+      +'<div style="background:#1a2232;padding:10px 12px;border-radius:8px;margin-bottom:14px;font-size:.78rem;">'
+      +'<b style="color:#7eaaff;">Datos actuales:</b><br>'
+      +'&bull; Reservas: <b>'+total+'</b><br>'
+      +'&bull; Facultades en estructura: <b>'+facs+'</b><br>'
+      +'&bull; Documentos adjuntos: <b>'+docs+'</b>'
+      +'</div>'
+      +'<b style="color:#7eaaff;font-size:.75rem;letter-spacing:1px;">EXPORTAR</b>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 16px;">'
+      +'<button id="expJson" class="btn btn-blue" style="padding:10px;font-size:.75rem;">&#x1F4C4; JSON completo</button>'
+      +'<button id="expXlsx" class="btn btn-xl" style="padding:10px;font-size:.75rem;">&#128202; Excel (reservas)</button>'
+      +'</div>'
+      +'<b style="color:#6ed79a;font-size:.75rem;letter-spacing:1px;">IMPORTAR</b>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">'
+      +'<button id="impJson" class="btn btn-ghost" style="padding:10px;font-size:.75rem;border-color:rgba(110,215,154,.35);color:#6ed79a;">&#x1F4E5; Desde JSON</button>'
+      +'<button id="impXlsx" class="btn btn-ghost" style="padding:10px;font-size:.75rem;border-color:rgba(110,215,154,.35);color:#6ed79a;">&#x1F4E5; Desde Excel</button>'
+      +'</div>'
+      +'<p style="font-size:.7rem;color:#7a8baa;margin-top:12px;line-height:1.5;">'
+      +'<b>JSON:</b> incluye reservas, estructura academica y documentos (respaldo completo).<br>'
+      +'<b>Excel:</b> solo reservas, util para ediciones masivas.'
+      +'</p>'
+      +'</div>',
+    showConfirmButton:false,
+    showCloseButton:true,
+    background:'#131923',color:'#dde3f0',
+    width:'520px',
+    didOpen:function(){
+      document.getElementById('expJson').addEventListener('click',function(){Swal.close();exportarJSON();});
+      document.getElementById('expXlsx').addEventListener('click',function(){Swal.close();exportarExcelBackup();});
+      document.getElementById('impJson').addEventListener('click',function(){Swal.close();importarJSON();});
+      document.getElementById('impXlsx').addEventListener('click',function(){Swal.close();importarExcel();});
+    }
+  });
+}
+
+/* === EXPORTAR JSON COMPLETO === */
+function exportarJSON(){
+  var docs={};
+  try{
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i);
+      if(k.indexOf('doc_')===0){docs[k]=localStorage.getItem(k);}
+    }
+  }catch(e){}
+  var data={
+    version:'1.0',
+    exportadoEn:new Date().toISOString(),
+    sistema:'Sistema de Reservas - Campus Las Palmas',
+    reservas:reservas,
+    estructura:estructura,
+    documentos:docs
+  };
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='respaldo_reservas_'+new Date().toISOString().split('T')[0]+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  Swal.fire({icon:'success',title:'Respaldo JSON generado',text:reservas.length+' reservas exportadas',timer:2000,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
+}
+
+/* === IMPORTAR JSON === */
+function importarJSON(){
+  var input=document.createElement('input');
+  input.type='file';
+  input.accept='.json,application/json';
+  input.onchange=function(ev){
+    var file=ev.target.files[0];
+    if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(){
+      try{
+        var data=JSON.parse(reader.result);
+        if(!data.reservas||!Array.isArray(data.reservas)){
+          Swal.fire({icon:'error',title:'Archivo invalido',text:'No se encontraron reservas en el JSON.',background:'#131923',color:'#dde3f0'});
+          return;
+        }
+        Swal.fire({
+          title:'&#x1F4E5; Importar datos',
+          html:'<div style="text-align:left;font-size:.85rem;color:#dde3f0;">'
+            +'<p>El archivo contiene:</p>'
+            +'<ul style="margin:10px 0 14px 18px;font-size:.82rem;">'
+            +'<li>Reservas: <b>'+data.reservas.length+'</b></li>'
+            +'<li>Facultades: <b>'+(data.estructura?Object.keys(data.estructura).length:0)+'</b></li>'
+            +'<li>Documentos: <b>'+(data.documentos?Object.keys(data.documentos).length:0)+'</b></li>'
+            +'</ul>'
+            +'<p style="color:#ffcc66;font-size:.78rem;">&#9888; Elige como combinar con los datos actuales:</p>'
+            +'</div>',
+          showDenyButton:true,
+          showCancelButton:true,
+          confirmButtonText:'Reemplazar todo',
+          denyButtonText:'Combinar (fusionar)',
+          cancelButtonText:'Cancelar',
+          confirmButtonColor:'#e02030',
+          denyButtonColor:'#1a6b35',
+          background:'#131923',color:'#dde3f0',
+          width:'520px'
+        }).then(function(r){
+          if(r.isConfirmed)aplicarImport(data,'replace');
+          else if(r.isDenied)aplicarImport(data,'merge');
+        });
+      }catch(e){
+        Swal.fire({icon:'error',title:'JSON invalido',text:'No se pudo leer: '+e.message,background:'#131923',color:'#dde3f0'});
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function aplicarImport(data,modo){
+  try{
+    if(modo==='replace'){
+      // Borrar documentos viejos primero
+      var borrar=[];
+      for(var i=0;i<localStorage.length;i++){
+        var k=localStorage.key(i);
+        if(k.indexOf('doc_')===0)borrar.push(k);
+      }
+      borrar.forEach(function(k){localStorage.removeItem(k);});
+      reservas=data.reservas||[];
+      estructura=data.estructura||{};
+    }else{
+      // merge: fusionar por id; si choca id, mantener el nuevo
+      var porId={};
+      reservas.forEach(function(r){porId[r.id]=r;});
+      (data.reservas||[]).forEach(function(r){
+        // si el id choca, generar uno nuevo
+        if(porId[r.id]&&JSON.stringify(porId[r.id])!==JSON.stringify(r)){
+          r.id=nextId();
+        }
+        porId[r.id]=r;
+      });
+      reservas=Object.keys(porId).map(function(k){return porId[k];});
+      // fusionar estructura
+      if(data.estructura){
+        Object.keys(data.estructura).forEach(function(f){
+          if(!estructura[f])estructura[f]={};
+          Object.keys(data.estructura[f]).forEach(function(c){
+            if(!estructura[f][c])estructura[f][c]=[];
+            (data.estructura[f][c]||[]).forEach(function(m){
+              if(estructura[f][c].indexOf(m)<0)estructura[f][c].push(m);
+            });
+          });
+        });
+      }
+    }
+    // Restaurar documentos
+    if(data.documentos){
+      Object.keys(data.documentos).forEach(function(k){
+        try{localStorage.setItem(k,data.documentos[k]);}catch(e){console.warn('Doc no guardado:',k);}
+      });
+    }
+    saveRsv();saveEst();
+    initForm();mostrar();actualizarStats();syncFiltroFac();
+    Swal.fire({icon:'success',title:'Datos importados',text:modo==='replace'?'Datos reemplazados.':'Datos combinados.',timer:2000,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
+  }catch(e){
+    Swal.fire({icon:'error',title:'Error al importar',text:e.message,background:'#131923',color:'#dde3f0'});
+  }
+}
+
+/* === EXPORTAR EXCEL COMPLETO (backup editable) === */
+function exportarExcelBackup(){
+  if(!reservas.length){Swal.fire({icon:'info',title:'Sin datos para exportar',background:'#131923',color:'#dde3f0'});return;}
+  var datos=reservas.map(function(r){
+    return{
+      ID:r.id,
+      Fecha:r.fecha,
+      'Hora Inicio':r.inicio,
+      'Hora Fin':r.fin,
+      Facultad:r.facultad||'',
+      Carrera:r.carrera||'',
+      Materia:r.materia||'',
+      Docente:r.docente||'',
+      Ambiente:r.ambiente||'',
+      Software:r.software||''
+    };
+  });
+  var ws=XLSX.utils.json_to_sheet(datos);
+  // Anchos
+  ws['!cols']=[{wch:12},{wch:12},{wch:10},{wch:10},{wch:22},{wch:24},{wch:28},{wch:25},{wch:20},{wch:30}];
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Reservas');
+  XLSX.writeFile(wb,'backup_reservas_'+new Date().toISOString().split('T')[0]+'.xlsx');
+  Swal.fire({icon:'success',title:'Excel generado',text:reservas.length+' reservas exportadas',timer:1800,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
+}
+
+/* === IMPORTAR EXCEL === */
+function importarExcel(){
+  var input=document.createElement('input');
+  input.type='file';
+  input.accept='.xlsx,.xls,.csv';
+  input.onchange=function(ev){
+    var file=ev.target.files[0];
+    if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(e){
+      try{
+        var wb=XLSX.read(e.target.result,{type:'array'});
+        var ws=wb.Sheets[wb.SheetNames[0]];
+        var rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+        if(!rows.length){
+          Swal.fire({icon:'warning',title:'Archivo vacio',background:'#131923',color:'#dde3f0'});
+          return;
+        }
+        // Normalizar claves (aceptamos variantes)
+        function pick(o,keys){
+          for(var i=0;i<keys.length;i++){
+            var k=keys[i];
+            if(o[k]!==undefined&&o[k]!==null&&String(o[k]).trim()!=='')return String(o[k]).trim();
+          }
+          return '';
+        }
+        function parseFecha(v){
+          if(!v)return'';
+          var s=String(v).trim();
+          // Formato dd/mm/yyyy o dd-mm-yyyy
+          var m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+          if(m){
+            var d=m[1].padStart(2,'0'),mm=m[2].padStart(2,'0'),y=m[3];
+            if(y.length===2)y='20'+y;
+            return y+'-'+mm+'-'+d;
+          }
+          // yyyy-mm-dd
+          m=s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+          if(m)return m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0');
+          // Numero serial de Excel
+          if(!isNaN(v)&&typeof v!=='string'){
+            var dt=XLSX.SSF.parse_date_code(v);
+            if(dt)return dt.y+'-'+String(dt.m).padStart(2,'0')+'-'+String(dt.d).padStart(2,'0');
+          }
+          return s;
+        }
+        function parseHora(v){
+          if(!v)return'';
+          if(typeof v==='number'){
+            var totalMin=Math.round(v*24*60);
+            var hh=Math.floor(totalMin/60)%24;
+            var mm=totalMin%60;
+            return String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
+          }
+          var s=String(v).trim();
+          var m=s.match(/^(\d{1,2}):(\d{2})/);
+          if(m)return m[1].padStart(2,'0')+':'+m[2];
+          return s;
+        }
+        var nuevas=[];
+        var errores=0;
+        rows.forEach(function(o){
+          var fecha=parseFecha(pick(o,['Fecha','fecha','FECHA','Date']));
+          var inicio=parseHora(pick(o,['Hora Inicio','HoraInicio','Inicio','hora_inicio','Start']));
+          var fin=parseHora(pick(o,['Hora Fin','HoraFin','Fin','hora_fin','End']));
+          var facultad=pick(o,['Facultad','facultad','FACULTAD']);
+          var carrera=pick(o,['Carrera','carrera','CARRERA']);
+          var materia=pick(o,['Materia','materia','MATERIA','Asignatura','asignatura']);
+          var docente=pick(o,['Docente','docente','DOCENTE','Profesor']);
+          var ambiente=pick(o,['Ambiente','ambiente','AMBIENTE','Aula','Salon']);
+          var software=pick(o,['Software','software','SOFTWARE']);
+          if(!fecha||!inicio||!fin||!docente||!ambiente){errores++;return;}
+          nuevas.push({
+            id:pick(o,['ID','id','Id'])||nextId(),
+            fecha:fecha,inicio:inicio,fin:fin,
+            facultad:facultad,carrera:carrera,materia:materia,
+            docente:docente,ambiente:ambiente,software:software,
+            docId:null
+          });
+        });
+        if(!nuevas.length){
+          Swal.fire({icon:'error',title:'No se pudo leer ninguna fila',html:'Verifica que tenga columnas: <b>Fecha, Hora Inicio, Hora Fin, Docente, Ambiente</b>.',background:'#131923',color:'#dde3f0'});
+          return;
+        }
+        Swal.fire({
+          title:'&#x1F4E5; Importar desde Excel',
+          html:'<div style="text-align:left;font-size:.85rem;color:#dde3f0;">'
+            +'<p>Filas validas: <b>'+nuevas.length+'</b>'+(errores?' &middot; Ignoradas: <b style="color:#ffcc66;">'+errores+'</b>':'')+'</p>'
+            +'<p style="color:#ffcc66;font-size:.78rem;margin-top:10px;">&#9888; Como quieres aplicar los datos?</p>'
+            +'</div>',
+          showDenyButton:true,
+          showCancelButton:true,
+          confirmButtonText:'Reemplazar todo',
+          denyButtonText:'Agregar (sumar)',
+          cancelButtonText:'Cancelar',
+          confirmButtonColor:'#e02030',
+          denyButtonColor:'#1a6b35',
+          background:'#131923',color:'#dde3f0',
+          width:'520px'
+        }).then(function(r){
+          if(r.isConfirmed){
+            reservas=nuevas;
+          }else if(r.isDenied){
+            var porId={};reservas.forEach(function(x){porId[x.id]=x;});
+            nuevas.forEach(function(x){if(porId[x.id])x.id=nextId();porId[x.id]=x;});
+            reservas=Object.keys(porId).map(function(k){return porId[k];});
+          }else return;
+          // auto-registrar estructura
+          nuevas.forEach(function(x){registrarEstructuraAuto(x.facultad,x.carrera,x.materia);});
+          saveRsv();mostrar();actualizarStats();syncFiltroFac();
+          Swal.fire({icon:'success',title:'Datos importados',text:nuevas.length+' reservas aplicadas',timer:2000,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
+        });
+      }catch(err){
+        Swal.fire({icon:'error',title:'Error al leer Excel',text:err.message,background:'#131923',color:'#dde3f0'});
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+  input.click();
+}
 
 /* INIT */
 initCombos();
