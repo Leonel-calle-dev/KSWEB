@@ -357,6 +357,32 @@ tbody td{padding:8px 11px;vertical-align:middle;}
 <div class="edit-overlay" id="editOverlay">
   <div class="edit-modal">
     <h3>&#9998; Editar Reserva</h3>
+
+    <div class="fg">
+      <label>Facultad <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba)</span></label>
+      <div class="combo" data-combo="eFacultad">
+        <input type="text" class="combo-input" id="eFacultad" placeholder="Escribe o selecciona...">
+        <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+        <div class="combo-list"></div>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Carrera <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba)</span></label>
+      <div class="combo" data-combo="eCarrera">
+        <input type="text" class="combo-input" id="eCarrera" placeholder="Escribe o selecciona...">
+        <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+        <div class="combo-list"></div>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Materia / Asignatura <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba)</span></label>
+      <div class="combo" data-combo="eMateria">
+        <input type="text" class="combo-input" id="eMateria" placeholder="Escribe o selecciona...">
+        <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+        <div class="combo-list"></div>
+      </div>
+    </div>
+
     <div class="fg"><label>Docente</label><input type="text" id="eDocente" class="ctrl" placeholder="Nombre del docente"></div>
     <div class="fg"><label>Ambiente / Aula</label><input type="text" id="eAmbiente" class="ctrl" placeholder="Ambiente"></div>
     <div class="fg"><label>Fecha</label><input type="date" id="eFecha" class="ctrl"></div>
@@ -421,14 +447,17 @@ function setComboValue(name,val){
   if(el){el.value=val;}
 }
 function getOptionsFor(name){
-  if(name==='facultad') return Object.keys(estructura);
-  if(name==='carrera'){
-    var f=getComboValue('facultad');
+  if(name==='facultad'||name==='eFacultad') return Object.keys(estructura);
+  if(name==='carrera'||name==='eCarrera'){
+    var facId=name==='carrera'?'facultad':'eFacultad';
+    var f=getComboValue(facId);
     return (f&&estructura[f])?Object.keys(estructura[f]):[];
   }
-  if(name==='materia'){
-    var f=getComboValue('facultad'),c=getComboValue('carrera');
-    return (f&&c&&estructura[f]&&estructura[f][c])?estructura[f][c].slice():[];
+  if(name==='materia'||name==='eMateria'){
+    var facId2=name==='materia'?'facultad':'eFacultad';
+    var carId=name==='materia'?'carrera':'eCarrera';
+    var f2=getComboValue(facId2),c=getComboValue(carId);
+    return (f2&&c&&estructura[f2]&&estructura[f2][c])?estructura[f2][c].slice():[];
   }
   return [];
 }
@@ -776,6 +805,9 @@ function abrirEditar(id){
   var r=reservas.filter(function(x){return x.id===id;})[0];
   if(!r)return;
   _editId=id;
+  setComboValue('eFacultad',r.facultad||'');
+  setComboValue('eCarrera',r.carrera||'');
+  setComboValue('eMateria',r.materia||'');
   document.getElementById('eDocente').value=r.docente||'';
   document.getElementById('eAmbiente').value=r.ambiente||'';
   document.getElementById('eFecha').value=r.fecha||'';
@@ -797,15 +829,21 @@ function guardarEdicion(){
   reservas.forEach(function(x,i){if(x.id===_editId)idx=i;});
   if(idx<0)return;
   var r=reservas[idx];
+  var facultad=getComboValue('eFacultad');
+  var carrera=getComboValue('eCarrera');
+  var materia=getComboValue('eMateria');
   var docente=document.getElementById('eDocente').value.trim();
   var ambiente=document.getElementById('eAmbiente').value.trim();
   var fecha=document.getElementById('eFecha').value;
   var inicio=document.getElementById('eInicio').value;
   var fin=document.getElementById('eFin').value;
   var software=document.getElementById('eSoftwareTexto').value.trim();
+  if(!facultad||!carrera||!materia){Swal.fire({icon:'warning',title:'Campos academicos incompletos',text:'Completa Facultad, Carrera y Materia.',background:'#131923',color:'#dde3f0'});return;}
   if(!docente||!ambiente||!fecha||!inicio||!fin){Swal.fire({icon:'warning',title:'Campos incompletos',background:'#131923',color:'#dde3f0'});return;}
   if(inicio>=fin){Swal.fire({icon:'error',title:'Horario invalido',background:'#131923',color:'#dde3f0'});return;}
   if(hayConflicto({ambiente:ambiente,fecha:fecha,inicio:inicio,fin:fin},idx)){Swal.fire({icon:'error',title:'Conflicto de horario',text:'Ese horario ya esta reservado para ese ambiente.',background:'#131923',color:'#dde3f0'});return;}
+  // Registrar nueva estructura si escribio valores ineditos
+  registrarEstructuraAuto(facultad,carrera,materia);
   var file=document.getElementById('eDocumento').files[0];
   function aplicar(docData){
     if(docData){
@@ -813,9 +851,10 @@ function guardarEdicion(){
       saveDoc(nuevoDocId,docData);
       r.docId=nuevoDocId;
     }
+    r.facultad=facultad;r.carrera=carrera;r.materia=materia;
     r.docente=docente;r.ambiente=ambiente;r.fecha=fecha;r.inicio=inicio;r.fin=fin;r.software=software;
     reservas[idx]=r;
-    saveRsv();mostrar();actualizarStats();cerrarEditar();
+    saveRsv();mostrar();actualizarStats();syncFiltroFac();cerrarEditar();
     Swal.fire({icon:'success',title:'Reserva actualizada!',timer:1600,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
   }
   if(file){var rd=new FileReader();rd.onload=function(){aplicar(rd.result);};rd.readAsDataURL(file);}
@@ -1003,18 +1042,18 @@ function norm(s){
 }
 var LOGO_B64='img/logo.png';
 function pdfEncabezado(doc,W,titulo){
-  doc.setFillColor(10,25,60);doc.rect(0,0,W,42,'F');
-  doc.setFillColor(224,32,48);doc.rect(0,0,4,42,'F');
-  try{doc.addImage(LOGO_B64,'PNG',6,3,34,34);}catch(e){}
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(13);
-  doc.text('SISTEMA DE RESERVAS DE AMBIENTES',43,14);
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(160,195,255);
-  doc.text('ADMINISTRACION - CAMPUS LAS PALMAS',43,21);
-  doc.setFillColor(224,32,48);doc.roundedRect(43,25,W-52,12,2,2,'F');
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(9);
-  doc.text(norm(titulo),W/2,33,{align:'center'});
-  doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(120,150,200);
-  doc.text('Generado: '+new Date().toLocaleDateString('es-ES'),W-6,10,{align:'right'});
+  doc.setFillColor(10,25,60);doc.rect(0,0,W,26,'F');
+  doc.setFillColor(224,32,48);doc.rect(0,0,4,26,'F');
+  try{doc.addImage(LOGO_B64,'PNG',6,3,20,20);}catch(e){}
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(11);
+  doc.text('SISTEMA DE RESERVAS DE AMBIENTES',29,10);
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(160,195,255);
+  doc.text('ADMINISTRACION - CAMPUS LAS PALMAS',29,15);
+  doc.setFillColor(224,32,48);doc.roundedRect(29,18,W-36,6,1.5,1.5,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
+  doc.text(norm(titulo),W/2,22.5,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(120,150,200);
+  doc.text('Generado: '+new Date().toLocaleDateString('es-ES'),W-6,6,{align:'right'});
 }
 function pdfPie(doc,W,H){
   // Pie eliminado a peticion del usuario - tapaba la leyenda en reportes tipo grid/calendario
@@ -1024,20 +1063,20 @@ function pdfTabla(doc,W,H,filas,titulo){
   pdfEncabezado(doc,W,titulo);
   doc.autoTable({
     head:[['Fecha','Horario','Ambiente','Facultad','Carrera','Materia / Asignatura','Docente','Software']],
-    body:filas,startY:48,theme:'grid',
+    body:filas,startY:30,theme:'grid',
     styles:{font:'helvetica',fontSize:7.5,cellPadding:3,textColor:[20,35,60],lineColor:[190,205,230],lineWidth:0.25},
     headStyles:{fillColor:[20,50,110],textColor:[255,255,255],fontStyle:'bold',fontSize:7,halign:'center'},
     alternateRowStyles:{fillColor:[237,242,255]},
     columnStyles:{0:{halign:'center',cellWidth:24,fontStyle:'bold',textColor:[20,60,160]},
       1:{halign:'center',cellWidth:20},2:{cellWidth:26},3:{cellWidth:28},
       4:{cellWidth:26},5:{cellWidth:42},6:{cellWidth:36},7:{cellWidth:35}},
-    margin:{left:5,right:5,bottom:18},
+    margin:{left:5,right:5,bottom:6},
     didDrawPage:function(d){
       if(d.pageNumber>1){
-        doc.setFillColor(10,25,60); doc.rect(0,0,W,14,'F');
-        doc.setFillColor(224,32,48); doc.rect(0,0,4,14,'F');
-        doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(8);
-        doc.text(norm(titulo),W/2,9,{align:'center'});
+        doc.setFillColor(10,25,60); doc.rect(0,0,W,10,'F');
+        doc.setFillColor(224,32,48); doc.rect(0,0,4,10,'F');
+        doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+        doc.text(norm(titulo),W/2,6.5,{align:'center'});
       }
       pdfPie(doc,W,H);
     }
@@ -1142,20 +1181,18 @@ function exportPDFGrid(datos){
     });
     if(!diasConDatos.length) diasConDatos=DIAS_GRID;
 
-    // Encabezado
-    doc.setFillColor(10,25,60); doc.rect(0,0,W,38,'F');
-    doc.setFillColor(224,32,48); doc.rect(0,0,4,38,'F');
-    try{doc.addImage(LOGO_B64,'PNG',6,3,30,30);}catch(e){}
+    // Encabezado (compacto, 22mm)
+    doc.setFillColor(10,25,60); doc.rect(0,0,W,22,'F');
+    doc.setFillColor(224,32,48); doc.rect(0,0,4,22,'F');
+    try{doc.addImage(LOGO_B64,'PNG',6,3,16,16);}catch(e){}
     doc.setTextColor(255,255,255);
-    doc.setFont('helvetica','bold'); doc.setFontSize(16);
-    doc.text('Horario',W/2,14,{align:'center'});
-    doc.setFontSize(12);
-    doc.text(norm(ambiente),W/2,24,{align:'center'});
+    doc.setFont('helvetica','bold'); doc.setFontSize(11);
+    doc.text('Horario - '+norm(ambiente),W/2,10,{align:'center'});
     doc.setFont('helvetica','normal'); doc.setFontSize(7);
     doc.setTextColor(160,195,255);
-    doc.text('ADMINISTRACION - CAMPUS LAS PALMAS',W/2,32,{align:'center'});
-    doc.setTextColor(120,150,200); doc.setFontSize(6.5);
-    doc.text('Generado: '+new Date().toLocaleDateString('es-ES'),W-6,8,{align:'right'});
+    doc.text('ADMINISTRACION - CAMPUS LAS PALMAS',W/2,16,{align:'center'});
+    doc.setTextColor(120,150,200); doc.setFontSize(6);
+    doc.text('Generado: '+new Date().toLocaleDateString('es-ES'),W-6,6,{align:'right'});
 
     // ====== CALCULAR ESPACIO PARA LEYENDA (ARREGLO) =====================
     // Pre-calculamos cuantas lineas necesitara la leyenda para reservar espacio
@@ -1178,7 +1215,7 @@ function exportPDFGrid(datos){
     var LEYENDA_ALTURA=leyendaLineas*5+8; // alto reservado
     // ==================================================================
 
-    var marginL=5, marginT=41;
+    var marginL=5, marginT=25;
     var marginB=4+LEYENDA_ALTURA; // sin pie: solo espacio para leyenda
     var gridW=W-marginL-5;
     var colHora=20;
@@ -1407,20 +1444,18 @@ function dibujarCalendario(datos,lunesStr){
   var doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
   var W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
 
-  // Encabezado
-  doc.setFillColor(10,25,60);doc.rect(0,0,W,38,'F');
-  doc.setFillColor(224,32,48);doc.rect(0,0,4,38,'F');
-  try{doc.addImage(LOGO_B64,'PNG',6,3,30,30);}catch(e){}
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(14);
-  doc.text('Calendario Semanal de Reservas',W/2,14,{align:'center'});
-  doc.setFont('helvetica','bold');doc.setFontSize(10);
+  // Encabezado compacto
+  doc.setFillColor(10,25,60);doc.rect(0,0,W,22,'F');
+  doc.setFillColor(224,32,48);doc.rect(0,0,4,22,'F');
+  try{doc.addImage(LOGO_B64,'PNG',6,3,16,16);}catch(e){}
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(11);
   var primer=fmtFecha(dias[0].fecha),ultimo=fmtFecha(dias[6].fecha);
-  doc.text('Semana: '+primer+' al '+ultimo,W/2,22,{align:'center'});
+  doc.text('Calendario Semanal: '+primer+' al '+ultimo,W/2,10,{align:'center'});
   doc.setFont('helvetica','normal');doc.setFontSize(7);
   doc.setTextColor(160,195,255);
-  doc.text('ADMINISTRACION - CAMPUS LAS PALMAS',W/2,30,{align:'center'});
-  doc.setTextColor(120,150,200);doc.setFontSize(6.5);
-  doc.text('Generado: '+new Date().toLocaleDateString('es-ES'),W-6,8,{align:'right'});
+  doc.text('ADMINISTRACION - CAMPUS LAS PALMAS',W/2,16,{align:'center'});
+  doc.setTextColor(120,150,200);doc.setFontSize(6);
+  doc.text('Generado: '+new Date().toLocaleDateString('es-ES'),W-6,6,{align:'right'});
 
   // Pre-calcular altura de leyenda
   doc.setFont('helvetica','bold');doc.setFontSize(5.5);
@@ -1434,7 +1469,7 @@ function dibujarCalendario(datos,lunesStr){
   var leyAlt=linL*5+10;
 
   // Geometria del grid
-  var marginL=5, marginT=41, marginB=4+leyAlt;
+  var marginL=5, marginT=25, marginB=4+leyAlt;
   var gridW=W-marginL-5;
   var colHora=15;
   var colDia=(gridW-colHora)/7;
