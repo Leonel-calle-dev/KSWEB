@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Sistema de Reservas - Administracion Campus Las Palmas</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--red:#e02030;--red-glow:rgba(224,32,48,.25);--blue:#2255a4;--blue-dk:#0f2550;
+--bg:#0c1118;--s1:#131923;--s2:#1a2232;--s3:#212d42;--border:#263047;
+--text:#dde3f0;--muted:#7a8baa;--shadow:0 8px 40px rgba(0,0,0,.5);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;min-height:100vh;
+background-image:radial-gradient(ellipse 60% 40% at 10% 0%,rgba(224,32,48,.07) 0%,transparent 70%),radial-gradient(ellipse 60% 40% at 90% 100%,rgba(34,85,164,.09) 0%,transparent 70%);}
+header{background:linear-gradient(135deg,#0a1a3a,#0f2550);border-bottom:2px solid var(--red);padding:10px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:200;box-shadow:0 4px 30px rgba(0,0,0,.6);}
+.logo-img{width:52px;height:52px;object-fit:contain;flex-shrink:0;}
+.header-info{flex:1;min-width:0;}
+.header-info h1{font-family:'Montserrat',sans-serif;font-size:clamp(.85rem,2.5vw,1.15rem);font-weight:800;background:linear-gradient(90deg,#fff 50%,#99b8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.header-info p{font-size:clamp(.6rem,1.5vw,.7rem);color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+.header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.badge-live{background:var(--red);color:#fff;font-size:.6rem;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:1px;animation:blink 2s infinite;white-space:nowrap;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+.fab-toggle{display:none;position:fixed;bottom:20px;right:20px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--red),#900018);border:none;color:#fff;font-size:1.5rem;cursor:pointer;box-shadow:0 6px 24px var(--red-glow);z-index:300;align-items:center;justify-content:center;transition:transform .2s;}
+.fab-toggle:hover{transform:scale(1.08);}
+.app{display:grid;grid-template-columns:380px 1fr;gap:16px;padding:16px;max-width:1440px;margin:0 auto;align-items:start;}
+.sidebar{position:sticky;top:76px;display:flex;flex-direction:column;gap:12px;}
+.card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);}
+.card-title{font-family:'Montserrat',sans-serif;font-size:.68rem;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.card-title::before{content:'';display:block;width:3px;height:14px;background:linear-gradient(180deg,var(--red),var(--blue));border-radius:2px;flex-shrink:0;}
+.fg{margin-bottom:9px;}
+.fg label{display:block;font-size:.65rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.ctrl{width:100%;padding:9px 11px;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s;-webkit-appearance:none;}
+.ctrl:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(34,85,164,.2);}
+
+/* === COMBOBOX (select + escribible) === */
+.combo{position:relative;}
+.combo-input{width:100%;padding:9px 32px 9px 11px;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s;}
+.combo-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(34,85,164,.2);}
+.combo-caret{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);font-size:.8rem;cursor:pointer;padding:6px;}
+.combo-caret:hover{color:var(--text);}
+.combo-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--s1);border:1px solid var(--border);border-radius:8px;max-height:220px;overflow-y:auto;z-index:150;display:none;box-shadow:0 8px 24px rgba(0,0,0,.5);}
+.combo-list.open{display:block;}
+.combo-opt{padding:8px 11px;font-size:.82rem;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border);}
+.combo-opt:last-child{border-bottom:none;}
+.combo-opt:hover,.combo-opt.sel{background:var(--s3);color:#a0c4ff;}
+.combo-opt-new{color:#6ed79a;font-weight:600;}
+.combo-opt-new::before{content:'+ ';}
+.combo-empty{padding:8px 11px;font-size:.78rem;color:var(--muted);text-align:center;}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border:none;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:700;cursor:pointer;transition:transform .15s,filter .15s;white-space:nowrap;}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.1);}
+.btn-save{background:linear-gradient(135deg,var(--red),#8a000f);color:#fff;width:100%;padding:12px;font-size:.85rem;margin-top:6px;box-shadow:0 4px 18px var(--red-glow);}
+.btn-xl{background:linear-gradient(135deg,#1a6b35,#0a3018);color:#fff;}
+.btn-blue{background:linear-gradient(135deg,var(--blue),var(--blue-dk));color:#fff;}
+.btn-ghost{background:var(--s2);color:var(--muted);border:1px solid var(--border);}
+.btn-struct{background:var(--s2);color:var(--text);border:1px solid var(--border);font-size:.72rem;}
+.btn-del{background:transparent;color:var(--red);border:1px solid rgba(224,32,48,.3);padding:4px 8px;font-size:.75rem;border-radius:6px;cursor:pointer;font-weight:700;}
+.btn-del:hover{background:rgba(224,32,48,.15);}
+.btn-edit{background:rgba(34,85,164,.2);color:#7eaaff;border:1px solid rgba(34,85,164,.35);padding:4px 8px;font-size:.75rem;border-radius:6px;cursor:pointer;}
+.btn-edit:hover{background:rgba(34,85,164,.35);}
+.btn-plus{background:var(--blue);color:#fff;border:none;border-radius:8px;width:36px;height:36px;font-size:1.4rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.btn-plus:hover{filter:brightness(1.2);}
+/* Software tags */
+.sw-list{display:flex;flex-direction:column;gap:5px;margin-top:4px;}
+.sw-item{display:flex;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:.78rem;}
+.sw-name{color:#a0c4ff;flex:1;}
+.sw-ver{color:var(--muted);font-size:.72rem;}
+.sw-empty{font-size:.72rem;color:var(--muted);text-align:center;padding:4px 0;}
+/* Fecha row */
+.fecha-row{display:grid;grid-template-columns:1fr 1fr 1fr 36px;gap:6px;align-items:end;margin-bottom:6px;}
+.fecha-row .fg{margin-bottom:0;}
+.fp-item{display:flex;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;margin-bottom:5px;font-size:.78rem;}
+.fp-fecha{color:#7eaaff;font-weight:700;flex:1;}
+.fp-hora{color:var(--text);white-space:nowrap;}
+.fp-empty{font-size:.72rem;color:var(--muted);text-align:center;padding:6px 0;}
+/* Rango fechas */
+.rango-box{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;}
+.rango-box label{display:block;font-size:.65rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.dias-semana{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.dia-btn{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.7rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.dia-btn.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+.tabs-modo{display:flex;gap:6px;margin-bottom:10px;}
+.tab-modo{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.7rem;font-weight:700;cursor:pointer;}
+.tab-modo.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.stat{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;text-align:center;}
+.stat .n{font-family:'Montserrat',sans-serif;font-size:1.5rem;font-weight:900;color:var(--text);line-height:1;}
+.stat .l{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
+.filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px;margin-bottom:10px;}
+.filter-grid .fg{margin-bottom:0;}
+.filter-actions{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;}
+.day-group{margin-bottom:18px;}
+.day-header{display:flex;align-items:center;gap:12px;padding:10px 14px;background:linear-gradient(90deg,var(--blue-dk),var(--s2));border-left:3px solid var(--red);border-radius:8px;margin-bottom:8px;}
+.day-header.past{border-left-color:var(--muted);opacity:.85;}
+.day-date{font-family:'Montserrat',sans-serif;font-size:.85rem;font-weight:800;color:#fff;}
+.day-dow{font-size:.7rem;color:#ffcc66;background:rgba(255,200,80,.12);border:1px solid rgba(255,200,80,.25);padding:2px 8px;border-radius:20px;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.day-count{margin-left:auto;font-size:.65rem;color:var(--muted);background:var(--s3);border:1px solid var(--border);padding:2px 8px;border-radius:20px;}
+/* Separador pasadas */
+.past-toggle{display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;background:linear-gradient(90deg,#2a2f3a,#1e2430);border:1px solid var(--border);border-radius:10px;margin:18px 0 10px;cursor:pointer;color:var(--text);font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;transition:all .2s;}
+.past-toggle:hover{background:linear-gradient(90deg,#333a48,#242a38);border-color:var(--muted);}
+.past-toggle .chev{transition:transform .25s;display:inline-block;font-size:.9rem;color:var(--muted);}
+.past-toggle.open .chev{transform:rotate(90deg);}
+.past-toggle .count-badge{margin-left:auto;background:var(--s3);color:var(--muted);border:1px solid var(--border);padding:3px 10px;border-radius:20px;font-size:.65rem;letter-spacing:1px;}
+.past-wrap{display:none;padding-top:4px;}
+.past-wrap.open{display:block;}
+.past-wrap .day-group{opacity:.72;}
+.past-wrap .day-group:hover{opacity:.95;}
+
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:.8rem;min-width:780px;}
+thead tr{background:linear-gradient(90deg,#0e1f40,#1a2a4a);}
+thead th{padding:10px 11px;text-align:left;font-family:'Montserrat',sans-serif;font-size:.62rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#8ab0ff;white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--border);}
+tbody tr:hover{background:rgba(34,85,164,.07);}
+tbody td{padding:8px 11px;vertical-align:middle;}
+.tag-hora{display:inline-flex;flex-direction:column;align-items:center;background:rgba(34,85,164,.18);border:1px solid rgba(34,85,164,.4);color:#7eaaff;border-radius:8px;padding:4px 8px;font-size:.72rem;font-weight:700;line-height:1.4;}
+.tag-fac{display:inline-block;background:rgba(224,32,48,.1);border:1px solid rgba(224,32,48,.25);color:#ff7a85;padding:2px 7px;border-radius:20px;font-size:.65rem;font-weight:700;margin-bottom:3px;}
+.tag-car{font-size:.72rem;color:var(--muted);display:block;}
+.tag-sw{font-size:.72rem;color:#a0c4ff;max-width:140px;}
+.td-actions{display:flex;gap:5px;align-items:center;}
+.empty-all{text-align:center;padding:48px 20px;color:var(--muted);font-size:.85rem;}
+.empty-all .icon{font-size:2.5rem;display:block;margin-bottom:10px;opacity:.4;}
+.mobile-cards{display:none;}
+.res-card{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;border-left:3px solid var(--blue);}
+.rc-hora{font-family:'Montserrat',sans-serif;font-size:.85rem;font-weight:800;color:#7eaaff;margin-bottom:4px;}
+.rc-mat{font-size:.9rem;font-weight:600;color:var(--text);}
+.rc-meta{font-size:.75rem;color:var(--muted);margin-top:4px;}
+.rc-fac{display:inline-block;font-size:.65rem;font-weight:700;color:#ff7a85;background:rgba(224,32,48,.1);border:1px solid rgba(224,32,48,.2);padding:1px 6px;border-radius:10px;margin-bottom:4px;}
+.rc-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;}
+.rc-doc{font-size:.72rem;color:#7eaaff;text-decoration:none;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:16px;}
+.overlay.open{display:flex;}
+.modal{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.7);}
+.modal h3{font-family:'Montserrat',sans-serif;font-size:.95rem;font-weight:800;margin-bottom:16px;}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.tab{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Montserrat',sans-serif;font-size:.7rem;font-weight:700;cursor:pointer;}
+.tab.on{background:linear-gradient(135deg,var(--blue),var(--blue-dk));border-color:var(--blue);color:#fff;}
+.tab-panel{display:none;}.tab-panel.on{display:block;}
+.add-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px;}
+.add-row input,.m-select{padding:9px 11px;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:.85rem;outline:none;width:100%;}
+.m-select{margin-bottom:8px;-webkit-appearance:none;}
+.item-list{margin-top:6px;}
+.item-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--s2);border-radius:8px;margin-bottom:5px;font-size:.82rem;}
+.modal-footer{display:flex;justify-content:flex-end;margin-top:18px;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:250;}
+.sidebar-overlay.open{display:block;}
+.edit-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(4px);z-index:600;align-items:center;justify-content:center;padding:16px;}
+.edit-overlay.open{display:flex;}
+.edit-modal{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.8);}
+.edit-modal h3{font-family:'Montserrat',sans-serif;font-size:.9rem;font-weight:800;margin-bottom:16px;color:var(--text);}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr;padding:10px;gap:10px;}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:min(380px,92vw);background:var(--s1);border-right:1px solid var(--border);z-index:260;overflow-y:auto;padding:16px;transform:translateX(-110%);transition:transform .28s cubic-bezier(.4,0,.2,1);}
+  .sidebar.drawer-open{transform:translateX(0);}
+  .fab-toggle{display:flex;}
+  .header-actions .btn-struct{display:none;}
+  .table-wrap{display:none;}
+  .mobile-cards{display:block;}
+  .fecha-row{grid-template-columns:1fr 1fr;}
+  .fecha-row .fg:first-child{grid-column:1/-1;}
+  .btn-plus{align-self:end;}
+}
+@media(max-width:480px){header{padding:8px 12px;gap:8px;}.logo-img{width:40px;height:40px;}.stats{grid-template-columns:repeat(3,1fr);}}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="img/logo.png" alt="Logo" class="logo-img">
+  <div class="header-info">
+    <h1>Sistema de Reservas</h1>
+    <p>Administracion &middot; Campus Las Palmas</p>
+  </div>
+  <div class="header-actions">
+    <span class="badge-live">&#9679; EN LINEA</span>
+    <button class="btn btn-ghost" onclick="limpiarStorage()" style="font-size:.65rem;padding:6px 10px;">&#x1F5D1; Limpiar datos</button>
+    <button class="btn btn-struct" onclick="abrirModal()">&#9881; Estructura</button>
+  </div>
+</header>
+<div class="sidebar-overlay" id="sideOverlay" onclick="cerrarDrawer()"></div>
+<button class="fab-toggle" onclick="abrirDrawer()">&#xFF0B;</button>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <span style="font-family:Montserrat;font-size:.75rem;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;">Nueva Reserva</span>
+      <button class="btn btn-ghost" id="btnCerrarDrawer" onclick="cerrarDrawer()" style="padding:5px 10px;font-size:.7rem;display:none;">&#x2715; Cerrar</button>
+    </div>
+    <div class="card">
+      <!-- FACULTAD: combobox -->
+      <div class="fg">
+        <label>Facultad <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba nueva)</span></label>
+        <div class="combo" data-combo="facultad">
+          <input type="text" class="combo-input" id="facultad" placeholder="Escribe o selecciona...">
+          <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+          <div class="combo-list"></div>
+        </div>
+      </div>
+      <!-- CARRERA: combobox -->
+      <div class="fg">
+        <label>Carrera <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba nueva)</span></label>
+        <div class="combo" data-combo="carrera">
+          <input type="text" class="combo-input" id="carrera" placeholder="Escribe o selecciona...">
+          <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+          <div class="combo-list"></div>
+        </div>
+      </div>
+      <!-- MATERIA: combobox -->
+      <div class="fg">
+        <label>Materia / Asignatura <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba nueva)</span></label>
+        <div class="combo" data-combo="materia">
+          <input type="text" class="combo-input" id="materia" placeholder="Escribe o selecciona...">
+          <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+          <div class="combo-list"></div>
+        </div>
+      </div>
+      <div class="fg"><label>Docente</label><input type="text" id="docente" class="ctrl" placeholder="Nombre completo del docente"></div>
+      <div class="fg"><label>Ambiente / Aula</label><input type="text" id="ambiente" class="ctrl" placeholder="Ej: Salon de Informatica, Aula 201"></div>
+
+      <!-- SOFTWARE MULTIPLE -->
+      <div style="margin-bottom:9px;">
+        <label style="display:block;font-size:.65rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Software Solicitado <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional, puede agregar varios)</span></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:end;margin-bottom:5px;">
+          <div>
+            <label style="font-size:.6rem;color:var(--muted);display:block;margin-bottom:3px;">Software</label>
+            <select id="softwareSel" class="ctrl" onchange="onSoftwareSel()"><option value="">-- Sin software / No aplica --</option>
+<optgroup label="Microsoft Office"><option>Microsoft Office 365</option><option>Microsoft Office 2021</option><option>Microsoft Office 2019</option><option>Microsoft Office 2016</option><option>Microsoft Office 2013</option><option>Microsoft Office 2010</option></optgroup>
+<optgroup label="Adobe"><option>Adobe Photoshop</option><option>Adobe Illustrator</option><option>Adobe Premiere Pro</option><option>Adobe After Effects</option><option>Adobe Acrobat Pro</option><option>Adobe InDesign</option><option>Adobe Audition</option></optgroup>
+<optgroup label="Autodesk"><option>AutoCAD</option><option>AutoCAD Civil 3D</option><option>Revit</option><option>3ds Max</option><option>Maya</option><option>Inventor</option></optgroup>
+<optgroup label="Estadistica"><option>SPSS Statistics</option><option>R / RStudio</option><option>STATA</option><option>SAS</option><option>Minitab</option><option>Eviews</option><option>MATLAB</option></optgroup>
+<optgroup label="Geografia / SIG"><option>ArcGIS</option><option>QGIS</option><option>Google Earth Pro</option><option>Global Mapper</option><option>ENVI</option></optgroup>
+<optgroup label="Programacion / BD"><option>Visual Studio Code</option><option>NetBeans</option><option>Eclipse</option><option>MySQL Workbench</option><option>Oracle SQL Developer</option><option>Android Studio</option></optgroup>
+<optgroup label="Otro"><option value="__otro__">Otro (especificar)...</option></optgroup></select>
+            <input type="text" id="softwareCustom" class="ctrl" placeholder="Nombre del software..." style="display:none;margin-top:4px;">
+          </div>
+          <div>
+            <label style="font-size:.6rem;color:var(--muted);display:block;margin-bottom:3px;">Version (opcional)</label>
+            <input type="text" id="softwareVer" class="ctrl" placeholder="Ej: 2024, 3.11...">
+          </div>
+          <button class="btn-plus" onclick="agregarSoftware()" title="Agregar software" style="margin-bottom:0;">&#xFF0B;</button>
+        </div>
+        <div id="listaSoftwares" class="sw-list"></div>
+        <div id="swEmpty" class="sw-empty">Sin software agregado</div>
+      </div>
+
+      <!-- FECHAS: modo selector -->
+      <div style="margin-bottom:9px;">
+        <label style="display:block;font-size:.65rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Fechas y Horarios de Clase</label>
+        <div class="tabs-modo" style="margin-bottom:10px;">
+          <button class="tab-modo on" id="modoManual" onclick="setModo('manual')">&#128197; Fechas manuales</button>
+          <button class="tab-modo" id="modoRango" onclick="setModo('rango')">&#128260; Por rango y dia</button>
+        </div>
+
+        <div id="panelManual">
+          <div class="fecha-row">
+            <div class="fg"><label>Fecha</label><input type="date" id="fecha" class="ctrl"></div>
+            <div class="fg"><label>Inicio</label><input type="time" id="inicio" class="ctrl"></div>
+            <div class="fg"><label>Fin</label><input type="time" id="fin" class="ctrl"></div>
+            <button class="btn-plus" onclick="agregarFecha()" title="Agregar fecha">&#xFF0B;</button>
+          </div>
+        </div>
+
+        <div id="panelRango" style="display:none;">
+          <div class="rango-box">
+            <label>Dias de la semana</label>
+            <div class="dias-semana">
+              <button class="dia-btn" onclick="toggleDia(1,this)">Lun</button>
+              <button class="dia-btn" onclick="toggleDia(2,this)">Mar</button>
+              <button class="dia-btn" onclick="toggleDia(3,this)">Mie</button>
+              <button class="dia-btn" onclick="toggleDia(4,this)">Jue</button>
+              <button class="dia-btn" onclick="toggleDia(5,this)">Vie</button>
+              <button class="dia-btn" onclick="toggleDia(6,this)">Sab</button>
+              <button class="dia-btn" onclick="toggleDia(0,this)">Dom</button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+              <div class="fg" style="margin:0"><label>Desde</label><input type="date" id="rangoDesde" class="ctrl"></div>
+              <div class="fg" style="margin:0"><label>Hasta</label><input type="date" id="rangoHasta" class="ctrl"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+              <div class="fg" style="margin:0"><label>Hora inicio</label><input type="time" id="rangoInicio" class="ctrl"></div>
+              <div class="fg" style="margin:0"><label>Hora fin</label><input type="time" id="rangoFin" class="ctrl"></div>
+            </div>
+            <button class="btn btn-blue" style="width:100%;" onclick="generarFechasRango()">&#128260; Generar fechas</button>
+          </div>
+        </div>
+
+        <div id="listaFechas"></div>
+        <div id="fpEmpty" class="fp-empty">Sin fechas agregadas aun</div>
+      </div>
+
+      <div class="fg"><label>Documento (opcional)</label><input type="file" id="documento" class="ctrl" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"></div>
+      <button class="btn btn-save" onclick="guardar()">&#x2726; Guardar Reservas</button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%;margin-top:10px;" onclick="abrirModal()">&#9881; Gestionar Estructura Academica</button>
+  </aside>
+
+  <main>
+    <div class="stats">
+      <div class="stat"><div class="n" id="statTotal">0</div><div class="l">Reservas</div></div>
+      <div class="stat"><div class="n" id="statHoy">0</div><div class="l">Hoy</div></div>
+      <div class="stat"><div class="n" id="statAmbientes">0</div><div class="l">Ambientes</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Horario de Reservas por Fecha</div>
+      <div class="filter-grid">
+        <div class="fg"><label>Fecha</label><input type="date" id="filtroFecha" class="ctrl" onchange="mostrar()"></div>
+        <div class="fg"><label>Facultad</label><select id="filtroFacultad" class="ctrl" onchange="mostrar()"><option value="">Todas</option></select></div>
+        <div class="fg" style="grid-column:1/-1;"><label>Buscar docente, materia o ambiente</label><input type="text" id="busqueda" class="ctrl" placeholder="Escribe para buscar..." oninput="mostrar()"></div>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-xl" onclick="exportExcel()">&#128202; Excel</button>
+        <button class="btn btn-blue" onclick="exportPDF()">&#128196; PDF Horario</button>
+        <button class="btn btn-ghost" onclick="limpiarFiltros()">&#x2715; Limpiar filtros</button>
+      </div>
+      <div id="vistaDesktop"></div>
+      <div class="mobile-cards" id="vistaMobile"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal estructura -->
+<div class="overlay" id="modalEstructura">
+  <div class="modal">
+    <h3>&#9881; Estructura Academica</h3>
+    <div class="tabs">
+      <button class="tab on" onclick="switchTab('tFac',this)">Facultades</button>
+      <button class="tab" onclick="switchTab('tCar',this)">Carreras</button>
+      <button class="tab" onclick="switchTab('tMat',this)">Materias</button>
+    </div>
+    <div class="tab-panel on" id="tFac">
+      <div class="add-row"><input type="text" id="inFac" placeholder="Nueva facultad..."><button class="btn btn-blue" onclick="addFacultad()">+ Agregar</button></div>
+      <div class="item-list" id="lstFac"></div>
+    </div>
+    <div class="tab-panel" id="tCar">
+      <select class="m-select" id="selFacCar" onchange="renderLstCar()"></select>
+      <div class="add-row"><input type="text" id="inCar" placeholder="Nueva carrera..."><button class="btn btn-blue" onclick="addCarrera()">+ Agregar</button></div>
+      <div class="item-list" id="lstCar"></div>
+    </div>
+    <div class="tab-panel" id="tMat">
+      <select class="m-select" id="selFacMat" onchange="syncCarMat()"></select>
+      <select class="m-select" id="selCarMat" onchange="renderLstMat()"></select>
+      <div class="add-row"><input type="text" id="inMat" placeholder="Nueva materia..."><button class="btn btn-blue" onclick="addMateria()">+ Agregar</button></div>
+      <div class="item-list" id="lstMat"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="cerrarModal()">Cerrar</button></div>
+  </div>
+</div>
+
+<!-- Modal editar -->
+<div class="edit-overlay" id="editOverlay">
+  <div class="edit-modal">
+    <h3>&#9998; Editar Reserva</h3>
+    <div class="fg"><label>Docente</label><input type="text" id="eDocente" class="ctrl" placeholder="Nombre del docente"></div>
+    <div class="fg"><label>Ambiente / Aula</label><input type="text" id="eAmbiente" class="ctrl" placeholder="Ambiente"></div>
+    <div class="fg"><label>Fecha</label><input type="date" id="eFecha" class="ctrl"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px;">
+      <div class="fg" style="margin:0"><label>Hora inicio</label><input type="time" id="eInicio" class="ctrl"></div>
+      <div class="fg" style="margin:0"><label>Hora fin</label><input type="time" id="eFin" class="ctrl"></div>
+    </div>
+    <div class="fg">
+      <label>Software <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(texto libre, separar con coma)</span></label>
+      <input type="text" id="eSoftwareTexto" class="ctrl" placeholder="Ej: AutoCAD v2024, SPSS Statistics v29">
+    </div>
+    <div class="fg">
+      <label>Documento</label>
+      <div id="eDocInfo" style="margin-bottom:6px;"></div>
+      <input type="file" id="eDocumento" class="ctrl" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button class="btn btn-ghost" onclick="cerrarEditar()">Cancelar</button>
+      <button class="btn btn-save" style="width:auto;padding:10px 20px;" onclick="guardarEdicion()">&#x2726; Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+var reservas=JSON.parse(localStorage.getItem('rsv3')||'[]');
+var estructura=JSON.parse(localStorage.getItem('est3')||'null')||{
+  "Ingenieria":{"Sistemas Informaticos":["Programacion I","Programacion II","Base de Datos","Redes","Sistemas Operativos"],"Civil":["Mecanica de Suelos","Resistencia de Materiales","Topografia","Hidraulica"],"Electrica":["Circuitos Electricos","Electronica Analogica","Automatizacion"]},
+  "Ciencias Economicas":{"Administracion de Empresas":["Gestion Empresarial","Marketing","Finanzas Corporativas","Contabilidad General"],"Economia":["Microeconomia","Macroeconomia","Estadistica Economica"],"Contaduria Publica":["Contabilidad General","Auditoria","Tributacion"]},
+  "Ciencias de la Salud":{"Medicina":["Anatomia","Fisiologia","Farmacologia","Patologia"],"Enfermeria":["Cuidados Basicos","Salud Comunitaria"],"Nutricion":["Nutricion Basica","Dietetica"]},
+  "Humanidades y Educacion":{"Psicologia":["Psicologia General","Psicologia Clinica"],"Comunicacion Social":["Redaccion Periodistica","Comunicacion Digital"],"Educacion":["Didactica General","Pedagogia"]},
+  "Derecho y Ciencias Politicas":{"Derecho":["Derecho Civil","Derecho Penal","Derecho Constitucional","Derecho Laboral"],"Ciencias Politicas":["Teoria Politica","Relaciones Internacionales"]}
+};
+var DIAS=["Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sabado"];
+var DIAS_ES=["Dom","Lun","Mar","Mie","Jue","Vie","Sab"];
+var fechasPendientes=[];
+var softwaresPendientes=[];
+var _rid=Date.now();
+function nextId(){return String(++_rid);}
+var mostrarPasadas=false;
+
+/* STORAGE */
+function saveEst(){localStorage.setItem('est3',JSON.stringify(estructura));}
+function saveRsv(){
+  try{localStorage.setItem('rsv3',JSON.stringify(reservas));}
+  catch(e){Swal.fire({icon:'error',title:'Almacenamiento lleno',text:'Elimina reservas antiguas o usa Limpiar datos.',background:'#131923',color:'#dde3f0'});}
+}
+function saveDoc(id,data){try{localStorage.setItem('doc_'+id,data);}catch(e){console.warn('Doc no guardado:',e);}}
+function getDoc(id){return (id&&id!=='null')?localStorage.getItem('doc_'+id):null;}
+function delDoc(id){if(id&&id!=='null')localStorage.removeItem('doc_'+id);}
+
+/* =================================================================
+   COMBOBOX (select + escribible)
+   ================================================================= */
+var _comboActive=null;
+function getComboValue(name){
+  var el=document.getElementById(name);
+  return el?el.value.trim():'';
+}
+function setComboValue(name,val){
+  var el=document.getElementById(name);
+  if(el){el.value=val;}
+}
+function getOptionsFor(name){
+  if(name==='facultad') return Object.keys(estructura);
+  if(name==='carrera'){
+    var f=getComboValue('facultad');
+    return (f&&estructura[f])?Object.keys(estructura[f]):[];
+  }
+  if(name==='materia'){
+    var f=getComboValue('facultad'),c=getComboValue('carrera');
+    return (f&&c&&estructura[f]&&estructura[f][c])?estructura[f][c].slice():[];
+  }
+  return [];
+}
+function renderComboList(combo,filtro){
+  var name=combo.getAttribute('data-combo');
+  var list=combo.querySelector('.combo-list');
+  var opts=getOptionsFor(name);
+  var q=(filtro||'').toLowerCase().trim();
+  var matches=opts.filter(function(o){return !q||o.toLowerCase().indexOf(q)>=0;});
+  var h='';
+  if(matches.length){
+    matches.forEach(function(o){
+      h+='<div class="combo-opt" data-val="'+o.replace(/"/g,'&quot;')+'">'+o+'</div>';
+    });
+  }else if(!opts.length){
+    var msg=name==='facultad'?'Sin facultades. Escribe para crear una nueva.'
+          : name==='carrera'?'Selecciona una facultad primero o escribe una nueva.'
+          : 'Selecciona una carrera primero o escribe una nueva.';
+    h+='<div class="combo-empty">'+msg+'</div>';
+  }
+  // Opcion para agregar nueva si hay texto que no coincide exacto
+  if(q&&!opts.some(function(o){return o.toLowerCase()===q;})){
+    h+='<div class="combo-opt combo-opt-new" data-val="__NEW__">Usar: "'+combo.querySelector('.combo-input').value.trim()+'"</div>';
+  }
+  list.innerHTML=h;
+}
+function openCombo(combo){
+  if(_comboActive&&_comboActive!==combo)closeCombo(_comboActive);
+  _comboActive=combo;
+  var input=combo.querySelector('.combo-input');
+  renderComboList(combo,input.value);
+  combo.querySelector('.combo-list').classList.add('open');
+}
+function closeCombo(combo){
+  if(!combo)return;
+  combo.querySelector('.combo-list').classList.remove('open');
+  if(_comboActive===combo)_comboActive=null;
+}
+function onComboChange(name){
+  // Al cambiar el valor de un combo padre, limpiar hijos si el valor no existe
+  if(name==='facultad'){
+    var f=getComboValue('facultad');
+    // si la facultad cambio y la carrera no existe en esa facultad, limpiar carrera y materia
+    var c=getComboValue('carrera');
+    if(c && (!estructura[f]||!estructura[f][c])){
+      // mantener el texto libre pero no limpiar por defecto (permitir que escriba)
+    }
+  }
+  if(name==='carrera'){
+    var f2=getComboValue('facultad'),c2=getComboValue('carrera');
+    var m=getComboValue('materia');
+    if(m && (!estructura[f2]||!estructura[f2][c2]||estructura[f2][c2].indexOf(m)<0)){
+      // idem, mantener texto
+    }
+  }
+  syncFiltroFac();
+}
+function initCombos(){
+  document.querySelectorAll('.combo').forEach(function(combo){
+    var name=combo.getAttribute('data-combo');
+    var input=combo.querySelector('.combo-input');
+    var caret=combo.querySelector('.combo-caret');
+    var list=combo.querySelector('.combo-list');
+
+    input.addEventListener('focus',function(){openCombo(combo);});
+    input.addEventListener('input',function(){
+      openCombo(combo);
+      renderComboList(combo,input.value);
+    });
+    input.addEventListener('keydown',function(e){
+      if(e.key==='Escape'){closeCombo(combo);input.blur();}
+      else if(e.key==='Enter'){e.preventDefault();closeCombo(combo);onComboChange(name);}
+      else if(e.key==='ArrowDown'){
+        e.preventDefault();
+        var first=list.querySelector('.combo-opt');
+        if(first){first.classList.add('sel');first.focus&&first.focus();}
+      }
+    });
+    input.addEventListener('blur',function(){
+      // pequena demora para permitir click en opciones
+      setTimeout(function(){
+        if(_comboActive===combo){
+          onComboChange(name);
+          closeCombo(combo);
+        }
+      },150);
+    });
+    caret.addEventListener('mousedown',function(e){
+      e.preventDefault();
+      if(list.classList.contains('open')){closeCombo(combo);}
+      else{input.focus();openCombo(combo);}
+    });
+    list.addEventListener('mousedown',function(e){
+      var opt=e.target.closest('.combo-opt');
+      if(!opt)return;
+      e.preventDefault();
+      var val=opt.getAttribute('data-val');
+      if(val==='__NEW__'){
+        // mantener el texto que escribio
+        closeCombo(combo);
+        onComboChange(name);
+        return;
+      }
+      input.value=val;
+      closeCombo(combo);
+      onComboChange(name);
+    });
+  });
+  // click fuera cierra
+  document.addEventListener('mousedown',function(e){
+    if(_comboActive && !_comboActive.contains(e.target)){
+      closeCombo(_comboActive);
+    }
+  });
+}
+
+/* FORM */
+function initForm(){
+  syncFiltroFac();
+}
+function syncFiltroFac(){
+  var el=document.getElementById('filtroFacultad'),sel=el.value;
+  var h='<option value="">Todas las facultades</option>';
+  // incluir todas las facultades existentes + las usadas en reservas
+  var set={};
+  Object.keys(estructura).forEach(function(f){set[f]=true;});
+  reservas.forEach(function(r){if(r.facultad)set[r.facultad]=true;});
+  Object.keys(set).sort().forEach(function(f){h+='<option'+(f===sel?' selected':'')+'>'+f+'</option>';});
+  el.innerHTML=h;
+}
+
+/* SOFTWARE MULTIPLE */
+function agregarSoftware(){
+  var sel=document.getElementById('softwareSel').value;
+  var custom=document.getElementById('softwareCustom').value.trim();
+  var ver=document.getElementById('softwareVer').value.trim();
+  var nombre=sel==='__otro__'?custom:sel;
+  if(!nombre){Swal.fire({icon:'warning',title:'Selecciona un software',background:'#131923',color:'#dde3f0'});return;}
+  softwaresPendientes.push({nombre:nombre,version:ver});
+  document.getElementById('softwareSel').value='';
+  document.getElementById('softwareCustom').value='';
+  document.getElementById('softwareCustom').style.display='none';
+  document.getElementById('softwareVer').value='';
+  renderSoftwares();
+}
+function quitarSoftware(i){softwaresPendientes.splice(i,1);renderSoftwares();}
+function renderSoftwares(){
+  var cont=document.getElementById('listaSoftwares');
+  var emp=document.getElementById('swEmpty');
+  if(!softwaresPendientes.length){cont.innerHTML='';emp.style.display='block';return;}
+  emp.style.display='none';
+  var h='';
+  softwaresPendientes.forEach(function(s,i){
+    h+='<div class="sw-item">'
+      +'<span class="sw-name">'+s.nombre+'</span>'
+      +(s.version?'<span class="sw-ver">v'+s.version+'</span>':'')
+      +'<button class="btn-del" data-action="qsw" data-i="'+i+'">&#x2715;</button>'
+      +'</div>';
+  });
+  cont.innerHTML=h;
+}
+function onSoftwareSel(){
+  var v=document.getElementById('softwareSel').value;
+  document.getElementById('softwareCustom').style.display=(v==='__otro__')?'block':'none';
+  if(v!=='__otro__') document.getElementById('softwareCustom').value='';
+}
+function swToStr(arr){
+  if(!arr||!arr.length) return '';
+  return arr.map(function(s){return s.nombre+(s.version?' v'+s.version:'');}).join(', ');
+}
+
+/* MODO FECHAS */
+var modoFechas='manual';
+function setModo(m){
+  modoFechas=m;
+  document.getElementById('modoManual').classList.toggle('on',m==='manual');
+  document.getElementById('modoRango').classList.toggle('on',m==='rango');
+  document.getElementById('panelManual').style.display=m==='manual'?'block':'none';
+  document.getElementById('panelRango').style.display=m==='rango'?'block':'none';
+}
+
+/* GENERAR FECHAS POR RANGO + DIAS SEMANA */
+var diasSeleccionados=[];
+function toggleDia(d,btn){
+  var idx=diasSeleccionados.indexOf(d);
+  if(idx>=0){diasSeleccionados.splice(idx,1);btn.classList.remove('on');}
+  else{diasSeleccionados.push(d);btn.classList.add('on');}
+}
+function generarFechasRango(){
+  var desde=document.getElementById('rangoDesde').value;
+  var hasta=document.getElementById('rangoHasta').value;
+  var inicio=document.getElementById('rangoInicio').value;
+  var fin=document.getElementById('rangoFin').value;
+  if(!desde||!hasta){Swal.fire({icon:'warning',title:'Completa el rango de fechas',background:'#131923',color:'#dde3f0'});return;}
+  if(!inicio||!fin){Swal.fire({icon:'warning',title:'Completa los horarios',background:'#131923',color:'#dde3f0'});return;}
+  if(inicio>=fin){Swal.fire({icon:'error',title:'Horario invalido',text:'La hora fin debe ser posterior al inicio.',background:'#131923',color:'#dde3f0'});return;}
+  if(!diasSeleccionados.length){Swal.fire({icon:'warning',title:'Selecciona al menos un dia de la semana',background:'#131923',color:'#dde3f0'});return;}
+  var dInicio=new Date(desde+'T12:00:00');
+  var dFin=new Date(hasta+'T12:00:00');
+  if(dInicio>dFin){Swal.fire({icon:'error',title:'El rango es invalido','text':'La fecha de inicio debe ser anterior a la fecha fin.',background:'#131923',color:'#dde3f0'});return;}
+  var generadas=0;
+  var d=new Date(dInicio);
+  while(d<=dFin){
+    var dow=d.getDay();
+    if(diasSeleccionados.indexOf(dow)>=0){
+      var yyyy=d.getFullYear();
+      var mm=String(d.getMonth()+1).padStart(2,'0');
+      var dd=String(d.getDate()).padStart(2,'0');
+      var fStr=yyyy+'-'+mm+'-'+dd;
+      var dup=fechasPendientes.some(function(x){return x.fecha===fStr&&x.inicio===inicio&&x.fin===fin;});
+      if(!dup){fechasPendientes.push({fecha:fStr,inicio:inicio,fin:fin});generadas++;}
+    }
+    d.setDate(d.getDate()+1);
+  }
+  renderFechas();
+  Swal.fire({icon:'success',title:generadas+' fecha'+(generadas!==1?'s':'')+' generada'+(generadas!==1?'s':'')+'!',timer:1500,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
+}
+
+/* MULTI-FECHA MANUAL */
+function agregarFecha(){
+  var fecha=document.getElementById('fecha').value;
+  var inicio=document.getElementById('inicio').value;
+  var fin=document.getElementById('fin').value;
+  if(!fecha||!inicio||!fin){Swal.fire({icon:'warning',title:'Completa fecha y horario',background:'#131923',color:'#dde3f0'});return;}
+  if(inicio>=fin){Swal.fire({icon:'error',title:'Horario invalido',text:'La hora fin debe ser posterior al inicio.',background:'#131923',color:'#dde3f0'});return;}
+  var dup=fechasPendientes.some(function(x){return x.fecha===fecha&&x.inicio===inicio&&x.fin===fin;});
+  if(dup){Swal.fire({icon:'warning',title:'Ya esta en la lista',background:'#131923',color:'#dde3f0'});return;}
+  fechasPendientes.push({fecha:fecha,inicio:inicio,fin:fin});
+  document.getElementById('fecha').value='';
+  document.getElementById('inicio').value='';
+  document.getElementById('fin').value='';
+  renderFechas();
+}
+function quitarFecha(i){fechasPendientes.splice(i,1);renderFechas();}
+function renderFechas(){
+  var cont=document.getElementById('listaFechas');
+  var emp=document.getElementById('fpEmpty');
+  var sorted=fechasPendientes.slice().sort(function(a,b){return a.fecha.localeCompare(b.fecha);});
+  fechasPendientes=sorted;
+  if(!fechasPendientes.length){cont.innerHTML='';emp.style.display='block';return;}
+  emp.style.display='none';
+  var h='';
+  fechasPendientes.forEach(function(f,i){
+    var p=f.fecha.split('-');
+    var dow=DIAS[new Date(+p[0],+p[1]-1,+p[2]).getDay()];
+    h+='<div class="fp-item">'
+      +'<span class="fp-fecha">'+p[2]+'/'+p[1]+'/'+p[0]+' ('+dow+')</span>'
+      +'<span class="fp-hora">'+f.inicio+'-'+f.fin+'</span>'
+      +'<button class="btn-del" data-action="qfecha" data-i="'+i+'">&#x2715;</button>'
+      +'</div>';
+  });
+  cont.innerHTML=h;
+}
+
+/* CONFLICTO */
+function hayConflicto(n,excl){
+  if(excl===undefined)excl=-1;
+  return reservas.some(function(r,i){
+    return i!==excl&&r.ambiente===n.ambiente&&r.fecha===n.fecha&&n.inicio<r.fin&&n.fin>r.inicio;
+  });
+}
+
+/* Auto-registrar estructura nueva al guardar */
+function registrarEstructuraAuto(f,c,m){
+  if(!f)return;
+  if(!estructura[f])estructura[f]={};
+  if(c){
+    if(!estructura[f][c])estructura[f][c]=[];
+    if(m && estructura[f][c].indexOf(m)<0) estructura[f][c].push(m);
+  }
+  saveEst();
+}
+
+/* GUARDAR */
+function guardar(){
+  var docente=document.getElementById('docente').value.trim();
+  var ambiente=document.getElementById('ambiente').value.trim();
+  var facultad=getComboValue('facultad');
+  var carrera=getComboValue('carrera');
+  var materia=getComboValue('materia');
+  if(!facultad){Swal.fire({icon:'warning',title:'Selecciona o escribe una Facultad',background:'#131923',color:'#dde3f0'});return;}
+  if(!carrera){Swal.fire({icon:'warning',title:'Selecciona o escribe una Carrera',background:'#131923',color:'#dde3f0'});return;}
+  if(!materia){Swal.fire({icon:'warning',title:'Selecciona o escribe una Materia',background:'#131923',color:'#dde3f0'});return;}
+  if(!docente||!ambiente){Swal.fire({icon:'warning',title:'Completa Docente y Ambiente',background:'#131923',color:'#dde3f0'});return;}
+  if(!fechasPendientes.length){Swal.fire({icon:'warning',title:'Sin fechas',text:'Agrega al menos una fecha.',background:'#131923',color:'#dde3f0'});return;}
+
+  // Registrar estructura nueva si escribio un valor inedito
+  registrarEstructuraAuto(facultad,carrera,materia);
+
+  var swStr=swToStr(softwaresPendientes);
+  var file=document.getElementById('documento').files[0];
+  function procesar(docData){
+    var conflictos=[];
+    fechasPendientes.forEach(function(fp){
+      if(hayConflicto({ambiente:ambiente,fecha:fp.fecha,inicio:fp.inicio,fin:fp.fin})){
+        var p=fp.fecha.split('-');
+        conflictos.push(p[2]+'/'+p[1]+'/'+p[0]+' ('+fp.inicio+'-'+fp.fin+')');
+      }
+    });
+    if(conflictos.length){
+      Swal.fire({icon:'error',title:'Conflicto de horario',
+        html:'El ambiente <b>'+ambiente+'</b> ya esta reservado en:<br><br>'+conflictos.map(function(c){return '&bull; '+c;}).join('<br>'),
+        background:'#131923',color:'#dde3f0'});return;
+    }
+    var total=fechasPendientes.length;
+    var docId=null;
+    if(docData){docId='d'+nextId();saveDoc(docId,docData);}
+    fechasPendientes.forEach(function(fp){
+      reservas.push({id:nextId(),facultad:facultad,carrera:carrera,materia:materia,
+        docente:docente,ambiente:ambiente,software:swStr,
+        fecha:fp.fecha,inicio:fp.inicio,fin:fp.fin,docId:docId});
+    });
+    saveRsv();mostrar();actualizarStats();syncFiltroFac();
+    fechasPendientes=[];softwaresPendientes=[];renderFechas();renderSoftwares();
+    document.getElementById('documento').value='';
+    Swal.fire({icon:'success',title:total+' reserva'+(total!==1?'s':'')+' guardada'+(total!==1?'s':'')+'!',
+      timer:2000,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
+    cerrarDrawer();
+  }
+  if(file){var r=new FileReader();r.onload=function(){procesar(r.result);};r.readAsDataURL(file);}
+  else procesar(null);
+}
+
+/* ELIMINAR */
+function eliminar(id){
+  Swal.fire({icon:'warning',title:'Eliminar reserva?',text:'Esta accion no se puede deshacer.',
+    showCancelButton:true,confirmButtonText:'Si, eliminar',cancelButtonText:'Cancelar',
+    background:'#131923',color:'#dde3f0',confirmButtonColor:'#e02030'
+  }).then(function(res){
+    if(res.isConfirmed){
+      var eli=reservas.filter(function(x){return x.id===id;})[0];
+      if(eli&&eli.docId){
+        var otros=reservas.filter(function(x){return x.id!==id&&x.docId===eli.docId;});
+        if(!otros.length)delDoc(eli.docId);
+      }
+      reservas=reservas.filter(function(x){return x.id!==id;});
+      saveRsv();mostrar();actualizarStats();
+    }
+  });
+}
+
+/* EDITAR */
+var _editId=null;
+function abrirEditar(id){
+  var r=reservas.filter(function(x){return x.id===id;})[0];
+  if(!r)return;
+  _editId=id;
+  document.getElementById('eDocente').value=r.docente||'';
+  document.getElementById('eAmbiente').value=r.ambiente||'';
+  document.getElementById('eFecha').value=r.fecha||'';
+  document.getElementById('eInicio').value=r.inicio||'';
+  document.getElementById('eFin').value=r.fin||'';
+  document.getElementById('eSoftwareTexto').value=r.software||'';
+  var docData=r.docId?getDoc(r.docId):null;
+  var di=document.getElementById('eDocInfo');
+  di.innerHTML=docData
+    ?'<a href="'+docData+'" target="_blank" style="color:#7eaaff;font-size:.8rem;">&#128206; Ver documento actual</a>'
+    :'<span style="color:var(--muted);font-size:.8rem;">Sin documento adjunto</span>';
+  document.getElementById('eDocumento').value='';
+  document.getElementById('editOverlay').classList.add('open');
+}
+function cerrarEditar(){document.getElementById('editOverlay').classList.remove('open');_editId=null;}
+function guardarEdicion(){
+  if(!_editId)return;
+  var idx=-1;
+  reservas.forEach(function(x,i){if(x.id===_editId)idx=i;});
+  if(idx<0)return;
+  var r=reservas[idx];
+  var docente=document.getElementById('eDocente').value.trim();
+  var ambiente=document.getElementById('eAmbiente').value.trim();
+  var fecha=document.getElementById('eFecha').value;
+  var inicio=document.getElementById('eInicio').value;
+  var fin=document.getElementById('eFin').value;
+  var software=document.getElementById('eSoftwareTexto').value.trim();
+  if(!docente||!ambiente||!fecha||!inicio||!fin){Swal.fire({icon:'warning',title:'Campos incompletos',background:'#131923',color:'#dde3f0'});return;}
+  if(inicio>=fin){Swal.fire({icon:'error',title:'Horario invalido',background:'#131923',color:'#dde3f0'});return;}
+  if(hayConflicto({ambiente:ambiente,fecha:fecha,inicio:inicio,fin:fin},idx)){Swal.fire({icon:'error',title:'Conflicto de horario',text:'Ese horario ya esta reservado para ese ambiente.',background:'#131923',color:'#dde3f0'});return;}
+  var file=document.getElementById('eDocumento').files[0];
+  function aplicar(docData){
+    if(docData){
+      var nuevoDocId='d'+nextId();
+      saveDoc(nuevoDocId,docData);
+      r.docId=nuevoDocId;
+    }
+    r.docente=docente;r.ambiente=ambiente;r.fecha=fecha;r.inicio=inicio;r.fin=fin;r.software=software;
+    reservas[idx]=r;
+    saveRsv();mostrar();actualizarStats();cerrarEditar();
+    Swal.fire({icon:'success',title:'Reserva actualizada!',timer:1600,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
+  }
+  if(file){var rd=new FileReader();rd.onload=function(){aplicar(rd.result);};rd.readAsDataURL(file);}
+  else aplicar(null);
+}
+
+/* HELPERS */
+function fmtFecha(f){if(!f)return'-';var p=f.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function diaSemana(f){if(!f)return'';var p=f.split('-');return DIAS[new Date(+p[0],+p[1]-1,+p[2]).getDay()];}
+function getHoyStr(){var d=new Date();var y=d.getFullYear();var m=String(d.getMonth()+1).padStart(2,'0');var dd=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+dd;}
+function esPasada(fecha){return fecha<getHoyStr();}
+
+/* FILTRAR */
+function getReservasFiltradas(){
+  var f=document.getElementById('filtroFecha').value;
+  var ff=document.getElementById('filtroFacultad').value;
+  var b=document.getElementById('busqueda').value.toLowerCase();
+  return reservas.filter(function(r){
+    return(!f||r.fecha===f)&&(!ff||r.facultad===ff)&&
+      (!b||[r.docente,r.materia,r.ambiente,r.carrera,r.facultad,r.software].some(function(x){return x&&x.toLowerCase().indexOf(b)>=0;}));
+  }).sort(function(a,b){var d=a.fecha.localeCompare(b.fecha);return d||a.inicio.localeCompare(b.inicio);});
+}
+function agruparPorFecha(lista){var g={};lista.forEach(function(r){if(!g[r.fecha])g[r.fecha]=[];g[r.fecha].push(r);});return g;}
+function limpiarFiltros(){['filtroFecha','filtroFacultad','busqueda'].forEach(function(id){document.getElementById(id).value='';});mostrar();}
+
+/* DELEGACION DE EVENTOS */
+document.addEventListener('click',function(e){
+  var el=e.target;
+  var action=el.getAttribute('data-action');
+  if(action==='del'){eliminar(el.getAttribute('data-id'));}
+  if(action==='edit'){abrirEditar(el.getAttribute('data-id'));}
+  if(action==='qfecha'){quitarFecha(+el.getAttribute('data-i'));}
+  if(action==='qsw'){quitarSoftware(+el.getAttribute('data-i'));}
+  if(action==='toggle-past'){togglePasadas();}
+  if(el.classList.contains('js-del-fac')){var f=el.getAttribute('data-f');if(!confirm('Eliminar '+f+'?'))return;delete estructura[f];saveEst();renderLstFac();syncModalSelects();}
+  if(el.classList.contains('js-del-car')){var f=el.getAttribute('data-f'),c=el.getAttribute('data-c');if(!confirm('Eliminar carrera '+c+'?'))return;delete estructura[f][c];saveEst();renderLstCar();}
+  if(el.classList.contains('js-del-mat')){var f=el.getAttribute('data-f'),c=el.getAttribute('data-c'),m=el.getAttribute('data-m');if(!confirm('Eliminar materia '+m+'?'))return;estructura[f][c]=estructura[f][c].filter(function(x){return x!==m;});saveEst();renderLstMat();}
+});
+
+function togglePasadas(){
+  mostrarPasadas=!mostrarPasadas;
+  var tog=document.getElementById('pastToggle');
+  var wrap=document.getElementById('pastWrap');
+  if(tog)tog.classList.toggle('open',mostrarPasadas);
+  if(wrap)wrap.classList.toggle('open',mostrarPasadas);
+}
+
+/* CONSTRUIR HTML DE UN GRUPO DE FECHAS */
+function buildGrupoHTML(fechas,grupos,esPasadaFlag){
+  var desk='',mob='';
+  fechas.forEach(function(fecha){
+    var rs=grupos[fecha];
+    var pasadaCls=esPasadaFlag?' past':'';
+    var hdr='<div class="day-group"><div class="day-header'+pasadaCls+'">'
+      +'<span class="day-date">&#128197; '+fmtFecha(fecha)+'</span>'
+      +'<span class="day-dow">'+diaSemana(fecha)+'</span>'
+      +'<span class="day-count">'+rs.length+' reserva'+(rs.length!==1?'s':'')+'</span>'
+      +'</div>';
+    var rows='';
+    rs.forEach(function(r){
+      var docData=r.docId?getDoc(r.docId):null;
+      var docHtml=docData
+        ?'<a href="'+docData+'" target="_blank" style="color:#7eaaff;font-size:.75rem;" title="Ver documento">&#128206; Ver</a>'
+        :'<span style="color:var(--muted)">-</span>';
+      rows+='<tr>'
+        +'<td><div class="tag-hora"><span>'+r.inicio+'</span><span style="font-size:.55rem;color:var(--muted)">&#8595;</span><span>'+r.fin+'</span></div></td>'
+        +'<td><span class="tag-fac">'+r.facultad+'</span><span class="tag-car">'+r.carrera+'</span></td>'
+        +'<td><strong>'+r.materia+'</strong></td>'
+        +'<td>'+r.docente+'</td>'
+        +'<td>'+r.ambiente+'</td>'
+        +'<td class="tag-sw" title="'+(r.software||'')+'">'+(r.software||'-')+'</td>'
+        +'<td>'+docHtml+'</td>'
+        +'<td><div class="td-actions">'
+        +'<button class="btn-edit" data-action="edit" data-id="'+r.id+'" title="Editar">&#9998;</button>'
+        +'<button class="btn-del" data-action="del" data-id="'+r.id+'" title="Eliminar">&#x2715;</button>'
+        +'</div></td>'
+        +'</tr>';
+    });
+    desk+=hdr+'<div class="table-wrap"><table>'
+      +'<thead><tr><th>Horario</th><th>Facultad/Carrera</th><th>Materia</th><th>Docente</th><th>Ambiente</th><th>Software</th><th>Doc</th><th></th></tr></thead>'
+      +'<tbody>'+rows+'</tbody></table></div></div>';
+    var cards='';
+    rs.forEach(function(r){
+      var docData=r.docId?getDoc(r.docId):null;
+      cards+='<div class="res-card"'+(esPasadaFlag?' style="opacity:.7;border-left-color:var(--muted);"':'')+'>'
+        +'<div class="rc-fac">'+r.facultad+'</div>'
+        +'<div class="rc-hora">'+r.inicio+' &#8594; '+r.fin+'</div>'
+        +'<div class="rc-mat">'+r.materia+'</div>'
+        +'<div class="rc-meta">&#128100; '+r.docente+' &middot; &#127979; '+r.ambiente+'</div>'
+        +(r.software?'<div class="rc-meta" style="color:#a0c4ff;">&#x1F4BB; '+r.software+'</div>':'')
+        +'<div class="rc-meta" style="font-size:.7rem;">'+r.carrera+'</div>'
+        +'<div class="rc-actions">'
+        +(docData?'<a class="rc-doc" href="'+docData+'" target="_blank">&#128206; Ver doc</a>':'')
+        +'<button class="btn-edit" data-action="edit" data-id="'+r.id+'">&#9998; Editar</button>'
+        +'<button class="btn-del" data-action="del" data-id="'+r.id+'" style="margin-left:auto;">&#x2715;</button>'
+        +'</div></div>';
+    });
+    mob+=hdr+cards+'</div>';
+  });
+  return {desk:desk,mob:mob};
+}
+
+/* MOSTRAR */
+function mostrar(){
+  var datos=getReservasFiltradas();
+  var grupos=agruparPorFecha(datos);
+  var todasFechas=Object.keys(grupos).sort();
+  var hoy=getHoyStr();
+
+  var fechasActivas=todasFechas.filter(function(f){return f>=hoy;});
+  var fechasPasadas=todasFechas.filter(function(f){return f<hoy;});
+  // Pasadas: mostrar las mas recientes primero (desc)
+  fechasPasadas.sort(function(a,b){return b.localeCompare(a);});
+
+  var totalPasadas=0;
+  fechasPasadas.forEach(function(f){totalPasadas+=grupos[f].length;});
+
+  var desk='',mob='';
+  if(!todasFechas.length){
+    desk='<div class="table-wrap"><div class="empty-all"><span class="icon">&#128197;</span>No hay reservas que coincidan.</div></div>';
+    mob='<div class="empty-all"><span class="icon">&#128197;</span>Sin resultados.</div>';
+  }else{
+    // Activas (hoy + futuras)
+    if(fechasActivas.length){
+      var g1=buildGrupoHTML(fechasActivas,grupos,false);
+      desk+=g1.desk;
+      mob+=g1.mob;
+    }else{
+      desk+='<div class="empty-all" style="padding:30px 20px;"><span class="icon">&#9728;</span>No hay reservas proximas.</div>';
+      mob+='<div class="empty-all" style="padding:30px 20px;"><span class="icon">&#9728;</span>No hay reservas proximas.</div>';
+    }
+
+    // Boton toggle pasadas
+    if(fechasPasadas.length){
+      var togBtn='<button class="past-toggle'+(mostrarPasadas?' open':'')+'" id="pastToggle" data-action="toggle-past">'
+        +'<span class="chev">&#9654;</span>'
+        +'<span>&#128336; Fechas pasadas</span>'
+        +'<span class="count-badge">'+fechasPasadas.length+' dia'+(fechasPasadas.length!==1?'s':'')+' &middot; '+totalPasadas+' reserva'+(totalPasadas!==1?'s':'')+'</span>'
+      +'</button>';
+
+      var g2=buildGrupoHTML(fechasPasadas,grupos,true);
+      desk+=togBtn+'<div class="past-wrap'+(mostrarPasadas?' open':'')+'" id="pastWrap">'+g2.desk+'</div>';
+      mob+=togBtn+'<div class="past-wrap'+(mostrarPasadas?' open':'')+'" id="pastWrapMob">'+g2.mob+'</div>';
+    }
+  }
+  document.getElementById('vistaDesktop').innerHTML=desk;
+  document.getElementById('vistaMobile').innerHTML=mob;
+}
+
+/* STATS */
+function actualizarStats(){
+  var hoy=getHoyStr();
+  document.getElementById('statTotal').textContent=reservas.length;
+  document.getElementById('statHoy').textContent=reservas.filter(function(r){return r.fecha===hoy;}).length;
+  document.getElementById('statAmbientes').textContent=new Set(reservas.map(function(r){return r.ambiente;})).size;
+}
+
+/* EXCEL */
+function exportExcel(){
+  var datos=getReservasFiltradas().map(function(r){
+    return{Fecha:fmtFecha(r.fecha),Dia:diaSemana(r.fecha),'Hora Inicio':r.inicio,'Hora Fin':r.fin,
+      Facultad:r.facultad,Carrera:r.carrera,Materia:r.materia,Docente:r.docente,
+      Ambiente:r.ambiente,Software:r.software||''};
+  });
+  if(!datos.length){Swal.fire({icon:'info',title:'Sin datos',background:'#131923',color:'#dde3f0'});return;}
+  var ws=XLSX.utils.json_to_sheet(datos);
+  var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Reservas');
+  XLSX.writeFile(wb,'reservas_'+new Date().toISOString().split('T')[0]+'.xlsx');
+}
+
+/* PDF */
+function norm(s){
+  if(!s)return'';
+  return String(s)
+    .replace(/\u00e1/g,'a').replace(/\u00e9/g,'e').replace(/\u00ed/g,'i')
+    .replace(/\u00f3/g,'o').replace(/\u00fa/g,'u').replace(/\u00fc/g,'u')
+    .replace(/\u00c1/g,'A').replace(/\u00c9/g,'E').replace(/\u00cd/g,'I')
+    .replace(/\u00d3/g,'O').replace(/\u00da/g,'U').replace(/\u00dc/g,'U')
+    .replace(/\u00f1/g,'n').replace(/\u00d1/g,'N')
+    .replace(/[^\x20-\x7E]/g,'?');
+}
+var LOGO_B64='img/logo.png';
+function pdfEncabezado(doc,W,titulo){
+  doc.setFillColor(10,25,60);doc.rect(0,0,W,42,'F');
+  doc.setFillColor(224,32,48);doc.rect(0,0,4,42,'F');
+  try{doc.addImage(LOGO_B64,'PNG',6,3,34,34);}catch(e){}
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(13);
+  doc.text('SISTEMA DE RESERVAS DE AMBIENTES',43,14);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(160,195,255);
+  doc.text('ADMINISTRACION - CAMPUS LAS PALMAS',43,21);
+  doc.setFillColor(224,32,48);doc.roundedRect(43,25,W-52,12,2,2,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(9);
+  doc.text(norm(titulo),W/2,33,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(120,150,200);
+  doc.text('Generado: '+new Date().toLocaleDateString('es-ES'),W-6,10,{align:'right'});
+}
+function pdfPie(doc,W,H){
+  doc.setDrawColor(50,70,110);doc.setLineWidth(0.3);doc.line(6,H-10,W-6,H-10);
+  doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(120,140,170);
+  doc.text('Administracion Campus Las Palmas - Sistema de Reservas',8,H-6);
+  doc.text(String(new Date().getFullYear()),W-8,H-6,{align:'right'});
+}
+function pdfTabla(doc,W,H,filas,titulo){
+  pdfEncabezado(doc,W,titulo);
+  doc.autoTable({
+    head:[['Fecha','Horario','Ambiente','Facultad','Carrera','Materia / Asignatura','Docente','Software']],
+    body:filas,startY:48,theme:'grid',
+    styles:{font:'helvetica',fontSize:7.5,cellPadding:3,textColor:[20,35,60],lineColor:[190,205,230],lineWidth:0.25},
+    headStyles:{fillColor:[20,50,110],textColor:[255,255,255],fontStyle:'bold',fontSize:7,halign:'center'},
+    alternateRowStyles:{fillColor:[237,242,255]},
+    columnStyles:{0:{halign:'center',cellWidth:24,fontStyle:'bold',textColor:[20,60,160]},
+      1:{halign:'center',cellWidth:20},2:{cellWidth:26},3:{cellWidth:28},
+      4:{cellWidth:26},5:{cellWidth:42},6:{cellWidth:36},7:{cellWidth:35}},
+    margin:{left:5,right:5,bottom:18},
+    didDrawPage:function(d){
+      if(d.pageNumber>1){
+        doc.setFillColor(10,25,60); doc.rect(0,0,W,14,'F');
+        doc.setFillColor(224,32,48); doc.rect(0,0,4,14,'F');
+        doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(8);
+        doc.text(norm(titulo),W/2,9,{align:'center'});
+      }
+      pdfPie(doc,W,H);
+    }
+  });
+}
+function buildFilas(lista){
+  var grupos=agruparPorFecha(lista);
+  var fechas=Object.keys(grupos).sort();
+  var filas=[];
+  fechas.forEach(function(fecha){
+    grupos[fecha].forEach(function(r){
+      var p=fecha.split('-');
+      filas.push([norm(p[2]+'/'+p[1]+'/'+p[0]+'\n'+diaSemana(fecha)),
+        norm(r.inicio+' - '+r.fin),norm(r.ambiente),norm(r.facultad),
+        norm(r.carrera),norm(r.materia),norm(r.docente),norm(r.software||'-')]);
+    });
+  });
+  return filas;
+}
+
+function exportPDF(){
+  var datos=getReservasFiltradas();
+  if(!datos.length){Swal.fire({icon:'info',title:'Sin datos',background:'#131923',color:'#dde3f0'});return;}
+  Swal.fire({
+    title:'Tipo de reporte PDF',
+    html:'<div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">'
+      +'<button id="pdfGeneral" class="btn btn-blue" style="width:100%;padding:12px;">&#128196; Reporte general (todas las fechas)</button>'
+      +'<button id="pdfDia" class="btn btn-ghost" style="width:100%;padding:12px;">&#128197; Reporte por dia de la semana</button>'
+      +'<button id="pdfGrid" class="btn btn-ghost" style="width:100%;padding:12px;background:rgba(0,180,100,.15);color:#00c87a;border-color:rgba(0,180,100,.3);">&#128200; Horario semanal tipo grid (por ambiente)</button>'
+      +'<button id="pdfCal" class="btn btn-ghost" style="width:100%;padding:12px;background:rgba(255,140,0,.15);color:#ffae4d;border-color:rgba(255,140,0,.35);">&#128197; Calendario visual por horas (semana actual)</button>'
+      +'</div>'
+      +'<p style="margin-top:14px;font-size:.75rem;color:#7a8baa;">&#9432; Los reportes solo incluyen fechas desde hoy en adelante.</p>',
+    showConfirmButton:false,
+    background:'#131923',color:'#dde3f0',
+    didOpen:function(){
+      document.getElementById('pdfGeneral').addEventListener('click',function(){Swal.close();exportPDFGeneral(filtrarFuturas(datos));});
+      document.getElementById('pdfDia').addEventListener('click',function(){Swal.close();exportPDFPorDia(filtrarFuturas(datos));});
+      document.getElementById('pdfGrid').addEventListener('click',function(){Swal.close();exportPDFGrid(filtrarFuturas(datos));});
+      document.getElementById('pdfCal').addEventListener('click',function(){Swal.close();exportPDFCalendario(filtrarFuturas(datos));});
+    }
+  });
+}
+function filtrarFuturas(datos){
+  var hoy=getHoyStr();
+  var futuras=datos.filter(function(r){return r.fecha>=hoy;});
+  if(!futuras.length){
+    Swal.fire({icon:'info',title:'Sin fechas futuras',text:'No hay reservas desde hoy en adelante.',background:'#131923',color:'#dde3f0'});
+  }
+  return futuras;
+}
+
+/* ===========================================================
+   PDF HORARIO GRID SEMANAL - LEYENDA ARREGLADA (no sobrepuesta)
+   =========================================================== */
+function exportPDFGrid(datos){
+  var jsPDF=window.jspdf.jsPDF;
+  if(!datos.length)return;
+
+  var PALETA=[
+    [180,220,255],[190,240,195],[255,220,175],[220,200,255],
+    [255,238,175],[175,255,225],[255,200,205],[205,228,255],
+    [238,208,175],[205,255,205],[255,205,238],[228,215,255]
+  ];
+  var carreraColor={};
+  var colorIdx=0;
+  function getColor(car){
+    if(!carreraColor[car]){carreraColor[car]=PALETA[colorIdx%PALETA.length];colorIdx++;}
+    return carreraColor[car];
+  }
+  datos.forEach(function(r){getColor(r.carrera);});
+
+  var ambientes={};
+  datos.forEach(function(r){
+    if(!ambientes[r.ambiente])ambientes[r.ambiente]=[];
+    ambientes[r.ambiente].push(r);
+  });
+
+  var DIAS_GRID=['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+  var DOW_MAP={Lunes:1,Martes:2,Miercoles:3,Jueves:4,Viernes:5,Sabado:6,Domingo:0};
+
+  var doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  var W=doc.internal.pageSize.getWidth();
+  var H=doc.internal.pageSize.getHeight();
+
+  var ambList=Object.keys(ambientes);
+
+  ambList.forEach(function(ambiente,aIdx){
+    if(aIdx>0) doc.addPage();
+    var reservasAmb=ambientes[ambiente];
+
+    var horasSet={};
+    reservasAmb.forEach(function(r){horasSet[r.inicio+'|'+r.fin]=true;});
+    var horas=Object.keys(horasSet).map(function(k){var p=k.split('|');return{ini:p[0],fin:p[1]};});
+    horas.sort(function(a,b){return a.ini.localeCompare(b.ini);});
+
+    var diasConDatos=DIAS_GRID.filter(function(d){
+      var dow=DOW_MAP[d];
+      return reservasAmb.some(function(r){
+        var p=r.fecha.split('-');
+        return new Date(+p[0],+p[1]-1,+p[2]).getDay()===dow;
+      });
+    });
+    if(!diasConDatos.length) diasConDatos=DIAS_GRID;
+
+    // Encabezado
+    doc.setFillColor(10,25,60); doc.rect(0,0,W,38,'F');
+    doc.setFillColor(224,32,48); doc.rect(0,0,4,38,'F');
+    try{doc.addImage(LOGO_B64,'PNG',6,3,30,30);}catch(e){}
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','bold'); doc.setFontSize(16);
+    doc.text('Horario',W/2,14,{align:'center'});
+    doc.setFontSize(12);
+    doc.text(norm(ambiente),W/2,24,{align:'center'});
+    doc.setFont('helvetica','normal'); doc.setFontSize(7);
+    doc.setTextColor(160,195,255);
+    doc.text('ADMINISTRACION - CAMPUS LAS PALMAS',W/2,32,{align:'center'});
+    doc.setTextColor(120,150,200); doc.setFontSize(6.5);
+    doc.text('Generado: '+new Date().toLocaleDateString('es-ES'),W-6,8,{align:'right'});
+
+    // ====== CALCULAR ESPACIO PARA LEYENDA (ARREGLO) =====================
+    // Pre-calculamos cuantas lineas necesitara la leyenda para reservar espacio
+    doc.setFont('helvetica','bold'); doc.setFontSize(5.5);
+    var carrerasEnAmb={};
+    reservasAmb.forEach(function(r){carrerasEnAmb[r.carrera]=true;});
+    var carrerasLista=Object.keys(carrerasEnAmb);
+    var leyendaLineas=1;
+    var xTemp=5;
+    var marginL_tmp=5;
+    carrerasLista.forEach(function(car){
+      var txt=norm(car);
+      var tw=doc.getTextWidth(txt);
+      if(xTemp+tw+14>W-5){
+        leyendaLineas++;
+        xTemp=marginL_tmp;
+      }
+      xTemp+=tw+14;
+    });
+    var LEYENDA_ALTURA=leyendaLineas*5+8; // alto reservado
+    // ==================================================================
+
+    var marginL=5, marginT=41;
+    var marginB=12+LEYENDA_ALTURA; // reserva espacio para leyenda + pie
+    var gridW=W-marginL-5;
+    var colHora=20;
+    var numDias=diasConDatos.length;
+    var colDia=(gridW-colHora)/numDias;
+    var numFilas=horas.length||1;
+    var headerH=8;
+    var gridH=H-marginT-marginB;
+    var rowH=Math.min(gridH/numFilas,26);
+
+    // Header
+    doc.setFillColor(20,50,110);
+    doc.rect(marginL,marginT,colHora,headerH,'F');
+    doc.setDrawColor(30,60,130); doc.setLineWidth(0.3);
+    doc.rect(marginL,marginT,colHora,headerH);
+    doc.setTextColor(180,210,255); doc.setFont('helvetica','bold'); doc.setFontSize(7);
+    doc.text('Hora',marginL+colHora/2,marginT+5.5,{align:'center'});
+
+    diasConDatos.forEach(function(dia,di){
+      var x=marginL+colHora+di*colDia;
+      doc.setFillColor(20,50,110);
+      doc.rect(x,marginT,colDia,headerH,'F');
+      doc.setDrawColor(30,60,130); doc.setLineWidth(0.3);
+      doc.rect(x,marginT,colDia,headerH);
+      doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(8);
+      doc.text(norm(dia),x+colDia/2,marginT+5.5,{align:'center'});
+    });
+
+    horas.forEach(function(h,hi){
+      var y=marginT+headerH+hi*rowH;
+
+      doc.setFillColor(232,238,252);
+      doc.rect(marginL,y,colHora,rowH,'F');
+      doc.setDrawColor(190,205,230); doc.setLineWidth(0.25);
+      doc.rect(marginL,y,colHora,rowH);
+      doc.setTextColor(20,60,160); doc.setFont('helvetica','bold'); doc.setFontSize(6.5);
+      doc.text(h.ini,marginL+colHora/2,y+rowH/2-1,{align:'center'});
+      doc.text(h.fin,marginL+colHora/2,y+rowH/2+3,{align:'center'});
+
+      diasConDatos.forEach(function(dia,di){
+        var x=marginL+colHora+di*colDia;
+        var dow=DOW_MAP[dia];
+
+        var match=null;
+        for(var ri=0;ri<reservasAmb.length;ri++){
+          var r=reservasAmb[ri];
+          if(r.inicio===h.ini&&r.fin===h.fin){
+            var p=r.fecha.split('-');
+            if(new Date(+p[0],+p[1]-1,+p[2]).getDay()===dow){match=r;break;}
+          }
+        }
+
+        if(match){
+          var col=getColor(match.carrera);
+          doc.setFillColor(col[0],col[1],col[2]);
+          doc.rect(x,y,colDia,rowH,'F');
+          doc.setDrawColor(150,170,200); doc.setLineWidth(0.25);
+          doc.rect(x,y,colDia,rowH);
+
+          var pad=2, lh=3.2, maxW=colDia-pad*2;
+          var yT=y+pad+lh;
+
+          doc.setFont('helvetica','bold'); doc.setFontSize(5.5);
+          doc.setTextColor(40,60,120);
+          doc.text(match.inicio+' - '+match.fin,x+colDia/2,yT,{align:'center',maxWidth:maxW});
+          yT+=lh;
+
+          doc.setFont('helvetica','bold'); doc.setFontSize(6);
+          doc.setTextColor(10,25,60);
+          var mLines=doc.splitTextToSize(norm(match.materia),maxW);
+          mLines.slice(0,2).forEach(function(l){
+            doc.text(l,x+colDia/2,yT,{align:'center'});
+            yT+=lh;
+          });
+
+          if(yT<y+rowH-lh){
+            doc.setFont('helvetica','normal'); doc.setFontSize(5.5);
+            doc.setTextColor(30,45,80);
+            doc.text(norm(match.docente||''),x+colDia/2,yT,{align:'center',maxWidth:maxW});
+            yT+=lh;
+          }
+
+          if(yT<y+rowH-lh){
+            doc.setFont('helvetica','italic'); doc.setFontSize(5);
+            doc.setTextColor(50,70,110);
+            var cLines=doc.splitTextToSize(norm(match.carrera),maxW);
+            doc.text(cLines[0],x+colDia/2,yT,{align:'center'});
+          }
+
+        }else{
+          doc.setFillColor(248,250,255);
+          doc.rect(x,y,colDia,rowH,'F');
+          doc.setDrawColor(208,218,232); doc.setLineWidth(0.2);
+          doc.rect(x,y,colDia,rowH);
+        }
+      });
+    });
+
+    // ====== LEYENDA EN ZONA RESERVADA (debajo del grid) ================
+    var leyendaYStart = marginT + headerH + numFilas*rowH + 5; // debajo del grid
+    // etiqueta "Leyenda:"
+    doc.setFont('helvetica','bold'); doc.setFontSize(6.5);
+    doc.setTextColor(60,80,130);
+    doc.text('Leyenda por carrera:',marginL,leyendaYStart);
+    leyendaYStart+=4;
+
+    doc.setFont('helvetica','bold'); doc.setFontSize(5.5);
+    var leyX=marginL;
+    var leyY=leyendaYStart;
+    carrerasLista.forEach(function(car){
+      var col=carreraColor[car];
+      var txt=norm(car);
+      var tw=doc.getTextWidth(txt);
+      if(leyX+tw+14>W-5){leyY+=5;leyX=marginL;}
+      doc.setFillColor(col[0],col[1],col[2]);
+      doc.rect(leyX,leyY-2.5,5,3.5,'F');
+      doc.setDrawColor(150,170,200); doc.setLineWidth(0.2);
+      doc.rect(leyX,leyY-2.5,5,3.5);
+      doc.setTextColor(20,35,80);
+      doc.text(txt,leyX+6.5,leyY);
+      leyX+=tw+14;
+    });
+    // ===================================================================
+
+    pdfPie(doc,W,H);
+  });
+
+  var nombre=ambList.length===1
+    ?'horario_'+norm(ambList[0]).replace(/[^a-zA-Z0-9]/g,'_')+'_'+new Date().toISOString().split('T')[0]+'.pdf'
+    :'horario_grid_'+new Date().toISOString().split('T')[0]+'.pdf';
+  doc.save(nombre);
+}
+
+/* ===========================================================
+   NUEVO: PDF CALENDARIO VISUAL POR HORAS (semana actual)
+   - Rejilla continua de horas (cada 30 min)
+   - Bloques con duracion real posicionados por y-coord
+   =========================================================== */
+function exportPDFCalendario(datos){
+  var jsPDF=window.jspdf.jsPDF;
+  if(!datos.length)return;
+
+  // Pedir semana a mostrar
+  Swal.fire({
+    title:'Selecciona el lunes de la semana',
+    html:'<input type="date" id="calInicio" class="swal2-input" style="background:#1a2232;color:#dde3f0;border:1px solid #263047;">'
+        +'<p style="font-size:.75rem;color:#7a8baa;margin-top:8px;">Se generara un calendario de 7 dias a partir del lunes seleccionado. Por defecto toma la semana actual.</p>',
+    showCancelButton:true,
+    confirmButtonText:'Generar',
+    cancelButtonText:'Cancelar',
+    background:'#131923',color:'#dde3f0',
+    didOpen:function(){
+      // Default: lunes de la semana actual
+      var d=new Date();
+      var day=d.getDay(); // 0=dom,1=lun...
+      var offset=(day===0?-6:1-day);
+      d.setDate(d.getDate()+offset);
+      var y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
+      document.getElementById('calInicio').value=y+'-'+m+'-'+dd;
+    },
+    preConfirm:function(){
+      var v=document.getElementById('calInicio').value;
+      if(!v){Swal.showValidationMessage('Selecciona una fecha');return false;}
+      return v;
+    }
+  }).then(function(res){
+    if(!res.isConfirmed)return;
+    dibujarCalendario(datos,res.value);
+  });
+}
+
+function dibujarCalendario(datos,lunesStr){
+  var jsPDF=window.jspdf.jsPDF;
+
+  // Generar 7 dias consecutivos desde el "lunes" dado
+  var base=new Date(lunesStr+'T12:00:00');
+  var dias=[];
+  for(var i=0;i<7;i++){
+    var d=new Date(base);
+    d.setDate(base.getDate()+i);
+    var y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
+    dias.push({
+      fecha:y+'-'+m+'-'+dd,
+      dow:d.getDay(),
+      label:DIAS_ES[d.getDay()],
+      display:dd+'/'+m
+    });
+  }
+
+  // Filtrar reservas de esa semana
+  var fechasSet={};
+  dias.forEach(function(di){fechasSet[di.fecha]=true;});
+  var semanaData=datos.filter(function(r){return fechasSet[r.fecha];});
+
+  if(!semanaData.length){
+    Swal.fire({icon:'info',title:'Sin reservas esa semana',background:'#131923',color:'#dde3f0'});
+    return;
+  }
+
+  // Paleta por carrera
+  var PALETA=[
+    [180,220,255],[190,240,195],[255,220,175],[220,200,255],
+    [255,238,175],[175,255,225],[255,200,205],[205,228,255],
+    [238,208,175],[205,255,205],[255,205,238],[228,215,255]
+  ];
+  var carreraColor={};
+  var cIdx=0;
+  function getColor(c){if(!carreraColor[c]){carreraColor[c]=PALETA[cIdx%PALETA.length];cIdx++;}return carreraColor[c];}
+  semanaData.forEach(function(r){getColor(r.carrera);});
+
+  // Determinar rango horario dinamico (con paso 30min)
+  function t2m(t){var p=t.split(':');return (+p[0])*60+(+p[1]);}
+  function m2t(m){var h=Math.floor(m/60),mm=m%60;return String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0');}
+  var minH=24*60,maxH=0;
+  semanaData.forEach(function(r){minH=Math.min(minH,t2m(r.inicio));maxH=Math.max(maxH,t2m(r.fin));});
+  // Redondear a media hora
+  minH=Math.floor(minH/30)*30;
+  maxH=Math.ceil(maxH/30)*30;
+  // Minimo rango 8 horas si es muy pequeno
+  if(maxH-minH<8*60){maxH=minH+8*60;}
+
+  var slots=[];
+  for(var s=minH;s<maxH;s+=30){slots.push(s);}
+
+  // PDF
+  var doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  var W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
+
+  // Encabezado
+  doc.setFillColor(10,25,60);doc.rect(0,0,W,38,'F');
+  doc.setFillColor(224,32,48);doc.rect(0,0,4,38,'F');
+  try{doc.addImage(LOGO_B64,'PNG',6,3,30,30);}catch(e){}
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(14);
+  doc.text('Calendario Semanal de Reservas',W/2,14,{align:'center'});
+  doc.setFont('helvetica','bold');doc.setFontSize(10);
+  var primer=fmtFecha(dias[0].fecha),ultimo=fmtFecha(dias[6].fecha);
+  doc.text('Semana: '+primer+' al '+ultimo,W/2,22,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(7);
+  doc.setTextColor(160,195,255);
+  doc.text('ADMINISTRACION - CAMPUS LAS PALMAS',W/2,30,{align:'center'});
+  doc.setTextColor(120,150,200);doc.setFontSize(6.5);
+  doc.text('Generado: '+new Date().toLocaleDateString('es-ES'),W-6,8,{align:'right'});
+
+  // Pre-calcular altura de leyenda
+  doc.setFont('helvetica','bold');doc.setFontSize(5.5);
+  var carrerasL=Object.keys(carreraColor);
+  var linL=1,xT=5;
+  carrerasL.forEach(function(car){
+    var tw=doc.getTextWidth(norm(car));
+    if(xT+tw+14>W-5){linL++;xT=5;}
+    xT+=tw+14;
+  });
+  var leyAlt=linL*5+10;
+
+  // Geometria del grid
+  var marginL=5, marginT=41, marginB=12+leyAlt;
+  var gridW=W-marginL-5;
+  var colHora=15;
+  var colDia=(gridW-colHora)/7;
+  var headerH=9;
+  var gridH=H-marginT-marginB-headerH;
+  var slotH=gridH/slots.length;
+
+  // Header dias
+  doc.setFillColor(20,50,110);
+  doc.rect(marginL,marginT,colHora,headerH,'F');
+  doc.setDrawColor(30,60,130);doc.setLineWidth(0.3);
+  doc.rect(marginL,marginT,colHora,headerH);
+  doc.setTextColor(180,210,255);doc.setFont('helvetica','bold');doc.setFontSize(7);
+  doc.text('Hora',marginL+colHora/2,marginT+6,{align:'center'});
+
+  dias.forEach(function(di,i){
+    var x=marginL+colHora+i*colDia;
+    var esFinde=(di.dow===0||di.dow===6);
+    doc.setFillColor(esFinde?80:20,esFinde?35:50,esFinde?80:110);
+    doc.rect(x,marginT,colDia,headerH,'F');
+    doc.setDrawColor(30,60,130);doc.setLineWidth(0.3);
+    doc.rect(x,marginT,colDia,headerH);
+    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
+    doc.text(di.label,x+colDia/2,marginT+4.5,{align:'center'});
+    doc.setFont('helvetica','normal');doc.setFontSize(6.5);
+    doc.setTextColor(200,215,240);
+    doc.text(di.display,x+colDia/2,marginT+7.5,{align:'center'});
+  });
+
+  // Grid base (slots de 30 min)
+  var gridY0=marginT+headerH;
+  slots.forEach(function(m,si){
+    var y=gridY0+si*slotH;
+    var esHora=(m%60===0);
+
+    // Celda hora
+    doc.setFillColor(esHora?232:242,esHora?238:246,esHora?252:254);
+    doc.rect(marginL,y,colHora,slotH,'F');
+    doc.setDrawColor(esHora?180:215,esHora?195:225,esHora?220:240);
+    doc.setLineWidth(esHora?0.3:0.15);
+    doc.rect(marginL,y,colHora,slotH);
+
+    if(esHora){
+      doc.setTextColor(20,60,160);doc.setFont('helvetica','bold');doc.setFontSize(7);
+      doc.text(m2t(m),marginL+colHora/2,y+slotH/2+1.5,{align:'center'});
+    }
+
+    // Celdas por dia
+    dias.forEach(function(di,i){
+      var x=marginL+colHora+i*colDia;
+      var esFinde=(di.dow===0||di.dow===6);
+      doc.setFillColor(esFinde?245:249,esFinde?245:251,esFinde?250:255);
+      doc.rect(x,y,colDia,slotH,'F');
+      doc.setDrawColor(esHora?195:220,esHora?208:228,esHora?232:240);
+      doc.setLineWidth(esHora?0.25:0.12);
+      doc.rect(x,y,colDia,slotH);
+    });
+  });
+
+  // Pintar bloques de reserva con altura proporcional
+  dias.forEach(function(di,iDia){
+    var reservasDia=semanaData.filter(function(r){return r.fecha===di.fecha;});
+    // ordenar por hora inicio
+    reservasDia.sort(function(a,b){return a.inicio.localeCompare(b.inicio);});
+
+    // Detectar solapamientos para dividir columnas
+    // Simple: asignar slot column si hay choque
+    var columnas=[]; // cada columna es un array de reservas
+    reservasDia.forEach(function(r){
+      var ci=t2m(r.inicio), cf=t2m(r.fin);
+      var puesta=false;
+      for(var c=0;c<columnas.length && !puesta;c++){
+        var hayChoque=columnas[c].some(function(x){
+          var xi=t2m(x.inicio),xf=t2m(x.fin);
+          return ci<xf && cf>xi;
+        });
+        if(!hayChoque){columnas[c].push(r);r._col=c;puesta=true;}
+      }
+      if(!puesta){columnas.push([r]);r._col=columnas.length-1;}
+    });
+    var nCols=columnas.length||1;
+
+    reservasDia.forEach(function(r){
+      var ci=t2m(r.inicio),cf=t2m(r.fin);
+      if(cf<=minH||ci>=maxH)return;
+      var ciClamp=Math.max(ci,minH),cfClamp=Math.min(cf,maxH);
+
+      var yTop=gridY0+((ciClamp-minH)/30)*slotH;
+      var yBot=gridY0+((cfClamp-minH)/30)*slotH;
+      var alto=Math.max(yBot-yTop-0.6,3);
+
+      var xBase=marginL+colHora+iDia*colDia;
+      var anchoCol=(colDia-1)/nCols;
+      var xBloque=xBase+0.5+r._col*anchoCol;
+      var anchoBloque=anchoCol-0.5;
+
+      var col=getColor(r.carrera);
+      doc.setFillColor(col[0],col[1],col[2]);
+      doc.roundedRect(xBloque,yTop+0.3,anchoBloque,alto,1,1,'F');
+      doc.setDrawColor(100,130,170);doc.setLineWidth(0.3);
+      doc.roundedRect(xBloque,yTop+0.3,anchoBloque,alto,1,1,'S');
+
+      // Contenido: hora, materia, docente
+      var padX=1.2,padY=2.5,lh=2.8;
+      var maxWb=anchoBloque-padX*2;
+      var yT=yTop+padY+2;
+
+      doc.setFont('helvetica','bold');doc.setFontSize(5.5);
+      doc.setTextColor(40,60,120);
+      if(yT<yTop+alto-lh){
+        doc.text(r.inicio+' - '+r.fin,xBloque+anchoBloque/2,yT,{align:'center',maxWidth:maxWb});
+        yT+=lh;
+      }
+      // Materia
+      doc.setFont('helvetica','bold');doc.setFontSize(5.8);
+      doc.setTextColor(10,25,60);
+      var mLines=doc.splitTextToSize(norm(r.materia),maxWb);
+      var maxLines=Math.max(1,Math.floor((alto-(yT-yTop)-padY)/lh));
+      mLines.slice(0,maxLines).forEach(function(ln){
+        if(yT<yTop+alto-1){
+          doc.text(ln,xBloque+anchoBloque/2,yT,{align:'center'});
+          yT+=lh;
+        }
+      });
+      // Docente + ambiente si cabe
+      if(yT<yTop+alto-lh){
+        doc.setFont('helvetica','normal');doc.setFontSize(5);
+        doc.setTextColor(40,55,95);
+        var dt=doc.splitTextToSize(norm(r.docente||''),maxWb);
+        doc.text(dt[0],xBloque+anchoBloque/2,yT,{align:'center'});
+        yT+=lh;
+      }
+      if(yT<yTop+alto-lh){
+        doc.setFont('helvetica','italic');doc.setFontSize(4.8);
+        doc.setTextColor(70,90,130);
+        var at=doc.splitTextToSize(norm(r.ambiente||''),maxWb);
+        doc.text(at[0],xBloque+anchoBloque/2,yT,{align:'center'});
+      }
+    });
+  });
+
+  // Leyenda debajo del grid
+  var leyY=gridY0+slots.length*slotH+6;
+  doc.setFont('helvetica','bold');doc.setFontSize(6.5);
+  doc.setTextColor(60,80,130);
+  doc.text('Leyenda por carrera:',marginL,leyY);
+  leyY+=4;
+
+  doc.setFont('helvetica','bold');doc.setFontSize(5.5);
+  var leyX=marginL;
+  Object.keys(carreraColor).forEach(function(car){
+    var col=carreraColor[car];
+    var txt=norm(car);
+    var tw=doc.getTextWidth(txt);
+    if(leyX+tw+14>W-5){leyY+=5;leyX=marginL;}
+    doc.setFillColor(col[0],col[1],col[2]);
+    doc.rect(leyX,leyY-2.5,5,3.5,'F');
+    doc.setDrawColor(150,170,200);doc.setLineWidth(0.2);
+    doc.rect(leyX,leyY-2.5,5,3.5);
+    doc.setTextColor(20,35,80);
+    doc.text(txt,leyX+6.5,leyY);
+    leyX+=tw+14;
+  });
+
+  pdfPie(doc,W,H);
+
+  doc.save('calendario_semana_'+dias[0].fecha+'.pdf');
+}
+
+function exportPDFGeneral(datos){
+  if(!datos.length)return;
+  var jsPDF=window.jspdf.jsPDF;
+  var doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  var W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
+  pdfTabla(doc,W,H,buildFilas(datos),'REPORTE GENERAL DE RESERVAS DE AMBIENTES');
+  doc.save('reservas_general_'+new Date().toISOString().split('T')[0]+'.pdf');
+}
+function exportPDFPorDia(datos){
+  if(!datos.length)return;
+  var jsPDF=window.jspdf.jsPDF;
+  var porDia={};
+  datos.forEach(function(r){
+    var dow=diaSemana(r.fecha);
+    if(!porDia[dow])porDia[dow]=[];
+    porDia[dow].push(r);
+  });
+  var diasOrden=['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'];
+  var diasConDatos=diasOrden.filter(function(d){return porDia[d]&&porDia[d].length;});
+  if(!diasConDatos.length){Swal.fire({icon:'info',title:'Sin datos',background:'#131923',color:'#dde3f0'});return;}
+  var doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  var W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
+  diasConDatos.forEach(function(dia,idx){
+    if(idx>0)doc.addPage();
+    var titulo='RESERVAS DEL '+dia.toUpperCase()+' - CAMPUS LAS PALMAS';
+    pdfTabla(doc,W,H,buildFilas(porDia[dia]),titulo);
+  });
+  doc.save('reservas_por_dia_'+new Date().toISOString().split('T')[0]+'.pdf');
+}
+
+/* DRAWER */
+function abrirDrawer(){document.getElementById('sidebar').classList.add('drawer-open');document.getElementById('sideOverlay').classList.add('open');document.getElementById('btnCerrarDrawer').style.display='flex';document.body.style.overflow='hidden';}
+function cerrarDrawer(){document.getElementById('sidebar').classList.remove('drawer-open');document.getElementById('sideOverlay').classList.remove('open');document.getElementById('btnCerrarDrawer').style.display='none';document.body.style.overflow='';}
+
+/* MODAL ESTRUCTURA */
+function abrirModal(){cerrarDrawer();document.getElementById('modalEstructura').classList.add('open');syncModalSelects();renderLstFac();}
+function cerrarModal(){document.getElementById('modalEstructura').classList.remove('open');initForm();mostrar();}
+function switchTab(id,btn){document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('on');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});document.getElementById(id).classList.add('on');btn.classList.add('on');syncModalSelects();}
+function syncModalSelects(){
+  var facs=Object.keys(estructura);
+  ['selFacCar','selFacMat'].forEach(function(sid){
+    var el=document.getElementById(sid),v=el.value,h='';
+    facs.forEach(function(f){h+='<option'+(f===v?' selected':'')+'>'+f+'</option>';});
+    el.innerHTML=h;
+  });
+  renderLstCar();syncCarMat();
+}
+function renderLstFac(){
+  var keys=Object.keys(estructura),h='';
+  if(!keys.length)h='<p style="color:var(--muted);font-size:.8rem">Sin facultades.</p>';
+  else keys.forEach(function(f){h+='<div class="item-row"><span>&#127963; '+f+'</span><button class="btn btn-del js-del-fac" data-f="'+f+'">&#x2715;</button></div>';});
+  document.getElementById('lstFac').innerHTML=h;
+}
+function addFacultad(){var v=document.getElementById('inFac').value.trim();if(!v)return;if(estructura[v]){alert('Ya existe.');return;}estructura[v]={};saveEst();document.getElementById('inFac').value='';renderLstFac();syncModalSelects();}
+function renderLstCar(){
+  var f=document.getElementById('selFacCar').value;
+  var keys=f&&estructura[f]?Object.keys(estructura[f]):[],h='';
+  if(!keys.length)h='<p style="color:var(--muted);font-size:.8rem">Sin carreras.</p>';
+  else keys.forEach(function(c){h+='<div class="item-row"><span>&#128218; '+c+'</span><button class="btn btn-del js-del-car" data-f="'+f+'" data-c="'+c+'">&#x2715;</button></div>';});
+  document.getElementById('lstCar').innerHTML=h;
+}
+function addCarrera(){var f=document.getElementById('selFacCar').value,v=document.getElementById('inCar').value.trim();if(!f||!v)return;if(!estructura[f])estructura[f]={};if(estructura[f][v]){alert('Ya existe.');return;}estructura[f][v]=[];saveEst();document.getElementById('inCar').value='';renderLstCar();}
+function syncCarMat(){var f=document.getElementById('selFacMat').value,el=document.getElementById('selCarMat'),h='';(f&&estructura[f]?Object.keys(estructura[f]):[]).forEach(function(c){h+='<option>'+c+'</option>';});el.innerHTML=h;renderLstMat();}
+function renderLstMat(){
+  var f=document.getElementById('selFacMat').value,c=document.getElementById('selCarMat').value;
+  var items=f&&c&&estructura[f]&&estructura[f][c]?estructura[f][c]:[],h='';
+  if(!items.length)h='<p style="color:var(--muted);font-size:.8rem">Sin materias.</p>';
+  else items.forEach(function(m){h+='<div class="item-row"><span>&#128214; '+m+'</span><button class="btn btn-del js-del-mat" data-f="'+f+'" data-c="'+c+'" data-m="'+m+'">&#x2715;</button></div>';});
+  document.getElementById('lstMat').innerHTML=h;
+}
+function addMateria(){var f=document.getElementById('selFacMat').value,c=document.getElementById('selCarMat').value,v=document.getElementById('inMat').value.trim();if(!f||!c||!v)return;if(!estructura[f][c])estructura[f][c]=[];if(estructura[f][c].indexOf(v)>=0){alert('Ya existe.');return;}estructura[f][c].push(v);saveEst();document.getElementById('inMat').value='';renderLstMat();}
+
+/* LIMPIAR */
+function limpiarStorage(){Swal.fire({icon:'warning',title:'Limpiar todos los datos?',html:'Esto eliminara <b>todas las reservas</b>. No se puede deshacer.',showCancelButton:true,confirmButtonText:'Si, limpiar',cancelButtonText:'Cancelar',background:'#131923',color:'#dde3f0',confirmButtonColor:'#e02030'}).then(function(r){if(r.isConfirmed){localStorage.removeItem('rsv3');reservas=[];mostrar();actualizarStats();Swal.fire({icon:'success',title:'Datos limpiados',timer:1400,showConfirmButton:false,background:'#131923',color:'#dde3f0'});}});}
+
+/* INIT */
+initCombos();
+initForm();
+mostrar();
+actualizarStats();
+
+</script>
+</body>
+</html>
