@@ -1313,14 +1313,14 @@ function exportPDFGrid(datos){
         }
       });
     });
-
+    /*
     // ====== LEYENDA EN ZONA RESERVADA (debajo del grid) ================
     var leyendaYStart = marginT + headerH + numFilas*rowH + 5; // debajo del grid
     // etiqueta "Leyenda:"
     doc.setFont('helvetica','bold'); doc.setFontSize(6.5);
     doc.setTextColor(60,80,130);
     doc.text('Leyenda por carrera:',marginL,leyendaYStart);
-    leyendaYStart+=4;
+    leyendaYStart+=4;*/
 
     doc.setFont('helvetica','bold'); doc.setFontSize(5.5);
     var leyX=marginL;
@@ -1610,13 +1610,13 @@ function dibujarCalendario(datos,lunesStr){
       }
     });
   });
-
+/*
   // Leyenda debajo del grid
   var leyY=gridY0+slots.length*slotH+6;
   doc.setFont('helvetica','bold');doc.setFontSize(6.5);
   doc.setTextColor(60,80,130);
   doc.text('Leyenda por carrera:',marginL,leyY);
-  leyY+=4;
+  leyY+=4;*/
 
   doc.setFont('helvetica','bold');doc.setFontSize(5.5);
   var leyX=marginL;
