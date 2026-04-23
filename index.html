@@ -1320,11 +1320,11 @@ function exportPDFGrid(datos){
     doc.setFont('helvetica','bold'); doc.setFontSize(6.5);
     doc.setTextColor(60,80,130);
     doc.text('Leyenda por carrera:',marginL,leyendaYStart);
-    leyendaYStart+=4;*/
+    leyendaYStart+=4;
 
     doc.setFont('helvetica','bold'); doc.setFontSize(5.5);
     var leyX=marginL;
-    //var leyY=leyendaYStart;
+    var leyY=leyendaYStart;
     carrerasLista.forEach(function(car){
       var col=carreraColor[car];
       var txt=norm(car);
@@ -1337,7 +1337,7 @@ function exportPDFGrid(datos){
       doc.setTextColor(20,35,80);
       doc.text(txt,leyX+6.5,leyY);
       leyX+=tw+14;
-    });
+    });*/
     // ===================================================================
 
     pdfPie(doc,W,H);
