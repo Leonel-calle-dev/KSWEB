@@ -295,12 +295,8 @@ tbody td{padding:8px 11px;vertical-align:middle;}
           </div>
         </div>
         <div class="fg">
-          <label>Tema / Titulo de la capacitacion <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba)</span></label>
-          <div class="combo" data-combo="tema">
-            <input type="text" class="combo-input" id="tema" placeholder="Ej: Capacitacion Excel avanzado">
-            <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
-            <div class="combo-list"></div>
-          </div>
+          <label>Tema / Titulo de la capacitacion</label>
+          <input type="text" class="ctrl" id="tema" placeholder="Ej: Capacitacion Excel avanzado">
         </div>
         <div class="fg"><label>Facilitador / Instructor</label><input type="text" id="facilitador" class="ctrl" placeholder="Nombre del facilitador"></div>
         <div class="fg"><label>Dirigido a <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(opcional)</span></label><input type="text" id="dirigidoA" class="ctrl" placeholder="Ej: Personal administrativo, Docentes..."></div>
@@ -416,7 +412,6 @@ tbody td{padding:8px 11px;vertical-align:middle;}
       <button class="tab" onclick="switchTab('tCar',this)">Carreras</button>
       <button class="tab" onclick="switchTab('tMat',this)">Materias</button>
       <button class="tab" onclick="switchTab('tUni',this)">Unidades</button>
-      <button class="tab" onclick="switchTab('tTem',this)">Temas</button>
     </div>
     <div class="tab-panel on" id="tFac">
       <div class="add-row"><input type="text" id="inFac" placeholder="Nueva facultad..."><button class="btn btn-blue" onclick="addFacultad()">+ Agregar</button></div>
@@ -438,11 +433,7 @@ tbody td{padding:8px 11px;vertical-align:middle;}
       <div class="add-row"><input type="text" id="inUni" placeholder="Nueva unidad / departamento..."><button class="btn btn-blue" onclick="addUnidad()">+ Agregar</button></div>
       <div class="item-list" id="lstUni"></div>
     </div>
-    <div class="tab-panel" id="tTem">
-      <select class="m-select" id="selUniTem" onchange="renderLstTem()"></select>
-      <div class="add-row"><input type="text" id="inTem" placeholder="Nuevo tema de capacitacion..."><button class="btn btn-blue" onclick="addTema()">+ Agregar</button></div>
-      <div class="item-list" id="lstTem"></div>
-    </div>
+
     <div class="modal-footer"><button class="btn btn-ghost" onclick="cerrarModal()">Cerrar</button></div>
   </div>
 </div>
@@ -498,11 +489,7 @@ tbody td{padding:8px 11px;vertical-align:middle;}
       </div>
       <div class="fg">
         <label>Tema / Titulo</label>
-        <div class="combo" data-combo="eTema">
-          <input type="text" class="combo-input" id="eTema" placeholder="Tema de la capacitacion">
-          <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
-          <div class="combo-list"></div>
-        </div>
+        <input type="text" class="ctrl" id="eTema" placeholder="Tema de la capacitacion">
       </div>
       <div class="fg"><label>Facilitador</label><input type="text" id="eFacilitador" class="ctrl" placeholder="Instructor"></div>
       <div class="fg"><label>Dirigido a</label><input type="text" id="eDirigidoA" class="ctrl" placeholder="Ej: Personal administrativo"></div>
@@ -1020,7 +1007,7 @@ function guardar(){
     if(!materia){Swal.fire({icon:'warning',title:'Materia requerida',background:'#131923',color:'#dde3f0'});return;}
     if(!docente){Swal.fire({icon:'warning',title:'Docente requerido',background:'#131923',color:'#dde3f0'});return;}
   }else{
-    unidad=getComboValue('unidad');tema=getComboValue('tema');
+    unidad=getComboValue('unidad');tema=document.getElementById('tema').value.trim();
     facilitador=document.getElementById('facilitador').value.trim();
     dirigidoA=document.getElementById('dirigidoA').value.trim();
     if(!unidad){Swal.fire({icon:'warning',title:'Unidad requerida',background:'#131923',color:'#dde3f0'});return;}
@@ -1070,7 +1057,7 @@ function guardar(){
     fechasPendientes=[];softwaresPendientes=[];renderFechas();renderSoftwares();
     document.getElementById('documentoUrl').value='';
     if(tipoActual==='clase'){document.getElementById('docente').value='';}
-    else{document.getElementById('facilitador').value='';document.getElementById('dirigidoA').value='';}
+    else{document.getElementById('facilitador').value='';document.getElementById('dirigidoA').value='';document.getElementById('tema').value='';}
     document.getElementById('ambiente').value='';
     Swal.fire({icon:'success',title:'Solicitud guardada!',text:total+' reserva'+(total!==1?'s':'')+' registrada'+(total!==1?'s':'')+'.',
       timer:2000,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
@@ -1153,7 +1140,7 @@ function abrirModalEdicion(r){
   _editId=r.id;_editSolicitudId=r.solicitudId;
   setTipoEdit(r.tipo||'clase');
   if(r.tipo==='capacitacion'){
-    setComboValue('eUnidad',r.unidad||'');setComboValue('eTema',r.tema||'');
+    setComboValue('eUnidad',r.unidad||'');document.getElementById('eTema').value=r.tema||'';
     document.getElementById('eFacilitador').value=r.facilitador||'';
     document.getElementById('eDirigidoA').value=r.dirigidoA||'';
   }else{
@@ -1287,7 +1274,7 @@ function guardarEdicion(){
     if(!facultad||!carrera||!materia){Swal.fire({icon:'warning',title:'Completa Facultad, Carrera y Materia',background:'#131923',color:'#dde3f0'});return;}
     if(!docente){Swal.fire({icon:'warning',title:'Docente requerido',background:'#131923',color:'#dde3f0'});return;}
   }else{
-    unidad=getComboValue('eUnidad');tema=getComboValue('eTema');
+    unidad=getComboValue('eUnidad');tema=document.getElementById('eTema').value.trim();
     facilitador=document.getElementById('eFacilitador').value.trim();
     dirigidoA=document.getElementById('eDirigidoA').value.trim();
     if(!unidad||!tema){Swal.fire({icon:'warning',title:'Completa Unidad y Tema',background:'#131923',color:'#dde3f0'});return;}
@@ -1783,7 +1770,8 @@ function exportInformePDF(){
   if(!ultimoInforme||!ultimoInforme.datos.length){Swal.fire({icon:'info',title:'Sin datos',background:'#131923',color:'#dde3f0'});return;}
   var jsPDF=window.jspdf.jsPDF;
   var doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  var W=doc.internal.pageSize.getWidth();
+  var W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
+
   // Encabezado
   doc.setFillColor(10,25,60);doc.rect(0,0,W,28,'F');
   doc.setFillColor(139,95,191);doc.rect(0,0,4,28,'F');
@@ -1805,6 +1793,7 @@ function exportInformePDF(){
   var totalAt=datos.length,totalHoras=0;
   var solsSet={},respSet={},ambC={},respC={},origenC={};
   var totClases=0,totCaps=0;
+  var porMes={},porDow=[0,0,0,0,0,0,0];
   datos.forEach(function(r){
     totalHoras+=horasEntre(r.inicio,r.fin);
     if(r.solicitudId)solsSet[r.solicitudId]=true;
@@ -1815,12 +1804,16 @@ function exportInformePDF(){
     if(resp)respC[resp]=(respC[resp]||0)+1;
     if(origen)origenC[origen]=(origenC[origen]||0)+1;
     if(r.tipo==='capacitacion')totCaps++;else totClases++;
+    var ym=r.fecha.substring(0,7);porMes[ym]=(porMes[ym]||0)+1;
+    porDow[new Date(r.fecha+'T12:00:00').getDay()]++;
   });
   function ordenarDescV(o){return Object.keys(o).map(function(k){return{k:k,v:o[k]};}).sort(function(a,b){return b.v-a.v;});}
   var ambListados=ordenarDescV(ambC);
   var respListados=ordenarDescV(respC);
   var origenListados=ordenarDescV(origenC);
+  var mesesOrd=Object.keys(porMes).sort();
 
+  // KPIs
   var kpiY=35;
   var kpis=[
     ['Atenciones realizadas',String(totalAt),Object.keys(solsSet).length+' solicitudes',[224,32,48]],
@@ -1844,7 +1837,100 @@ function exportInformePDF(){
     doc.text(norm(k[2]),x+5,y+18);
   });
 
-  var tablaY=kpiY+2*(kpiH+3)+10;
+  /* ---- Helper: dibujar grafico de barras directamente en el PDF ---- */
+  function pdfBarChart(titulo,labels,valores,color,startY,chartH){
+    chartH=chartH||42;
+    var marginL=14,marginR=14;
+    var cW=W-marginL-marginR;
+    var maxV=Math.max.apply(null,valores)||1;
+    var n=labels.length;
+    var barW=Math.min((cW/n)*0.6,18);
+    var gap=(cW-(barW*n))/(n+1);
+    var axisY=startY+chartH;
+    var axisX=marginL;
+
+    // Titulo
+    doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(30,50,110);
+    doc.text(norm(titulo),marginL,startY-2);
+
+    // Fondo suave
+    doc.setFillColor(248,250,255);doc.rect(marginL,startY,cW,chartH,'F');
+    doc.setDrawColor(210,218,232);doc.setLineWidth(0.2);doc.rect(marginL,startY,cW,chartH,'S');
+
+    // Lineas guia horizontales
+    for(var g=0;g<=4;g++){
+      var gy=axisY-((chartH-4)*g/4);
+      var gv=Math.round(maxV*g/4);
+      doc.setDrawColor(220,228,238);doc.setLineWidth(0.15);
+      doc.line(axisX,gy,axisX+cW,gy);
+      doc.setFont('helvetica','normal');doc.setFontSize(5);doc.setTextColor(140,155,180);
+      doc.text(String(gv),axisX-1,gy+1.2,{align:'right'});
+    }
+
+    // Barras
+    labels.forEach(function(lb,i){
+      var bx=axisX+gap+(barW+gap)*i;
+      var bh=Math.max((chartH-4)*valores[i]/maxV,0.5);
+      var by=axisY-bh;
+      // Sombra leve
+      doc.setFillColor(color[0]-30,color[1]-30,color[2]-30);
+      doc.rect(bx+0.8,by+0.8,barW,bh,'F');
+      // Barra
+      doc.setFillColor(color[0],color[1],color[2]);
+      doc.rect(bx,by,barW,bh,'F');
+      // Valor encima
+      if(valores[i]>0){
+        doc.setFont('helvetica','bold');doc.setFontSize(6);doc.setTextColor(20,40,100);
+        doc.text(String(valores[i]),bx+barW/2,by-1.2,{align:'center'});
+      }
+      // Label debajo
+      doc.setFont('helvetica','normal');doc.setFontSize(5.5);doc.setTextColor(70,90,130);
+      var lbShort=norm(lb).length>8?norm(lb).substring(0,7)+'.':norm(lb);
+      doc.text(lbShort,bx+barW/2,axisY+4,{align:'center'});
+    });
+    return startY+chartH+10;
+  }
+
+  // --- Pagina 2: Graficos ---
+  doc.addPage();
+  // Mini encabezado
+  doc.setFillColor(10,25,60);doc.rect(0,0,W,14,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(9);
+  doc.text('GRAFICOS - INFORME DE ATENCIONES',W/2,9,{align:'center'});
+
+  var gY=22;
+
+  // Grafico 1: Atenciones por mes
+  if(mesesOrd.length){
+    var mesLabels=mesesOrd.map(function(m){var p=m.split('-');return MESES[+p[1]-1].substring(0,3)+(p[0]!==new Date().getFullYear().toString()?' '+p[0].substring(2):'');});
+    var mesVals=mesesOrd.map(function(m){return porMes[m];});
+    gY=pdfBarChart('Atenciones por mes',mesLabels,mesVals,[126,174,255],gY,50);
+  }
+
+  // Grafico 2: Atenciones por dia de semana
+  var dowLabels=['Lun','Mar','Mie','Jue','Vie','Sab','Dom'];
+  var dowVals=[porDow[1],porDow[2],porDow[3],porDow[4],porDow[5],porDow[6],porDow[0]];
+  gY=pdfBarChart('Atenciones por dia de semana',dowLabels,dowVals,[110,215,154],gY,45);
+
+  // Grafico 3: Top 5 ambientes
+  var amb5=ambListados.slice(0,5);
+  if(amb5.length){
+    gY=pdfBarChart('Top 5 ambientes mas usados',amb5.map(function(x){return x.k;}),amb5.map(function(x){return x.v;}),[255,174,77],gY,45);
+  }
+
+  // Grafico 4: Top 5 responsables
+  var resp5=respListados.slice(0,5);
+  if(resp5.length){
+    pdfBarChart('Top 5 responsables',resp5.map(function(x){return x.k;}),resp5.map(function(x){return x.v;}),[200,168,234],gY,45);
+  }
+
+  // --- Pagina 3: Tablas detalle ---
+  doc.addPage();
+  doc.setFillColor(10,25,60);doc.rect(0,0,W,14,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(9);
+  doc.text('DETALLE POR TABLAS',W/2,9,{align:'center'});
+
+  var tablaY=20;
   doc.setTextColor(40,60,120);doc.setFont('helvetica','bold');doc.setFontSize(9);
   doc.text('Detalle por Facultad / Unidad',14,tablaY);
   doc.autoTable({
@@ -1858,7 +1944,6 @@ function exportInformePDF(){
     margin:{left:14,right:14,bottom:14}
   });
 
-  var H=doc.internal.pageSize.getHeight();
   var y2=doc.lastAutoTable.finalY+12;
   if(y2>H-40){doc.addPage();y2=20;}
   doc.setTextColor(40,60,120);doc.setFont('helvetica','bold');doc.setFontSize(9);
@@ -2214,31 +2299,10 @@ function exportPDFGrid(datos,lunesStr){
   var jsPDF=window.jspdf.jsPDF;
   if(!datos||!datos.length){Swal.fire({icon:'info',title:'Sin datos',background:'#131923',color:'#dde3f0'});return;}
   if(!lunesStr){Swal.fire({icon:'warning',title:'Selecciona una semana primero',background:'#131923',color:'#dde3f0'});return;}
-
-  // --- Pedir nombre del salon/bloque ---
-  Swal.fire({
-    title:'Datos del horario',
-    html:'<div style="text-align:left">'
-      +'<label style="font-size:.8rem;color:#7a8baa;display:block;margin-bottom:4px;">Salon / Ambiente</label>'
-      +'<input id="gridSalon" class="swal2-input" placeholder="Ej: SALON INFORMATICO" style="background:#1a2232;color:#dde3f0;border:1px solid #263047;">'
-      +'<label style="font-size:.8rem;color:#7a8baa;display:block;margin-top:10px;margin-bottom:4px;">Bloque</label>'
-      +'<input id="gridBloque" class="swal2-input" placeholder="Ej: BLOQUE F" style="background:#1a2232;color:#dde3f0;border:1px solid #263047;">'
-      +'</div>',
-    showCancelButton:true,confirmButtonText:'Generar PDF',cancelButtonText:'Cancelar',
-    confirmButtonColor:'#2255a4',background:'#131923',color:'#dde3f0',
-    preConfirm:function(){
-      return {
-        salon:(document.getElementById('gridSalon').value||'SALON').toUpperCase(),
-        bloque:(document.getElementById('gridBloque').value||'').toUpperCase()
-      };
-    }
-  }).then(function(res){
-    if(!res.isConfirmed)return;
-    _generarGridPDF(datos,lunesStr,res.value.salon,res.value.bloque);
-  });
+  _generarGridPDF(datos,lunesStr);
 }
 
-function _generarGridPDF(datos,lunesStr,salon,bloque){
+function _generarGridPDF(datos,lunesStr){
   var jsPDF=window.jspdf.jsPDF;
 
   // Construir los 7 dias de la semana a partir del lunes seleccionado
@@ -2260,24 +2324,24 @@ function _generarGridPDF(datos,lunesStr,salon,bloque){
       background:'#131923',color:'#dde3f0'});return;
   }
 
+  // Auto-detectar salon y bloque desde los datos
+  var ambientes={};semanaData.forEach(function(r){if(r.ambiente)ambientes[r.ambiente]=(ambientes[r.ambiente]||0)+1;});
+  var ambMasFrecuente=Object.keys(ambientes).sort(function(a,b){return ambientes[b]-ambientes[a];})[0]||'';
+  // Intentar separar "Salon Informatico Bloque F" -> salon + bloque
+  var salon=ambMasFrecuente.toUpperCase(),bloque='';
+  var bloqueMatch=ambMasFrecuente.match(/\bbloque\s+\S+/i);
+  if(bloqueMatch){bloque=bloqueMatch[0].toUpperCase();salon=ambMasFrecuente.replace(bloqueMatch[0],'').trim().toUpperCase();}
+
   // Solo dias con datos (lun-sab por default, excluir dom si no hay nada)
   var diasConDatos=diasSemana.filter(function(di){
     return semanaData.some(function(r){return r.fecha===di.fecha;});
   });
   if(!diasConDatos.length)diasConDatos=diasSemana.slice(1,6);
 
-  // Paleta pastel por tipo/materia (igual a la imagen: amarillo, azul claro, verde, lila)
+  // Paleta pastel por tipo/materia
   var PALETA_PASTEL=[
-    [255,250,190], // amarillo claro (Dibujo Computarizado)
-    [180,210,240], // azul pastel    (Administracion Agropecuaria)
-    [190,235,200], // verde pastel   (DICYT)
-    [225,210,250], // lila pastel    (TIC Agropecuaria)
-    [255,225,200], // naranja pastel
-    [200,240,230], // aqua pastel
-    [250,205,220], // rosa pastel
-    [215,235,255], // celeste
-    [240,230,200], // crema
-    [210,250,215], // menta
+    [255,250,190],[180,210,240],[190,235,200],[225,210,250],[255,225,200],
+    [200,240,230],[250,205,220],[215,235,255],[240,230,200],[210,250,215],
   ];
   var materiaColor={},colorIdx=0;
   function getColorMateria(r){
@@ -2285,7 +2349,6 @@ function _generarGridPDF(datos,lunesStr,salon,bloque){
     if(!materiaColor[key]){materiaColor[key]=PALETA_PASTEL[colorIdx%PALETA_PASTEL.length];colorIdx++;}
     return materiaColor[key];
   }
-  // Pre-asignar colores ordenados
   var keysOrdenadas=[];
   semanaData.forEach(function(r){
     var key=(r.tipo==='capacitacion')?(r.unidad||r.tema||'CAP'):(r.materia||r.facultad||'?');
@@ -2295,54 +2358,51 @@ function _generarGridPDF(datos,lunesStr,salon,bloque){
     if(!materiaColor[k]){materiaColor[k]=PALETA_PASTEL[colorIdx%PALETA_PASTEL.length];colorIdx++;}
   });
 
-  // Rango de horas
+  // Rango de horas — solo horas con reservas
   function t2m(t){var p=String(t).split(':');return(+p[0])*60+(+p[1]);}
   function m2t(m){return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');}
   var minH=24*60,maxH=0;
   semanaData.forEach(function(r){minH=Math.min(minH,t2m(r.inicio));maxH=Math.max(maxH,t2m(r.fin));});
   minH=Math.floor(minH/60)*60;maxH=Math.ceil(maxH/60)*60;
-  if(maxH-minH<3*60)maxH=minH+3*60;
 
-  // Slots de 30 min — pero mostraremos solo las horas en la columna
-  var slotsHoras=[];
-  for(var s=minH;s<=maxH;s+=60)slotsHoras.push(s);
+  // Construir slots de 1h — SOLO horas que tienen al menos una reserva activa
+  var slotsHorasAll=[];
+  for(var s=minH;s<maxH;s+=60)slotsHorasAll.push(s);
+
+  // Filtrar solo horas que tienen alguna reserva en alguno de los dias
+  var slotsHoras=slotsHorasAll.filter(function(hm){
+    return semanaData.some(function(r){
+      return t2m(r.inicio)<hm+60 && t2m(r.fin)>hm;
+    });
+  });
+  if(!slotsHoras.length)slotsHoras=slotsHorasAll;
 
   var doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
   var W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
 
-  // === ENCABEZADO (azul oscuro como en la imagen) ===
+  // === ENCABEZADO ===
   var hdrH=22;
   doc.setFillColor(13,35,80);doc.rect(0,0,W,hdrH,'F');
-
-  // Logo
   try{doc.addImage(LOGO_B64,'PNG',6,3,16,16);}catch(e){}
-
-  // Titulo principal
-  var tituloSalon='HORARIO - '+salon+(bloque?' - '+bloque:'');
+  var tituloSalon='Horario - '+salon+(bloque?' - '+bloque:'');
   doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(13);
   doc.text(norm(tituloSalon),W/2,10,{align:'center'});
-
-  // Subtitulo
   doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(180,200,235);
   doc.text('ADMINISTRACION - CAMPUS LAS PALMAS',W/2,16,{align:'center'});
-
-  // Fecha generacion
   doc.setFontSize(6);doc.setTextColor(150,175,215);
   doc.text('Generado: '+new Date().toLocaleDateString('es-ES'),W-6,6,{align:'right'});
 
   // === LAYOUT GRILLA ===
   var marginL=6,marginT=hdrH+4,marginR=6,marginB=6;
   var gridW=W-marginL-marginR;
-  var colHora=14;  // columna de hora (mas estrecha, como en imagen)
+  var colHora=14;
   var colDia=(gridW-colHora)/diasConDatos.length;
-  var headerH=12;  // altura cabecera de dias
+  var headerH=12;
   var gridH=H-marginT-marginB-headerH;
+  var totalSlots=slotsHoras.length;
+  var horaH=Math.max(gridH/Math.max(totalSlots,1),10);
 
-  // Altura por hora (proporcional al rango total)
-  var totalHoras=slotsHoras.length-1; // cantidad de franjas de 1h
-  var horaH=Math.max(gridH/Math.max(totalHoras,1),10);
-
-  // === CABECERA COLUMNA HORA ===
+  // === CABECERA HORA ===
   doc.setFillColor(13,35,80);doc.rect(marginL,marginT,colHora,headerH,'F');
   doc.setDrawColor(30,55,120);doc.setLineWidth(0.4);doc.rect(marginL,marginT,colHora,headerH);
   doc.setTextColor(160,195,240);doc.setFont('helvetica','bold');doc.setFontSize(7);
@@ -2352,7 +2412,6 @@ function _generarGridPDF(datos,lunesStr,salon,bloque){
   diasConDatos.forEach(function(di,i){
     var x=marginL+colHora+i*colDia;
     var esSab=(di.dow===6),esDom=(di.dow===0);
-    // Sabado: azul mas oscuro/opaco; dias normales: azul oscuro institucional
     var r=esSab||esDom?30:13, g=esSab||esDom?50:35, b=esSab||esDom?100:80;
     doc.setFillColor(r,g,b);doc.rect(x,marginT,colDia,headerH,'F');
     doc.setDrawColor(30,55,120);doc.setLineWidth(0.4);doc.rect(x,marginT,colDia,headerH);
@@ -2360,24 +2419,21 @@ function _generarGridPDF(datos,lunesStr,salon,bloque){
     doc.text(norm(di.label),x+colDia/2,marginT+7,{align:'center'});
   });
 
-  // === GRILLA DE HORAS ===
+  // === GRILLA DE HORAS (solo slots con reservas) ===
   var gridY0=marginT+headerH;
 
   slotsHoras.forEach(function(m,si){
-    if(si>=totalHoras)return; // ultima linea no dibuja fila
     var y=gridY0+si*horaH;
 
-    // Columna hora — mostrar rango hh:00 - hh+1:00
+    // Columna hora
     doc.setFillColor(240,243,248);doc.rect(marginL,y,colHora,horaH,'F');
     doc.setDrawColor(190,200,215);doc.setLineWidth(0.3);doc.rect(marginL,y,colHora,horaH);
-    // Hora inicio (arriba)
     doc.setTextColor(30,60,130);doc.setFont('helvetica','bold');doc.setFontSize(6.5);
     doc.text(m2t(m),marginL+colHora/2,y+4,{align:'center'});
-    // Hora fin (abajo)
     doc.setFont('helvetica','normal');doc.setFontSize(5.5);doc.setTextColor(100,120,160);
     doc.text(m2t(m+60),marginL+colHora/2,y+horaH-1.5,{align:'center'});
 
-    // Celdas de cada dia (fondo blanco/gris leve)
+    // Celdas de cada dia
     diasConDatos.forEach(function(di,i){
       var x=marginL+colHora+i*colDia;
       var esFinde=(di.dow===0||di.dow===6);
@@ -2408,26 +2464,44 @@ function _generarGridPDF(datos,lunesStr,salon,bloque){
 
     reservasDia.forEach(function(r){
       var ci=t2m(r.inicio),cf=t2m(r.fin);
-      if(cf<=minH||ci>=maxH)return;
-      var ciC=Math.max(ci,minH),cfC=Math.min(cf,maxH);
-      var yTop=gridY0+((ciC-minH)/60)*horaH;
-      var yBot=gridY0+((cfC-minH)/60)*horaH;
-      var alto=Math.max(yBot-yTop-0.6,4);
+      // Calcular posicion Y basada en los slots filtrados
+      // Encontrar indice del primer slot que cubre el inicio
+      var yTop=null,yBot=null;
+      slotsHoras.forEach(function(hm,si){
+        var slotFin=hm+60;
+        // posicion relativa del inicio dentro de este slot
+        if(ci>=hm && ci<slotFin && yTop===null){
+          yTop=gridY0+si*horaH+((ci-hm)/60)*horaH;
+        }
+        if(cf>hm && cf<=slotFin && yBot===null){
+          yBot=gridY0+si*horaH+((cf-hm)/60)*horaH;
+        }
+      });
+      // Si la reserva cruza multiples slots
+      if(yTop===null){
+        var firstSlot=slotsHoras[0];
+        var siStart=0;
+        for(var ss=0;ss<slotsHoras.length;ss++){if(ci>=slotsHoras[ss])siStart=ss;}
+        yTop=gridY0+siStart*horaH+((ci-slotsHoras[siStart])/60)*horaH;
+      }
+      if(yBot===null){
+        var lastSlot=slotsHoras[slotsHoras.length-1];
+        var siEnd=slotsHoras.length-1;
+        for(var se=0;se<slotsHoras.length;se++){if(cf>slotsHoras[se])siEnd=se;}
+        yBot=gridY0+(siEnd+1)*horaH-((slotsHoras[siEnd]+60-cf)/60)*horaH;
+      }
 
+      var alto=Math.max(yBot-yTop-0.6,4);
       var anchoCol=(colDia-1.5)/nCols;
       var xB=x+0.8+(r._col||0)*anchoCol;
       var anchoB=Math.max(anchoCol-0.5,4);
 
       var col=getColorMateria(r);
-      // Fondo celda
       doc.setFillColor(col[0],col[1],col[2]);
       doc.rect(xB,yTop+0.3,anchoB,alto,'F');
-      // Borde izquierdo destacado (como en imagen — borde de acento)
-      var bCol=[col[0]-40,col[1]-40,col[2]-40];
-      bCol=bCol.map(function(v){return Math.max(v,40);});
+      var bCol=[Math.max(col[0]-40,40),Math.max(col[1]-40,40),Math.max(col[2]-40,40)];
       doc.setFillColor(bCol[0],bCol[1],bCol[2]);
       doc.rect(xB,yTop+0.3,1.2,alto,'F');
-      // Borde exterior
       doc.setDrawColor(bCol[0],bCol[1],bCol[2]);doc.setLineWidth(0.3);
       doc.rect(xB,yTop+0.3,anchoB,alto,'S');
 
@@ -2435,17 +2509,14 @@ function _generarGridPDF(datos,lunesStr,salon,bloque){
       var titulo=esCap?(r.tema||r.unidad||''):(r.materia||'');
       var responsable=esCap?(r.facilitador||''):(r.docente||'');
       var carrera=esCap?(r.unidad||''):(r.carrera||'');
-      var horaStr=r.inicio+' - '+r.fin;
 
       var padX=2,lh=3,maxWb=anchoB-padX*2-1.5;
       var yT=yTop+3.5;
 
-      // Hora (negrita, azul oscuro)
       if(alto>4){
         doc.setFont('helvetica','bold');doc.setFontSize(5.5);doc.setTextColor(20,45,110);
-        doc.text(horaStr,xB+padX+1,yT,{maxWidth:maxWb});yT+=lh;
+        doc.text(r.inicio+' - '+r.fin,xB+padX+1,yT,{maxWidth:maxWb});yT+=lh;
       }
-      // Titulo materia (bold, negro/oscuro, mayusculas)
       if(alto>7&&titulo){
         doc.setFont('helvetica','bold');doc.setFontSize(6);doc.setTextColor(15,20,50);
         var tLines=doc.splitTextToSize(norm(titulo).toUpperCase(),maxWb);
@@ -2453,13 +2524,11 @@ function _generarGridPDF(datos,lunesStr,salon,bloque){
           if(yT<yTop+alto-1.5){doc.text(ln,xB+padX+1,yT);yT+=lh;}
         });
       }
-      // Responsable (normal, oscuro)
       if(alto>11&&responsable){
         doc.setFont('helvetica','normal');doc.setFontSize(5.2);doc.setTextColor(30,40,80);
         var rLines=doc.splitTextToSize(norm(responsable).toUpperCase(),maxWb);
         if(yT<yTop+alto-1.5){doc.text(rLines[0],xB+padX+1,yT);yT+=lh;}
       }
-      // Carrera (italic, gris/oscuro)
       if(alto>14&&carrera){
         doc.setFont('helvetica','italic');doc.setFontSize(4.8);doc.setTextColor(60,70,100);
         var cLines=doc.splitTextToSize(norm(carrera).toUpperCase(),maxWb);
