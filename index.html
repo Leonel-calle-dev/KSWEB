@@ -2318,7 +2318,7 @@ function _generarGridPDF(datos,lunesStr,salon,bloque){
   try{doc.addImage(LOGO_B64,'PNG',6,3,16,16);}catch(e){}
 
   // Titulo principal
-  var tituloSalon='Horario - '+salon+(bloque?' - '+bloque:'');
+  var tituloSalon='HORARIO - '+salon+(bloque?' - '+bloque:'');
   doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(13);
   doc.text(norm(tituloSalon),W/2,10,{align:'center'});
 
