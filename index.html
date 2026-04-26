@@ -94,7 +94,7 @@ header{background:linear-gradient(135deg,#0a1a3a,#0f2550);border-bottom:2px soli
 .tab-modo.on{background:var(--blue);border-color:var(--blue);color:#fff;}
 
 /* Stats */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px;}
 .stat{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;text-align:center;position:relative;overflow:hidden;}
 .stat.s-sol{background:linear-gradient(135deg,rgba(139,95,191,.18),rgba(90,61,138,.08));border-color:rgba(139,95,191,.35);}
 .stat .n{font-family:'Montserrat',sans-serif;font-size:1.5rem;font-weight:900;color:var(--text);line-height:1;}
@@ -169,6 +169,53 @@ tbody td{padding:8px 11px;vertical-align:middle;}
 .edit-modal h3{font-family:'Montserrat',sans-serif;font-size:.9rem;font-weight:800;margin-bottom:16px;color:var(--text);}
 .edit-badge-sol{display:inline-block;font-size:.65rem;font-weight:700;color:#c8a8ea;background:rgba(139,95,191,.15);border:1px solid rgba(139,95,191,.35);padding:3px 10px;border-radius:12px;margin-bottom:12px;letter-spacing:.5px;}
 
+/* === SELECTOR TIPO (CLASE / CAPACITACION) === */
+.tipo-selector{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.tipo-btn{padding:12px 8px;border-radius:10px;border:2px solid var(--border);background:var(--s2);color:var(--muted);font-family:'Montserrat',sans-serif;font-size:.7rem;font-weight:800;cursor:pointer;transition:all .2s;letter-spacing:1px;text-align:center;line-height:1.4;}
+.tipo-btn:hover{border-color:var(--blue);}
+.tipo-btn.on.tipo-clase{background:linear-gradient(135deg,rgba(34,85,164,.25),rgba(15,37,80,.15));border-color:var(--blue);color:#a0c4ff;box-shadow:0 0 0 3px rgba(34,85,164,.15);}
+.tipo-btn.on.tipo-cap{background:linear-gradient(135deg,rgba(255,174,77,.22),rgba(180,100,30,.1));border-color:var(--orange);color:#ffcd8a;box-shadow:0 0 0 3px rgba(255,174,77,.15);}
+.tipo-icon{display:block;font-size:1.3rem;margin-bottom:3px;}
+
+.tag-tipo{display:inline-block;font-size:.6rem;font-weight:800;letter-spacing:.5px;padding:2px 7px;border-radius:10px;text-transform:uppercase;margin-right:5px;}
+.tag-tipo.t-clase{background:rgba(34,85,164,.18);color:#a0c4ff;border:1px solid rgba(34,85,164,.4);}
+.tag-tipo.t-cap{background:rgba(255,174,77,.2);color:#ffcd8a;border:1px solid rgba(255,174,77,.45);}
+
+/* === STAT DE CONFLICTOS === */
+.stat.s-conf{background:linear-gradient(135deg,rgba(224,32,48,.2),rgba(140,15,25,.08));border-color:rgba(224,32,48,.4);cursor:pointer;}
+.stat.s-conf:hover{filter:brightness(1.1);}
+.stat.s-conf .n{color:#ff7a85;}
+.stat.s-conf.zero{display:none;}
+
+/* Badge conflicto en tarjeta */
+.tag-conf{display:inline-block;font-size:.6rem;font-weight:700;background:rgba(224,32,48,.18);color:#ff7a85;border:1px solid rgba(224,32,48,.4);padding:2px 8px;border-radius:10px;letter-spacing:.5px;margin-left:4px;cursor:help;}
+
+/* === TABLA SOLICITUDES (MODAL) === */
+.sol-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(4px);z-index:550;overflow-y:auto;padding:20px;}
+.sol-overlay.open{display:block;}
+.sol-wrap{max-width:1200px;margin:0 auto;background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:0 24px 80px rgba(0,0,0,.8);}
+.sol-header{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.sol-header h2{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:800;color:#c8a8ea;flex:1;}
+.sol-filter{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.sol-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+.sol-table thead th{padding:10px 11px;text-align:left;font-family:'Montserrat',sans-serif;font-size:.62rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#c8a8ea;background:linear-gradient(90deg,#3a2a4f,#2a1f3a);white-space:nowrap;}
+.sol-table tbody tr{border-bottom:1px solid var(--border);}
+.sol-table tbody tr:hover{background:rgba(139,95,191,.08);}
+.sol-table tbody td{padding:9px 11px;vertical-align:middle;}
+.sol-row-tipo{font-size:.68rem;font-weight:700;}
+
+/* CONFLICTOS MODAL */
+.conf-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(4px);z-index:550;overflow-y:auto;padding:20px;}
+.conf-overlay.open{display:block;}
+.conf-item{background:var(--s2);border-left:3px solid var(--red);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
+.conf-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;}
+@media(max-width:640px){.conf-pair{grid-template-columns:1fr;}}
+.conf-card{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:10px;}
+.conf-card-title{font-size:.7rem;font-weight:700;color:#ff7a85;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.conf-card-info{font-size:.78rem;line-height:1.4;color:var(--text);}
+.conf-card-info b{color:#a0c4ff;}
+.conf-card-actions{display:flex;gap:6px;margin-top:8px;justify-content:flex-end;}
+
 /* === INFORME === */
 .report-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:700;overflow-y:auto;padding:20px;}
 .report-overlay.open{display:block;}
@@ -235,31 +282,67 @@ tbody td{padding:8px 11px;vertical-align:middle;}
       <button class="btn btn-ghost" id="btnCerrarDrawer" onclick="cerrarDrawer()" style="padding:5px 10px;font-size:.7rem;display:none;">&#x2715; Cerrar</button>
     </div>
     <div class="card">
-      <div class="fg">
-        <label>Facultad <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba nueva)</span></label>
-        <div class="combo" data-combo="facultad">
-          <input type="text" class="combo-input" id="facultad" placeholder="Escribe o selecciona...">
-          <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
-          <div class="combo-list"></div>
-        </div>
+      <!-- SELECTOR TIPO -->
+      <div class="tipo-selector">
+        <button type="button" class="tipo-btn tipo-clase on" id="tipoClaseBtn" onclick="setTipo('clase')">
+          <span class="tipo-icon">&#127979;</span>CLASE
+        </button>
+        <button type="button" class="tipo-btn tipo-cap" id="tipoCapBtn" onclick="setTipo('capacitacion')">
+          <span class="tipo-icon">&#127891;</span>CAPACITACION
+        </button>
       </div>
-      <div class="fg">
-        <label>Carrera <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba nueva)</span></label>
-        <div class="combo" data-combo="carrera">
-          <input type="text" class="combo-input" id="carrera" placeholder="Escribe o selecciona...">
-          <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
-          <div class="combo-list"></div>
+
+      <!-- CAMPOS DE CLASE -->
+      <div id="camposClase">
+        <div class="fg">
+          <label>Facultad <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba nueva)</span></label>
+          <div class="combo" data-combo="facultad">
+            <input type="text" class="combo-input" id="facultad" placeholder="Escribe o selecciona...">
+            <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+            <div class="combo-list"></div>
+          </div>
         </div>
-      </div>
-      <div class="fg">
-        <label>Materia / Asignatura <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba nueva)</span></label>
-        <div class="combo" data-combo="materia">
-          <input type="text" class="combo-input" id="materia" placeholder="Escribe o selecciona...">
-          <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
-          <div class="combo-list"></div>
+        <div class="fg">
+          <label>Carrera <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba nueva)</span></label>
+          <div class="combo" data-combo="carrera">
+            <input type="text" class="combo-input" id="carrera" placeholder="Escribe o selecciona...">
+            <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+            <div class="combo-list"></div>
+          </div>
         </div>
+        <div class="fg">
+          <label>Materia / Asignatura <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba nueva)</span></label>
+          <div class="combo" data-combo="materia">
+            <input type="text" class="combo-input" id="materia" placeholder="Escribe o selecciona...">
+            <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+            <div class="combo-list"></div>
+          </div>
+        </div>
+        <div class="fg"><label>Docente</label><input type="text" id="docente" class="ctrl" placeholder="Nombre completo del docente"></div>
       </div>
-      <div class="fg"><label>Docente</label><input type="text" id="docente" class="ctrl" placeholder="Nombre completo del docente"></div>
+
+      <!-- CAMPOS DE CAPACITACION -->
+      <div id="camposCap" style="display:none;">
+        <div class="fg">
+          <label>Unidad / Departamento <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba)</span></label>
+          <div class="combo" data-combo="unidad">
+            <input type="text" class="combo-input" id="unidad" placeholder="Ej: DTIC, RRHH, Biblioteca...">
+            <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+            <div class="combo-list"></div>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Tema / Titulo de la capacitacion <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba)</span></label>
+          <div class="combo" data-combo="tema">
+            <input type="text" class="combo-input" id="tema" placeholder="Ej: Capacitacion Excel avanzado">
+            <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+            <div class="combo-list"></div>
+          </div>
+        </div>
+        <div class="fg"><label>Facilitador / Instructor</label><input type="text" id="facilitador" class="ctrl" placeholder="Nombre del facilitador"></div>
+        <div class="fg"><label>Dirigido a <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(opcional)</span></label><input type="text" id="dirigidoA" class="ctrl" placeholder="Ej: Personal administrativo, Docentes..."></div>
+      </div>
+
       <div class="fg"><label>Ambiente / Aula</label><input type="text" id="ambiente" class="ctrl" placeholder="Ej: Salon de Informatica, Aula 201"></div>
 
       <div style="margin-bottom:9px;">
@@ -288,7 +371,7 @@ tbody td{padding:8px 11px;vertical-align:middle;}
       </div>
 
       <div style="margin-bottom:9px;">
-        <label style="display:block;font-size:.65rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Fechas y Horarios de Clase</label>
+        <label style="display:block;font-size:.65rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Fechas y Horarios</label>
         <div class="tabs-modo" style="margin-bottom:10px;">
           <button class="tab-modo on" id="modoManual" onclick="setModo('manual')">&#128197; Fechas manuales</button>
           <button class="tab-modo" id="modoRango" onclick="setModo('rango')">&#128260; Por rango y dia</button>
@@ -341,9 +424,10 @@ tbody td{padding:8px 11px;vertical-align:middle;}
   <main>
     <div class="stats">
       <div class="stat"><div class="n" id="statTotal">0</div><div class="l">Reservas</div></div>
-      <div class="stat s-sol"><div class="n" id="statSolicitudes">0</div><div class="l">Solicitudes</div></div>
+      <div class="stat s-sol" onclick="abrirSolicitudes()" style="cursor:pointer;" title="Ver tabla de solicitudes"><div class="n" id="statSolicitudes">0</div><div class="l">Solicitudes</div></div>
       <div class="stat"><div class="n" id="statHoy">0</div><div class="l">Hoy</div></div>
       <div class="stat"><div class="n" id="statAmbientes">0</div><div class="l">Ambientes</div></div>
+      <div class="stat s-conf zero" id="statConfBox" onclick="abrirConflictos()" title="Ver conflictos detectados"><div class="n" id="statConflictos">0</div><div class="l">&#9888; Conflictos</div></div>
     </div>
     <div class="card">
       <div class="card-title">Horario de Reservas por Fecha</div>
@@ -366,11 +450,13 @@ tbody td{padding:8px 11px;vertical-align:middle;}
 <!-- Modal estructura -->
 <div class="overlay" id="modalEstructura">
   <div class="modal">
-    <h3>&#9881; Estructura Academica</h3>
+    <h3>&#9881; Estructura</h3>
     <div class="tabs">
       <button class="tab on" onclick="switchTab('tFac',this)">Facultades</button>
       <button class="tab" onclick="switchTab('tCar',this)">Carreras</button>
       <button class="tab" onclick="switchTab('tMat',this)">Materias</button>
+      <button class="tab" onclick="switchTab('tUni',this)">Unidades</button>
+      <button class="tab" onclick="switchTab('tTem',this)">Temas</button>
     </div>
     <div class="tab-panel on" id="tFac">
       <div class="add-row"><input type="text" id="inFac" placeholder="Nueva facultad..."><button class="btn btn-blue" onclick="addFacultad()">+ Agregar</button></div>
@@ -387,6 +473,16 @@ tbody td{padding:8px 11px;vertical-align:middle;}
       <div class="add-row"><input type="text" id="inMat" placeholder="Nueva materia..."><button class="btn btn-blue" onclick="addMateria()">+ Agregar</button></div>
       <div class="item-list" id="lstMat"></div>
     </div>
+    <div class="tab-panel" id="tUni">
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:10px;">Unidades para Capacitaciones (DTIC, RRHH, etc.)</p>
+      <div class="add-row"><input type="text" id="inUni" placeholder="Nueva unidad / departamento..."><button class="btn btn-blue" onclick="addUnidad()">+ Agregar</button></div>
+      <div class="item-list" id="lstUni"></div>
+    </div>
+    <div class="tab-panel" id="tTem">
+      <select class="m-select" id="selUniTem" onchange="renderLstTem()"></select>
+      <div class="add-row"><input type="text" id="inTem" placeholder="Nuevo tema de capacitacion..."><button class="btn btn-blue" onclick="addTema()">+ Agregar</button></div>
+      <div class="item-list" id="lstTem"></div>
+    </div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="cerrarModal()">Cerrar</button></div>
   </div>
 </div>
@@ -397,35 +493,70 @@ tbody td{padding:8px 11px;vertical-align:middle;}
     <h3>&#9998; Editar Reserva</h3>
     <div id="editBadgeSol"></div>
 
-    <div class="fg">
-      <label>Facultad <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba)</span></label>
-      <div class="combo" data-combo="eFacultad">
-        <input type="text" class="combo-input" id="eFacultad" placeholder="Escribe o selecciona...">
-        <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
-        <div class="combo-list"></div>
-      </div>
-    </div>
-    <div class="fg">
-      <label>Carrera <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba)</span></label>
-      <div class="combo" data-combo="eCarrera">
-        <input type="text" class="combo-input" id="eCarrera" placeholder="Escribe o selecciona...">
-        <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
-        <div class="combo-list"></div>
-      </div>
-    </div>
-    <div class="fg">
-      <label>Materia / Asignatura <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(seleccione o escriba)</span></label>
-      <div class="combo" data-combo="eMateria">
-        <input type="text" class="combo-input" id="eMateria" placeholder="Escribe o selecciona...">
-        <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
-        <div class="combo-list"></div>
-      </div>
+    <!-- Selector tipo en edicion -->
+    <div class="tipo-selector" style="margin-bottom:14px;">
+      <button type="button" class="tipo-btn tipo-clase on" id="eTipoClaseBtn" onclick="setTipoEdit('clase')">
+        <span class="tipo-icon">&#127979;</span>CLASE
+      </button>
+      <button type="button" class="tipo-btn tipo-cap" id="eTipoCapBtn" onclick="setTipoEdit('capacitacion')">
+        <span class="tipo-icon">&#127891;</span>CAPACITACION
+      </button>
     </div>
 
-    <div class="fg"><label>Docente</label><input type="text" id="eDocente" class="ctrl" placeholder="Nombre del docente"></div>
+    <!-- Campos clase -->
+    <div id="eCamposClase">
+      <div class="fg">
+        <label>Facultad</label>
+        <div class="combo" data-combo="eFacultad">
+          <input type="text" class="combo-input" id="eFacultad" placeholder="Escribe o selecciona...">
+          <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+          <div class="combo-list"></div>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Carrera</label>
+        <div class="combo" data-combo="eCarrera">
+          <input type="text" class="combo-input" id="eCarrera" placeholder="Escribe o selecciona...">
+          <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+          <div class="combo-list"></div>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Materia / Asignatura</label>
+        <div class="combo" data-combo="eMateria">
+          <input type="text" class="combo-input" id="eMateria" placeholder="Escribe o selecciona...">
+          <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+          <div class="combo-list"></div>
+        </div>
+      </div>
+      <div class="fg"><label>Docente</label><input type="text" id="eDocente" class="ctrl" placeholder="Nombre del docente"></div>
+    </div>
+
+    <!-- Campos capacitacion -->
+    <div id="eCamposCap" style="display:none;">
+      <div class="fg">
+        <label>Unidad / Departamento</label>
+        <div class="combo" data-combo="eUnidad">
+          <input type="text" class="combo-input" id="eUnidad" placeholder="Ej: DTIC, RRHH...">
+          <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+          <div class="combo-list"></div>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Tema / Titulo</label>
+        <div class="combo" data-combo="eTema">
+          <input type="text" class="combo-input" id="eTema" placeholder="Tema de la capacitacion">
+          <button type="button" class="combo-caret" tabindex="-1">&#9660;</button>
+          <div class="combo-list"></div>
+        </div>
+      </div>
+      <div class="fg"><label>Facilitador</label><input type="text" id="eFacilitador" class="ctrl" placeholder="Instructor"></div>
+      <div class="fg"><label>Dirigido a</label><input type="text" id="eDirigidoA" class="ctrl" placeholder="Ej: Personal administrativo"></div>
+    </div>
+
     <div class="fg"><label>Ambiente / Aula</label><input type="text" id="eAmbiente" class="ctrl" placeholder="Ambiente"></div>
 
-    <!-- Campos de fecha: solo visibles cuando se edita 1 fecha -->
+    <!-- Campos fecha SOLO en modo 'one' -->
     <div id="editCamposFecha">
       <div class="fg"><label>Fecha</label><input type="date" id="eFecha" class="ctrl"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px;">
@@ -434,9 +565,52 @@ tbody td{padding:8px 11px;vertical-align:middle;}
       </div>
     </div>
 
+    <!-- Editor de fechas SOLO en modo 'solicitud' -->
+    <div id="editFechasSolicitud" style="display:none;">
+      <label style="display:block;font-size:.65rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Fechas de la solicitud</label>
+      <div class="tabs-modo" style="margin-bottom:10px;">
+        <button class="tab-modo on" id="eModoManual" onclick="setEditFechaModo('manual')" type="button">&#128197; Manuales</button>
+        <button class="tab-modo" id="eModoRango" onclick="setEditFechaModo('rango')" type="button">&#128260; Por rango</button>
+      </div>
+      <div id="ePanelManual">
+        <div class="fecha-row">
+          <div class="fg"><label>Fecha</label><input type="date" id="eAddFecha" class="ctrl"></div>
+          <div class="fg"><label>Inicio</label><input type="time" id="eAddInicio" class="ctrl"></div>
+          <div class="fg"><label>Fin</label><input type="time" id="eAddFin" class="ctrl"></div>
+          <button type="button" class="btn-plus" onclick="agregarFechaEdit()" title="Agregar">&#xFF0B;</button>
+        </div>
+      </div>
+      <div id="ePanelRango" style="display:none;">
+        <div class="rango-box">
+          <label>Dias de la semana</label>
+          <div class="dias-semana" id="eDiasSemana">
+            <button type="button" class="dia-btn" onclick="toggleDiaEdit(1,this)">Lun</button>
+            <button type="button" class="dia-btn" onclick="toggleDiaEdit(2,this)">Mar</button>
+            <button type="button" class="dia-btn" onclick="toggleDiaEdit(3,this)">Mie</button>
+            <button type="button" class="dia-btn" onclick="toggleDiaEdit(4,this)">Jue</button>
+            <button type="button" class="dia-btn" onclick="toggleDiaEdit(5,this)">Vie</button>
+            <button type="button" class="dia-btn" onclick="toggleDiaEdit(6,this)">Sab</button>
+            <button type="button" class="dia-btn" onclick="toggleDiaEdit(0,this)">Dom</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+            <div class="fg" style="margin:0"><label>Desde</label><input type="date" id="eRangoDesde" class="ctrl"></div>
+            <div class="fg" style="margin:0"><label>Hasta</label><input type="date" id="eRangoHasta" class="ctrl"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+            <div class="fg" style="margin:0"><label>Hora inicio</label><input type="time" id="eRangoInicio" class="ctrl"></div>
+            <div class="fg" style="margin:0"><label>Hora fin</label><input type="time" id="eRangoFin" class="ctrl"></div>
+          </div>
+          <button type="button" class="btn btn-blue" style="width:100%;" onclick="generarFechasRangoEdit()">&#128260; Generar fechas</button>
+        </div>
+      </div>
+      <p style="font-size:.7rem;color:var(--muted);margin:6px 0 4px 0;">Fechas actuales de la solicitud (al guardar se aplican los cambios):</p>
+      <div id="eListaFechas"></div>
+      <div id="eFpEmpty" class="fp-empty" style="display:none;">Sin fechas</div>
+    </div>
+
     <div class="fg">
-      <label>Software <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(texto libre, separar con coma)</span></label>
-      <input type="text" id="eSoftwareTexto" class="ctrl" placeholder="Ej: AutoCAD v2024, SPSS Statistics v29">
+      <label>Software <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">(separar con coma)</span></label>
+      <input type="text" id="eSoftwareTexto" class="ctrl" placeholder="Ej: AutoCAD v2024">
     </div>
     <div class="fg">
       <label>Documento</label>
@@ -445,8 +619,54 @@ tbody td{padding:8px 11px;vertical-align:middle;}
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap;">
       <button class="btn btn-ghost" onclick="cerrarEditar()">Cancelar</button>
-      <button class="btn btn-save" style="width:auto;padding:10px 20px;" onclick="guardarEdicion()">&#x2726; Guardar cambios</button>
+      <button class="btn btn-save" style="width:auto;padding:10px 20px;" onclick="guardarEdicion()">&#x2726; Guardar</button>
     </div>
+  </div>
+</div>
+
+<!-- Modal Solicitudes (tabla) -->
+<div class="sol-overlay" id="solOverlay">
+  <div class="sol-wrap">
+    <div class="sol-header">
+      <h2>&#x1F4CC; Solicitudes Registradas</h2>
+      <button class="btn btn-ghost" onclick="cerrarSolicitudes()">&#x2715; Cerrar</button>
+    </div>
+    <div class="sol-filter">
+      <div class="fg" style="margin:0"><label>Tipo</label>
+        <select id="solFilTipo" class="ctrl" onchange="renderSolicitudes()">
+          <option value="">Todos</option>
+          <option value="clase">Clases</option>
+          <option value="capacitacion">Capacitaciones</option>
+        </select>
+      </div>
+      <div class="fg" style="margin:0"><label>Buscar</label><input type="text" id="solBuscar" class="ctrl" placeholder="Materia, docente, ambiente, unidad..." oninput="renderSolicitudes()"></div>
+    </div>
+    <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--border);">
+      <table class="sol-table">
+        <thead><tr>
+          <th>Tipo</th><th>Tema / Materia</th><th>Responsable</th>
+          <th>Origen</th><th>Ambiente</th>
+          <th style="text-align:center">Fechas</th>
+          <th>Periodo</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="solTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Conflictos -->
+<div class="conf-overlay" id="confOverlay">
+  <div class="sol-wrap">
+    <div class="sol-header">
+      <h2 style="color:#ff7a85;">&#9888; Conflictos de Horario Detectados</h2>
+      <button class="btn btn-ghost" onclick="cerrarConflictos()">&#x2715; Cerrar</button>
+    </div>
+    <p style="font-size:.82rem;color:#a0c4ff;margin-bottom:14px;line-height:1.5;">
+      Estas reservas comparten ambiente, fecha y horario con otra reserva. Se recomienda editar una de las dos para resolver el conflicto.
+    </p>
+    <div id="confBody"></div>
   </div>
 </div>
 
@@ -496,6 +716,15 @@ var estructura=JSON.parse(localStorage.getItem('est3')||'null')||{
   "Humanidades y Educacion":{"Psicologia":["Psicologia General","Psicologia Clinica"],"Comunicacion Social":["Redaccion Periodistica","Comunicacion Digital"],"Educacion":["Didactica General","Pedagogia"]},
   "Derecho y Ciencias Politicas":{"Derecho":["Derecho Civil","Derecho Penal","Derecho Constitucional","Derecho Laboral"],"Ciencias Politicas":["Teoria Politica","Relaciones Internacionales"]}
 };
+/* === ESTRUCTURA DE UNIDADES (CAPACITACIONES) === */
+var unidades=JSON.parse(localStorage.getItem('uni3')||'null')||{
+  "DTIC":["Capacitacion en Office 365","Manejo de plataforma educativa"],
+  "Vicerrectorado Academico":[],
+  "Departamento de Recursos Humanos":["Capacitacion al personal"],
+  "Biblioteca Central":[],
+  "Bienestar Estudiantil":[]
+};
+function saveUni(){localStorage.setItem('uni3',JSON.stringify(unidades));}
 var DIAS=["Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sabado"];
 var DIAS_ES=["Dom","Lun","Mar","Mie","Jue","Vie","Sab"];
 var MESES=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
@@ -506,15 +735,36 @@ function nextId(){return String(++_rid);}
 function nextSolId(){return 's'+(++_rid);}
 var mostrarPasadas=false;
 
+/* === TIPO (CLASE / CAPACITACION) === */
+var tipoActual='clase';
+function setTipo(t){
+  tipoActual=t;
+  document.getElementById('tipoClaseBtn').classList.toggle('on',t==='clase');
+  document.getElementById('tipoCapBtn').classList.toggle('on',t==='capacitacion');
+  document.getElementById('camposClase').style.display=t==='clase'?'block':'none';
+  document.getElementById('camposCap').style.display=t==='capacitacion'?'block':'none';
+}
+var tipoEditActual='clase';
+function setTipoEdit(t){
+  tipoEditActual=t;
+  document.getElementById('eTipoClaseBtn').classList.toggle('on',t==='clase');
+  document.getElementById('eTipoCapBtn').classList.toggle('on',t==='capacitacion');
+  document.getElementById('eCamposClase').style.display=t==='clase'?'block':'none';
+  document.getElementById('eCamposCap').style.display=t==='capacitacion'?'block':'none';
+}
+
 /* MIGRACION - agrupa reservas existentes que compartan
    docente + materia + ambiente + software + facultad + carrera
-   y asigna un solicitudId comun (OPCION A - estricta) */
+   y asigna un solicitudId comun (OPCION A - estricta)
+   Tambien asigna tipo:'clase' por defecto a reservas viejas */
 function migrarSolicitudes(){
-  var necesitaMigrar=reservas.some(function(r){return !r.solicitudId;});
+  var necesitaMigrar=reservas.some(function(r){return !r.solicitudId||!r.tipo;});
   if(!necesitaMigrar)return 0;
+  // Asignar tipo:'clase' a reservas que no lo tengan (datos previos)
+  reservas.forEach(function(r){if(!r.tipo)r.tipo='clase';});
   var grupos={};
   reservas.forEach(function(r){
-    var k=[r.facultad||'',r.carrera||'',r.materia||'',r.docente||'',r.ambiente||'',r.software||''].join('|');
+    var k=[r.tipo||'clase',r.facultad||'',r.carrera||'',r.materia||'',r.docente||'',r.ambiente||'',r.software||''].join('|');
     if(!grupos[k])grupos[k]=[];
     grupos[k].push(r);
   });
@@ -544,6 +794,7 @@ var _comboActive=null;
 function getComboValue(name){var el=document.getElementById(name);return el?el.value.trim():'';}
 function setComboValue(name,val){var el=document.getElementById(name);if(el){el.value=val;}}
 function getOptionsFor(name){
+  // Clases
   if(name==='facultad'||name==='eFacultad') return Object.keys(estructura);
   if(name==='carrera'||name==='eCarrera'){
     var facId=name==='carrera'?'facultad':'eFacultad';
@@ -555,6 +806,13 @@ function getOptionsFor(name){
     var carId=name==='materia'?'carrera':'eCarrera';
     var f2=getComboValue(facId2),c=getComboValue(carId);
     return (f2&&c&&estructura[f2]&&estructura[f2][c])?estructura[f2][c].slice():[];
+  }
+  // Capacitaciones
+  if(name==='unidad'||name==='eUnidad') return Object.keys(unidades);
+  if(name==='tema'||name==='eTema'){
+    var uId=name==='tema'?'unidad':'eUnidad';
+    var u=getComboValue(uId);
+    return (u&&unidades[u])?unidades[u].slice():[];
   }
   return [];
 }
@@ -570,8 +828,12 @@ function renderComboList(combo,filtro){
   }else if(!opts.length){
     var isFac=(name==='facultad'||name==='eFacultad');
     var isCar=(name==='carrera'||name==='eCarrera');
+    var isUni=(name==='unidad'||name==='eUnidad');
+    var isTema=(name==='tema'||name==='eTema');
     var msg=isFac?'Sin facultades. Escribe para crear una nueva.'
           : isCar?'Selecciona una facultad primero o escribe una nueva.'
+          : isUni?'Sin unidades. Escribe para crear una nueva.'
+          : isTema?'Selecciona una unidad primero o escribe un tema nuevo.'
           : 'Selecciona una carrera primero o escribe una nueva.';
     h+='<div class="combo-empty">'+msg+'</div>';
   }
@@ -633,11 +895,23 @@ function initCombos(){
 function initForm(){syncFiltroFac();}
 function syncFiltroFac(){
   var el=document.getElementById('filtroFacultad'),sel=el.value;
-  var h='<option value="">Todas las facultades</option>';
-  var set={};
-  Object.keys(estructura).forEach(function(f){set[f]=true;});
-  reservas.forEach(function(r){if(r.facultad)set[r.facultad]=true;});
-  Object.keys(set).sort().forEach(function(f){h+='<option'+(f===sel?' selected':'')+'>'+f+'</option>';});
+  var h='<option value="">Todas las facultades / unidades</option>';
+  var setFac={},setUni={};
+  Object.keys(estructura).forEach(function(f){setFac[f]=true;});
+  Object.keys(unidades).forEach(function(u){setUni[u]=true;});
+  reservas.forEach(function(r){
+    if(r.tipo==='capacitacion'){if(r.unidad)setUni[r.unidad]=true;}
+    else if(r.facultad)setFac[r.facultad]=true;
+  });
+  var fs=Object.keys(setFac).sort(),us=Object.keys(setUni).sort();
+  if(fs.length){h+='<optgroup label="Facultades (Clases)">';
+    fs.forEach(function(f){h+='<option'+(f===sel?' selected':'')+'>'+f+'</option>';});
+    h+='</optgroup>';
+  }
+  if(us.length){h+='<optgroup label="Unidades (Capacitaciones)">';
+    us.forEach(function(u){h+='<option'+(u===sel?' selected':'')+'>'+u+'</option>';});
+    h+='</optgroup>';
+  }
   el.innerHTML=h;
 }
 
@@ -768,20 +1042,45 @@ function registrarEstructuraAuto(f,c,m){
   }
   saveEst();
 }
+function registrarUnidadAuto(u,t){
+  if(!u)return;
+  if(!unidades[u])unidades[u]=[];
+  if(t && unidades[u].indexOf(t)<0)unidades[u].push(t);
+  saveUni();
+}
 
 /* GUARDAR (nueva solicitud) */
 function guardar(){
-  var docente=document.getElementById('docente').value.trim();
   var ambiente=document.getElementById('ambiente').value.trim();
-  var facultad=getComboValue('facultad');
-  var carrera=getComboValue('carrera');
-  var materia=getComboValue('materia');
-  if(!facultad){Swal.fire({icon:'warning',title:'Facultad requerida',background:'#131923',color:'#dde3f0'});return;}
-  if(!carrera){Swal.fire({icon:'warning',title:'Carrera requerida',background:'#131923',color:'#dde3f0'});return;}
-  if(!materia){Swal.fire({icon:'warning',title:'Materia requerida',background:'#131923',color:'#dde3f0'});return;}
-  if(!docente||!ambiente){Swal.fire({icon:'warning',title:'Completa Docente y Ambiente',background:'#131923',color:'#dde3f0'});return;}
+  var facultad='',carrera='',materia='',docente='';
+  var unidad='',tema='',facilitador='',dirigidoA='';
+
+  if(tipoActual==='clase'){
+    facultad=getComboValue('facultad');
+    carrera=getComboValue('carrera');
+    materia=getComboValue('materia');
+    docente=document.getElementById('docente').value.trim();
+    if(!facultad){Swal.fire({icon:'warning',title:'Facultad requerida',background:'#131923',color:'#dde3f0'});return;}
+    if(!carrera){Swal.fire({icon:'warning',title:'Carrera requerida',background:'#131923',color:'#dde3f0'});return;}
+    if(!materia){Swal.fire({icon:'warning',title:'Materia requerida',background:'#131923',color:'#dde3f0'});return;}
+    if(!docente){Swal.fire({icon:'warning',title:'Docente requerido',background:'#131923',color:'#dde3f0'});return;}
+  }else{
+    unidad=getComboValue('unidad');
+    tema=getComboValue('tema');
+    facilitador=document.getElementById('facilitador').value.trim();
+    dirigidoA=document.getElementById('dirigidoA').value.trim();
+    if(!unidad){Swal.fire({icon:'warning',title:'Unidad requerida',background:'#131923',color:'#dde3f0'});return;}
+    if(!tema){Swal.fire({icon:'warning',title:'Tema requerido',background:'#131923',color:'#dde3f0'});return;}
+    if(!facilitador){Swal.fire({icon:'warning',title:'Facilitador requerido',background:'#131923',color:'#dde3f0'});return;}
+  }
+
+  if(!ambiente){Swal.fire({icon:'warning',title:'Ambiente requerido',background:'#131923',color:'#dde3f0'});return;}
   if(!fechasPendientes.length){Swal.fire({icon:'warning',title:'Sin fechas',text:'Agrega al menos una fecha.',background:'#131923',color:'#dde3f0'});return;}
-  registrarEstructuraAuto(facultad,carrera,materia);
+
+  // Auto-registrar estructura
+  if(tipoActual==='clase')registrarEstructuraAuto(facultad,carrera,materia);
+  else registrarUnidadAuto(unidad,tema);
+
   var swStr=swToStr(softwaresPendientes);
   var file=document.getElementById('documento').files[0];
   function procesar(docData){
@@ -803,14 +1102,27 @@ function guardar(){
     var sid=nextSolId();
     var creadoEn=new Date().toISOString();
     fechasPendientes.forEach(function(fp){
-      reservas.push({id:nextId(),solicitudId:sid,creadoEn:creadoEn,
-        facultad:facultad,carrera:carrera,materia:materia,
-        docente:docente,ambiente:ambiente,software:swStr,
-        fecha:fp.fecha,inicio:fp.inicio,fin:fp.fin,docId:docId});
+      var r={id:nextId(),solicitudId:sid,creadoEn:creadoEn,tipo:tipoActual,
+        ambiente:ambiente,software:swStr,
+        fecha:fp.fecha,inicio:fp.inicio,fin:fp.fin,docId:docId};
+      if(tipoActual==='clase'){
+        r.facultad=facultad;r.carrera=carrera;r.materia=materia;r.docente=docente;
+      }else{
+        r.unidad=unidad;r.tema=tema;r.facilitador=facilitador;r.dirigidoA=dirigidoA;
+      }
+      reservas.push(r);
     });
     saveRsv();mostrar();actualizarStats();syncFiltroFac();
     fechasPendientes=[];softwaresPendientes=[];renderFechas();renderSoftwares();
     document.getElementById('documento').value='';
+    // Limpiar form
+    if(tipoActual==='clase'){
+      document.getElementById('docente').value='';
+    }else{
+      document.getElementById('facilitador').value='';
+      document.getElementById('dirigidoA').value='';
+    }
+    document.getElementById('ambiente').value='';
     Swal.fire({icon:'success',title:'Solicitud guardada!',text:total+' reserva'+(total!==1?'s':'')+' registrada'+(total!==1?'s':'')+'.',
       timer:2000,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
     cerrarDrawer();
@@ -872,58 +1184,87 @@ function doEliminar(lista,soloUna){
   Swal.fire({icon:'success',title:soloUna?'Reserva eliminada':lista.length+' reservas eliminadas',timer:1500,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
 }
 
-/* EDITAR: pregunta si editar solo fecha o toda la solicitud */
+/* === EDICION === */
 var _editId=null;
 var _editMode='one'; // 'one' | 'solicitud'
 var _editSolicitudId=null;
+// Estado del editor de fechas en modo solicitud
+var _editFechasMode='manual';
+var _editFechasOriginal=[]; // ids originales {id, fecha, inicio, fin}
+var _editFechasActuales=[]; // [{id?, fecha, inicio, fin, _new?:true, _del?:true}]
+var _editDiasSel=[];
+
 function abrirEditar(id){
   var r=reservas.filter(function(x){return x.id===id;})[0];
   if(!r)return;
   var hermanos=r.solicitudId?reservas.filter(function(x){return x.solicitudId===r.solicitudId;}):[r];
   var cantSol=hermanos.length;
   if(cantSol<=1){_editMode='one';abrirModalEdicion(r);return;}
-  // Preguntar modo
   Swal.fire({
     title:'Editar reserva',
     html:'<div style="text-align:left;font-size:.85rem;line-height:1.5;">'
       +'Esta reserva es parte de una solicitud con <b>'+cantSol+' fechas</b>.<br><br>'
       +'Que deseas editar?'
       +'<div style="background:#1a2232;border:1px solid #263047;border-radius:8px;padding:10px;margin-top:10px;font-size:.76rem;color:#7a8baa;">'
-      +'<b style="color:#7eaaff;">Solo esta fecha:</b> cambia solo esta reserva.<br>'
-      +'<b style="color:#c8a8ea;">Toda la solicitud:</b> cambia docente, materia, ambiente, software y facultad/carrera en las '+cantSol+' fechas.'
+      +'<b style="color:#7eaaff;">Solo esta fecha:</b> cambia solo este registro.<br>'
+      +'<b style="color:#c8a8ea;">Toda la solicitud:</b> cambia los campos comunes y permite agregar/quitar fechas.'
       +'</div></div>',
-    showCancelButton:true,
-    showDenyButton:true,
-    confirmButtonText:'Solo esta fecha',
-    denyButtonText:'Toda la solicitud ('+cantSol+')',
-    cancelButtonText:'Cancelar',
+    showCancelButton:true,showDenyButton:true,
+    confirmButtonText:'Solo esta fecha',denyButtonText:'Toda la solicitud ('+cantSol+')',cancelButtonText:'Cancelar',
     background:'#131923',color:'#dde3f0',
-    confirmButtonColor:'#2255a4',denyButtonColor:'#8b5fbf',
-    width:'500px'
+    confirmButtonColor:'#2255a4',denyButtonColor:'#8b5fbf',width:'500px'
   }).then(function(res){
     if(res.isConfirmed){_editMode='one';abrirModalEdicion(r);}
     else if(res.isDenied){_editMode='solicitud';abrirModalEdicion(r);}
   });
 }
+
 function abrirModalEdicion(r){
   _editId=r.id;
   _editSolicitudId=r.solicitudId;
-  setComboValue('eFacultad',r.facultad||'');
-  setComboValue('eCarrera',r.carrera||'');
-  setComboValue('eMateria',r.materia||'');
-  document.getElementById('eDocente').value=r.docente||'';
+  // Cargar tipo
+  setTipoEdit(r.tipo||'clase');
+  if(r.tipo==='capacitacion'){
+    setComboValue('eUnidad',r.unidad||'');
+    setComboValue('eTema',r.tema||'');
+    document.getElementById('eFacilitador').value=r.facilitador||'';
+    document.getElementById('eDirigidoA').value=r.dirigidoA||'';
+  }else{
+    setComboValue('eFacultad',r.facultad||'');
+    setComboValue('eCarrera',r.carrera||'');
+    setComboValue('eMateria',r.materia||'');
+    document.getElementById('eDocente').value=r.docente||'';
+  }
   document.getElementById('eAmbiente').value=r.ambiente||'';
   document.getElementById('eSoftwareTexto').value=r.software||'';
 
-  // Campos de fecha solo visibles en modo 'one'
   var camposFecha=document.getElementById('editCamposFecha');
+  var editFechasSol=document.getElementById('editFechasSolicitud');
   var badge=document.getElementById('editBadgeSol');
+
   if(_editMode==='solicitud'){
     camposFecha.style.display='none';
-    var cant=reservas.filter(function(x){return x.solicitudId===_editSolicitudId;}).length;
-    badge.innerHTML='<div class="edit-badge-sol">&#x1F4CC; Editando solicitud completa ('+cant+' fechas)</div>';
+    editFechasSol.style.display='block';
+    var hermanos=reservas.filter(function(x){return x.solicitudId===_editSolicitudId;});
+    badge.innerHTML='<div class="edit-badge-sol">&#x1F4CC; Editando solicitud completa ('+hermanos.length+' fechas)</div>';
+    // Cargar fechas actuales
+    _editFechasOriginal=hermanos.map(function(h){return{id:h.id,fecha:h.fecha,inicio:h.inicio,fin:h.fin};});
+    _editFechasActuales=_editFechasOriginal.map(function(f){return{id:f.id,fecha:f.fecha,inicio:f.inicio,fin:f.fin};});
+    _editDiasSel=[];
+    setEditFechaModo('manual');
+    // Limpiar dias semana visualmente
+    document.querySelectorAll('#eDiasSemana .dia-btn').forEach(function(b){b.classList.remove('on');});
+    document.getElementById('eAddFecha').value='';
+    document.getElementById('eAddInicio').value='';
+    document.getElementById('eAddFin').value='';
+    document.getElementById('eRangoDesde').value='';
+    document.getElementById('eRangoHasta').value='';
+    document.getElementById('eRangoInicio').value='';
+    document.getElementById('eRangoFin').value='';
+    renderEditFechas();
   }else{
     camposFecha.style.display='block';
+    editFechasSol.style.display='none';
     document.getElementById('eFecha').value=r.fecha||'';
     document.getElementById('eInicio').value=r.inicio||'';
     document.getElementById('eFin').value=r.fin||'';
@@ -942,61 +1283,222 @@ function abrirModalEdicion(r){
   document.getElementById('eDocumento').value='';
   document.getElementById('editOverlay').classList.add('open');
 }
-function cerrarEditar(){document.getElementById('editOverlay').classList.remove('open');_editId=null;_editSolicitudId=null;_editMode='one';}
+function cerrarEditar(){
+  document.getElementById('editOverlay').classList.remove('open');
+  _editId=null;_editSolicitudId=null;_editMode='one';
+  _editFechasOriginal=[];_editFechasActuales=[];_editDiasSel=[];
+}
+
+/* Editor de fechas en modo solicitud */
+function setEditFechaModo(m){
+  _editFechasMode=m;
+  document.getElementById('eModoManual').classList.toggle('on',m==='manual');
+  document.getElementById('eModoRango').classList.toggle('on',m==='rango');
+  document.getElementById('ePanelManual').style.display=m==='manual'?'block':'none';
+  document.getElementById('ePanelRango').style.display=m==='rango'?'block':'none';
+}
+function toggleDiaEdit(d,btn){
+  var idx=_editDiasSel.indexOf(d);
+  if(idx>=0){_editDiasSel.splice(idx,1);btn.classList.remove('on');}
+  else{_editDiasSel.push(d);btn.classList.add('on');}
+}
+function agregarFechaEdit(){
+  var f=document.getElementById('eAddFecha').value;
+  var i=document.getElementById('eAddInicio').value;
+  var fn=document.getElementById('eAddFin').value;
+  if(!f||!i||!fn){Swal.fire({icon:'warning',title:'Completa fecha y horario',background:'#131923',color:'#dde3f0'});return;}
+  if(i>=fn){Swal.fire({icon:'error',title:'Horario invalido',background:'#131923',color:'#dde3f0'});return;}
+  var dup=_editFechasActuales.some(function(x){return !x._del&&x.fecha===f&&x.inicio===i&&x.fin===fn;});
+  if(dup){Swal.fire({icon:'warning',title:'Ya esta en la lista',background:'#131923',color:'#dde3f0'});return;}
+  _editFechasActuales.push({fecha:f,inicio:i,fin:fn,_new:true});
+  document.getElementById('eAddFecha').value='';
+  document.getElementById('eAddInicio').value='';
+  document.getElementById('eAddFin').value='';
+  renderEditFechas();
+}
+function generarFechasRangoEdit(){
+  var desde=document.getElementById('eRangoDesde').value;
+  var hasta=document.getElementById('eRangoHasta').value;
+  var inicio=document.getElementById('eRangoInicio').value;
+  var fin=document.getElementById('eRangoFin').value;
+  if(!desde||!hasta||!inicio||!fin){Swal.fire({icon:'warning',title:'Completa rango y horarios',background:'#131923',color:'#dde3f0'});return;}
+  if(inicio>=fin){Swal.fire({icon:'error',title:'Horario invalido',background:'#131923',color:'#dde3f0'});return;}
+  if(!_editDiasSel.length){Swal.fire({icon:'warning',title:'Selecciona al menos un dia',background:'#131923',color:'#dde3f0'});return;}
+  var dI=new Date(desde+'T12:00:00'),dF=new Date(hasta+'T12:00:00');
+  if(dI>dF){Swal.fire({icon:'error',title:'Rango invalido',background:'#131923',color:'#dde3f0'});return;}
+  var generadas=0,d=new Date(dI);
+  while(d<=dF){
+    var dow=d.getDay();
+    if(_editDiasSel.indexOf(dow)>=0){
+      var y=d.getFullYear(),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
+      var fStr=y+'-'+mm+'-'+dd;
+      var dup=_editFechasActuales.some(function(x){return !x._del&&x.fecha===fStr&&x.inicio===inicio&&x.fin===fin;});
+      if(!dup){_editFechasActuales.push({fecha:fStr,inicio:inicio,fin:fin,_new:true});generadas++;}
+    }
+    d.setDate(d.getDate()+1);
+  }
+  renderEditFechas();
+  Swal.fire({icon:'success',title:generadas+' fecha'+(generadas!==1?'s':'')+' generada'+(generadas!==1?'s':'')+'!',timer:1400,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
+}
+function quitarFechaEdit(idx){
+  var f=_editFechasActuales[idx];
+  if(f._new){_editFechasActuales.splice(idx,1);}
+  else{f._del=!f._del;}
+  renderEditFechas();
+}
+function renderEditFechas(){
+  var cont=document.getElementById('eListaFechas');
+  var emp=document.getElementById('eFpEmpty');
+  // ordenar por fecha
+  _editFechasActuales.sort(function(a,b){return (a.fecha||'').localeCompare(b.fecha||'');});
+  var visibles=_editFechasActuales.filter(function(f){return true;});
+  if(!visibles.length){cont.innerHTML='';emp.style.display='block';return;}
+  emp.style.display='none';
+  var h='';
+  _editFechasActuales.forEach(function(f,i){
+    var p=f.fecha.split('-');
+    var dow=DIAS[new Date(+p[0],+p[1]-1,+p[2]).getDay()];
+    var cls=f._del?'opacity:.4;text-decoration:line-through;':(f._new?'border-left:3px solid var(--green-light);':'');
+    var label=f._del?'(eliminada)':(f._new?'(nueva)':'');
+    var labelColor=f._del?'#ff7a85':'#6ed79a';
+    h+='<div class="fp-item" style="'+cls+'">'
+      +'<span class="fp-fecha">'+p[2]+'/'+p[1]+'/'+p[0]+' ('+dow+')</span>'
+      +'<span class="fp-hora">'+f.inicio+'-'+f.fin+'</span>'
+      +(label?'<span style="font-size:.65rem;color:'+labelColor+';font-weight:700;">'+label+'</span>':'')
+      +'<button class="btn-del" data-action="qfechaedit" data-i="'+i+'" title="'+(f._del?'Restaurar':'Quitar')+'">'+(f._del?'&#x21B6;':'&#x2715;')+'</button>'
+      +'</div>';
+  });
+  cont.innerHTML=h;
+}
 
 function guardarEdicion(){
   if(!_editId)return;
-  var facultad=getComboValue('eFacultad');
-  var carrera=getComboValue('eCarrera');
-  var materia=getComboValue('eMateria');
-  var docente=document.getElementById('eDocente').value.trim();
   var ambiente=document.getElementById('eAmbiente').value.trim();
   var software=document.getElementById('eSoftwareTexto').value.trim();
-  if(!facultad||!carrera||!materia){Swal.fire({icon:'warning',title:'Campos academicos incompletos',background:'#131923',color:'#dde3f0'});return;}
-  if(!docente||!ambiente){Swal.fire({icon:'warning',title:'Completa Docente y Ambiente',background:'#131923',color:'#dde3f0'});return;}
-  registrarEstructuraAuto(facultad,carrera,materia);
+  var nuevoTipo=tipoEditActual;
+
+  // Recoger campos segun tipo
+  var facultad='',carrera='',materia='',docente='',unidad='',tema='',facilitador='',dirigidoA='';
+  if(nuevoTipo==='clase'){
+    facultad=getComboValue('eFacultad');
+    carrera=getComboValue('eCarrera');
+    materia=getComboValue('eMateria');
+    docente=document.getElementById('eDocente').value.trim();
+    if(!facultad||!carrera||!materia){Swal.fire({icon:'warning',title:'Completa Facultad, Carrera y Materia',background:'#131923',color:'#dde3f0'});return;}
+    if(!docente){Swal.fire({icon:'warning',title:'Docente requerido',background:'#131923',color:'#dde3f0'});return;}
+  }else{
+    unidad=getComboValue('eUnidad');
+    tema=getComboValue('eTema');
+    facilitador=document.getElementById('eFacilitador').value.trim();
+    dirigidoA=document.getElementById('eDirigidoA').value.trim();
+    if(!unidad||!tema){Swal.fire({icon:'warning',title:'Completa Unidad y Tema',background:'#131923',color:'#dde3f0'});return;}
+    if(!facilitador){Swal.fire({icon:'warning',title:'Facilitador requerido',background:'#131923',color:'#dde3f0'});return;}
+  }
+  if(!ambiente){Swal.fire({icon:'warning',title:'Ambiente requerido',background:'#131923',color:'#dde3f0'});return;}
+
+  // Auto-registrar
+  if(nuevoTipo==='clase')registrarEstructuraAuto(facultad,carrera,materia);
+  else registrarUnidadAuto(unidad,tema);
 
   var file=document.getElementById('eDocumento').files[0];
 
   if(_editMode==='solicitud'){
-    // Aplicar cambios a todas las reservas de la solicitud
+    // ===== EDICION DE SOLICITUD COMPLETA =====
+    // Validar fechas:
+    // 1. Las que se mantienen
+    // 2. Las nuevas (agregar)
+    // 3. Las marcadas como eliminadas
+    var fActuales=_editFechasActuales.filter(function(f){return !f._del;});
+    if(!fActuales.length){Swal.fire({icon:'warning',title:'La solicitud debe tener al menos una fecha',background:'#131923',color:'#dde3f0'});return;}
+
+    // Verificar conflictos en fechas nuevas y en las que mantienen el ambiente cambiado
     var hermanos=reservas.filter(function(x){return x.solicitudId===_editSolicitudId;});
-    // Verificar conflictos por cambio de ambiente (solo si cambio)
-    var ambienteCambio=hermanos.some(function(r){return r.ambiente!==ambiente;});
-    if(ambienteCambio){
-      var conflictos=[];
-      hermanos.forEach(function(r){
-        var idxR=reservas.indexOf(r);
-        if(hayConflicto({ambiente:ambiente,fecha:r.fecha,inicio:r.inicio,fin:r.fin},idxR)){
-          var p=r.fecha.split('-');
-          conflictos.push(p[2]+'/'+p[1]+'/'+p[0]+' ('+r.inicio+'-'+r.fin+')');
-        }
+    var idsHermanos={};hermanos.forEach(function(h){idsHermanos[h.id]=true;});
+    var conflictos=[];
+    fActuales.forEach(function(f){
+      // Para fechas existentes, ignorar el indice propio y otros de la misma solicitud
+      var conflictivos=reservas.filter(function(r){
+        if(idsHermanos[r.id]&&!f.id)return false; // si es nueva, comparar contra todos los hermanos tambien (puede chocar consigo misma en nuevo ambiente, pero esos son hermanos): permitir
+        if(idsHermanos[r.id]&&r.id===f.id)return false; // misma reserva
+        return r.ambiente===ambiente && r.fecha===f.fecha && f.inicio<r.fin && f.fin>r.inicio;
       });
-      if(conflictos.length){
-        Swal.fire({icon:'error',title:'Conflicto al cambiar ambiente',
-          html:'El ambiente <b>'+ambiente+'</b> ya esta ocupado en:<br><br>'+conflictos.map(function(c){return '&bull; '+c;}).join('<br>')
-            +'<br><br><span style="font-size:.8rem;color:#ffcc66;">Cambia de ambiente o edita esas fechas individualmente.</span>',
-          background:'#131923',color:'#dde3f0'});
-        return;
+      if(conflictivos.length){
+        var p=f.fecha.split('-');
+        conflictos.push(p[2]+'/'+p[1]+'/'+p[0]+' '+f.inicio+'-'+f.fin);
       }
+    });
+    if(conflictos.length){
+      Swal.fire({icon:'error',title:'Conflicto de horario',
+        html:'El ambiente <b>'+ambiente+'</b> esta ocupado en:<br><br>'+conflictos.slice(0,8).map(function(c){return '&bull; '+c;}).join('<br>')+(conflictos.length>8?'<br>... y '+(conflictos.length-8)+' mas':''),
+        background:'#131923',color:'#dde3f0'});
+      return;
     }
+
     function aplicarMasivo(docData){
       var nuevoDocId=null;
       if(docData){nuevoDocId='d'+nextId();saveDoc(nuevoDocId,docData);}
-      hermanos.forEach(function(r){
-        r.facultad=facultad;r.carrera=carrera;r.materia=materia;
-        r.docente=docente;r.ambiente=ambiente;r.software=software;
-        if(nuevoDocId)r.docId=nuevoDocId;
+
+      // 1. Eliminar reservas marcadas como _del
+      var idsAEliminar={};
+      _editFechasActuales.forEach(function(f){if(f._del&&f.id)idsAEliminar[f.id]=true;});
+
+      // Liberar docs huerfanos
+      Object.keys(idsAEliminar).forEach(function(rid){
+        var rx=reservas.filter(function(r){return r.id===rid;})[0];
+        if(rx&&rx.docId){
+          var refs=0;reservas.forEach(function(r){if(r.id!==rid&&r.docId===rx.docId)refs++;});
+          if(refs===0)delDoc(rx.docId);
+        }
       });
+      reservas=reservas.filter(function(r){return !idsAEliminar[r.id];});
+
+      // 2. Actualizar las que se mantienen + crear las nuevas
+      var sid=_editSolicitudId;
+      var creadoEn=new Date().toISOString();
+
+      _editFechasActuales.forEach(function(f){
+        if(f._del)return;
+        var datos={
+          tipo:nuevoTipo,solicitudId:sid,
+          ambiente:ambiente,software:software,
+          fecha:f.fecha,inicio:f.inicio,fin:f.fin
+        };
+        if(nuevoTipo==='clase'){
+          datos.facultad=facultad;datos.carrera=carrera;datos.materia=materia;datos.docente=docente;
+          // limpiar campos del otro tipo
+          datos.unidad='';datos.tema='';datos.facilitador='';datos.dirigidoA='';
+        }else{
+          datos.unidad=unidad;datos.tema=tema;datos.facilitador=facilitador;datos.dirigidoA=dirigidoA;
+          datos.facultad='';datos.carrera='';datos.materia='';datos.docente='';
+        }
+        if(f.id){
+          // existente: actualizar
+          var idxR=-1;
+          reservas.forEach(function(r,i){if(r.id===f.id)idxR=i;});
+          if(idxR>=0){
+            var rOld=reservas[idxR];
+            Object.keys(datos).forEach(function(k){rOld[k]=datos[k];});
+            if(nuevoDocId)rOld.docId=nuevoDocId;
+            reservas[idxR]=rOld;
+          }
+        }else{
+          // nueva
+          datos.id=nextId();
+          datos.creadoEn=creadoEn;
+          datos.docId=nuevoDocId||null;
+          reservas.push(datos);
+        }
+      });
+
       saveRsv();mostrar();actualizarStats();syncFiltroFac();cerrarEditar();
-      Swal.fire({icon:'success',title:'Solicitud actualizada!',text:hermanos.length+' reservas modificadas',timer:1800,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
+      Swal.fire({icon:'success',title:'Solicitud actualizada',timer:1700,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
     }
     if(file){var rd1=new FileReader();rd1.onload=function(){aplicarMasivo(rd1.result);};rd1.readAsDataURL(file);}
     else aplicarMasivo(null);
     return;
   }
 
-  // Modo 'one': editar solo esta fecha
+  // ===== MODO 'ONE' =====
   var idx=-1;reservas.forEach(function(x,i){if(x.id===_editId)idx=i;});
   if(idx<0)return;
   var r=reservas[idx];
@@ -1007,12 +1509,12 @@ function guardarEdicion(){
   if(inicio>=fin){Swal.fire({icon:'error',title:'Horario invalido',background:'#131923',color:'#dde3f0'});return;}
   if(hayConflicto({ambiente:ambiente,fecha:fecha,inicio:inicio,fin:fin},idx)){Swal.fire({icon:'error',title:'Conflicto de horario',background:'#131923',color:'#dde3f0'});return;}
 
-  // Si el usuario modifico campos que identifican la solicitud (docente/materia/ambiente/...)
-  // y esta reserva sigue perteneciendo a una solicitud con mas miembros, se "saca" la reserva:
-  // se le asigna un solicitudId propio para no arrastrar el cambio al resto.
+  // Sacar de la solicitud si cambio campos comunes
   var cambioSolicitud=(
-    r.facultad!==facultad||r.carrera!==carrera||r.materia!==materia||
-    r.docente!==docente||r.ambiente!==ambiente||r.software!==software
+    (r.tipo||'clase')!==nuevoTipo||
+    r.facultad!==facultad||r.carrera!==carrera||r.materia!==materia||r.docente!==docente||
+    r.unidad!==unidad||r.tema!==tema||r.facilitador!==facilitador||r.dirigidoA!==dirigidoA||
+    r.ambiente!==ambiente||r.software!==software
   );
   function aplicar(docData){
     if(docData){
@@ -1022,16 +1524,21 @@ function guardarEdicion(){
     }
     if(cambioSolicitud && r.solicitudId){
       var hermanos2=reservas.filter(function(x){return x.solicitudId===r.solicitudId;});
-      if(hermanos2.length>1){
-        r.solicitudId=nextSolId();
-      }
+      if(hermanos2.length>1)r.solicitudId=nextSolId();
     }
-    r.facultad=facultad;r.carrera=carrera;r.materia=materia;
-    r.docente=docente;r.ambiente=ambiente;r.software=software;
+    r.tipo=nuevoTipo;
+    if(nuevoTipo==='clase'){
+      r.facultad=facultad;r.carrera=carrera;r.materia=materia;r.docente=docente;
+      r.unidad='';r.tema='';r.facilitador='';r.dirigidoA='';
+    }else{
+      r.unidad=unidad;r.tema=tema;r.facilitador=facilitador;r.dirigidoA=dirigidoA;
+      r.facultad='';r.carrera='';r.materia='';r.docente='';
+    }
+    r.ambiente=ambiente;r.software=software;
     r.fecha=fecha;r.inicio=inicio;r.fin=fin;
     reservas[idx]=r;
     saveRsv();mostrar();actualizarStats();syncFiltroFac();cerrarEditar();
-    Swal.fire({icon:'success',title:'Reserva actualizada!',timer:1600,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
+    Swal.fire({icon:'success',title:'Reserva actualizada',timer:1500,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
   }
   if(file){var rd=new FileReader();rd.onload=function(){aplicar(rd.result);};rd.readAsDataURL(file);}
   else aplicar(null);
@@ -1054,8 +1561,19 @@ function getReservasFiltradas(){
   var ff=document.getElementById('filtroFacultad').value;
   var b=document.getElementById('busqueda').value.toLowerCase();
   return reservas.filter(function(r){
-    return(!f||r.fecha===f)&&(!ff||r.facultad===ff)&&
-      (!b||[r.docente,r.materia,r.ambiente,r.carrera,r.facultad,r.software].some(function(x){return x&&x.toLowerCase().indexOf(b)>=0;}));
+    if(f && r.fecha!==f)return false;
+    // El filtro "facultad" tambien acepta unidad de capacitacion
+    if(ff){
+      var origen=(r.tipo==='capacitacion'?r.unidad:r.facultad)||'';
+      if(origen!==ff)return false;
+    }
+    if(b){
+      var campos=[r.docente,r.materia,r.ambiente,r.carrera,r.facultad,r.software,
+                  r.tema,r.unidad,r.facilitador,r.dirigidoA];
+      var match=campos.some(function(x){return x&&x.toLowerCase().indexOf(b)>=0;});
+      if(!match)return false;
+    }
+    return true;
   }).sort(function(a,b){var d=a.fecha.localeCompare(b.fecha);return d||a.inicio.localeCompare(b.inicio);});
 }
 function agruparPorFecha(lista){var g={};lista.forEach(function(r){if(!g[r.fecha])g[r.fecha]=[];g[r.fecha].push(r);});return g;}
@@ -1070,12 +1588,18 @@ document.addEventListener('click',function(e){
     if(action==='edit'){abrirEditar(actionEl.getAttribute('data-id'));return;}
     if(action==='qfecha'){quitarFecha(+actionEl.getAttribute('data-i'));return;}
     if(action==='qsw'){quitarSoftware(+actionEl.getAttribute('data-i'));return;}
+    if(action==='qfechaedit'){quitarFechaEdit(+actionEl.getAttribute('data-i'));return;}
     if(action==='toggle-past'){togglePasadas();return;}
+    if(action==='abrir-conflictos'){abrirConflictos();return;}
+    if(action==='edit-sol'){editarSolicitudDirecto(actionEl.getAttribute('data-id'));return;}
+    if(action==='del-sol'){eliminarSolicitudDirecto(actionEl.getAttribute('data-sid'));return;}
   }
   var el=e.target;
   if(el.classList.contains('js-del-fac')){var f=el.getAttribute('data-f');if(!confirm('Eliminar '+f+'?'))return;delete estructura[f];saveEst();renderLstFac();syncModalSelects();}
   if(el.classList.contains('js-del-car')){var f=el.getAttribute('data-f'),c=el.getAttribute('data-c');if(!confirm('Eliminar carrera '+c+'?'))return;delete estructura[f][c];saveEst();renderLstCar();}
   if(el.classList.contains('js-del-mat')){var f=el.getAttribute('data-f'),c=el.getAttribute('data-c'),m=el.getAttribute('data-m');if(!confirm('Eliminar materia '+m+'?'))return;estructura[f][c]=estructura[f][c].filter(function(x){return x!==m;});saveEst();renderLstMat();}
+  if(el.classList.contains('js-del-uni')){var u=el.getAttribute('data-u');if(!confirm('Eliminar unidad '+u+'?'))return;delete unidades[u];saveUni();renderLstUni();syncModalSelectsUni();}
+  if(el.classList.contains('js-del-tem')){var u=el.getAttribute('data-u'),t=el.getAttribute('data-t');if(!confirm('Eliminar tema '+t+'?'))return;unidades[u]=unidades[u].filter(function(x){return x!==t;});saveUni();renderLstTem();}
 });
 
 function togglePasadas(){
@@ -1094,6 +1618,7 @@ function hermanosDeSolicitud(sid){
 }
 
 function buildGrupoHTML(fechas,grupos,esPasadaFlag){
+  var conflictosIds=reservasConConflicto();
   var desk='',mob='';
   fechas.forEach(function(fecha){
     var rs=grupos[fecha];
@@ -1106,17 +1631,23 @@ function buildGrupoHTML(fechas,grupos,esPasadaFlag){
     var rows='';
     rs.forEach(function(r){
       var docData=r.docId?getDoc(r.docId):null;
-      var docHtml=docData
-        ?'<a href="'+docData+'" target="_blank" style="color:#7eaaff;font-size:.75rem;" title="Ver documento">&#128206; Ver</a>'
-        :'<span style="color:var(--muted)">-</span>';
+      var docHtml=docData?'<a href="'+docData+'" target="_blank" style="color:#7eaaff;font-size:.75rem;" title="Ver documento">&#128206; Ver</a>':'<span style="color:var(--muted)">-</span>';
       var cantSol=hermanosDeSolicitud(r.solicitudId);
       var solTag=cantSol>1?'<span class="tag-sol" title="Parte de una solicitud con '+cantSol+' fechas">&#x1F4CC; Solicitud ('+cantSol+')</span>':'';
+      var confTag=conflictosIds[r.id]?'<span class="tag-conf" title="Esta reserva tiene conflicto de horario con otra. Click en stat de Conflictos para revisar." data-action="abrir-conflictos">&#9888; Conflicto</span>':'';
+      var esCap=r.tipo==='capacitacion';
+      var tipoTag=esCap?'<span class="tag-tipo t-cap">CAP</span>':'<span class="tag-tipo t-clase">CLASE</span>';
+      var titulo=esCap?(r.tema||'(sin tema)'):(r.materia||'(sin materia)');
+      var origen=esCap
+        ?'<span class="tag-fac" style="background:rgba(255,174,77,.12);border-color:rgba(255,174,77,.3);color:#ffcd8a;">'+(r.unidad||'-')+'</span>'+(r.dirigidoA?'<span class="tag-car">'+r.dirigidoA+'</span>':'')
+        :'<span class="tag-fac">'+(r.facultad||'-')+'</span><span class="tag-car">'+(r.carrera||'')+'</span>';
+      var responsable=esCap?(r.facilitador||'-'):(r.docente||'-');
       rows+='<tr>'
         +'<td><div class="tag-hora"><span>'+r.inicio+'</span><span style="font-size:.55rem;color:var(--muted)">&#8595;</span><span>'+r.fin+'</span></div></td>'
-        +'<td><span class="tag-fac">'+r.facultad+'</span><span class="tag-car">'+r.carrera+'</span>'+solTag+'</td>'
-        +'<td><strong>'+r.materia+'</strong></td>'
-        +'<td>'+r.docente+'</td>'
-        +'<td>'+r.ambiente+'</td>'
+        +'<td>'+tipoTag+origen+solTag+confTag+'</td>'
+        +'<td><strong>'+titulo+'</strong></td>'
+        +'<td>'+responsable+'</td>'
+        +'<td>'+(r.ambiente||'-')+'</td>'
         +'<td class="tag-sw" title="'+(r.software||'')+'">'+(r.software||'-')+'</td>'
         +'<td>'+docHtml+'</td>'
         +'<td><div class="td-actions">'
@@ -1125,21 +1656,29 @@ function buildGrupoHTML(fechas,grupos,esPasadaFlag){
         +'</div></td></tr>';
     });
     desk+=hdr+'<div class="table-wrap"><table>'
-      +'<thead><tr><th>Horario</th><th>Facultad/Carrera</th><th>Materia</th><th>Docente</th><th>Ambiente</th><th>Software</th><th>Doc</th><th></th></tr></thead>'
+      +'<thead><tr><th>Horario</th><th>Tipo / Origen</th><th>Tema / Materia</th><th>Responsable</th><th>Ambiente</th><th>Software</th><th>Doc</th><th></th></tr></thead>'
       +'<tbody>'+rows+'</tbody></table></div></div>';
     var cards='';
     rs.forEach(function(r){
       var docData=r.docId?getDoc(r.docId):null;
       var cantSol=hermanosDeSolicitud(r.solicitudId);
       var solTag=cantSol>1?'<div class="rc-meta"><span class="tag-sol">&#x1F4CC; Solicitud ('+cantSol+' fechas)</span></div>':'';
+      var confTag=conflictosIds[r.id]?'<div class="rc-meta"><span class="tag-conf">&#9888; Conflicto de horario</span></div>':'';
+      var esCap=r.tipo==='capacitacion';
+      var tipoTag=esCap?'<span class="tag-tipo t-cap">&#127891; CAPACITACION</span>':'<span class="tag-tipo t-clase">&#127979; CLASE</span>';
+      var titulo=esCap?(r.tema||'(sin tema)'):(r.materia||'(sin materia)');
+      var origen=esCap?(r.unidad||'-'):(r.facultad||'-');
+      var responsable=esCap?(r.facilitador||'-'):(r.docente||'-');
+      var detalleSec=esCap?(r.dirigidoA?'<div class="rc-meta" style="font-size:.7rem;">Dirigido a: '+r.dirigidoA+'</div>':''):'<div class="rc-meta" style="font-size:.7rem;">'+(r.carrera||'')+'</div>';
       cards+='<div class="res-card"'+(esPasadaFlag?' style="opacity:.7;border-left-color:var(--muted);"':'')+'>'
-        +'<div class="rc-fac">'+r.facultad+'</div>'
+        +'<div style="margin-bottom:4px;">'+tipoTag+'</div>'
+        +'<div class="rc-fac">'+origen+'</div>'
         +'<div class="rc-hora">'+r.inicio+' &#8594; '+r.fin+'</div>'
-        +'<div class="rc-mat">'+r.materia+'</div>'
-        +'<div class="rc-meta">&#128100; '+r.docente+' &middot; &#127979; '+r.ambiente+'</div>'
+        +'<div class="rc-mat">'+titulo+'</div>'
+        +'<div class="rc-meta">&#128100; '+responsable+' &middot; &#127979; '+(r.ambiente||'-')+'</div>'
         +(r.software?'<div class="rc-meta" style="color:#a0c4ff;">&#x1F4BB; '+r.software+'</div>':'')
-        +'<div class="rc-meta" style="font-size:.7rem;">'+r.carrera+'</div>'
-        +solTag
+        +detalleSec
+        +solTag+confTag
         +'<div class="rc-actions">'
         +(docData?'<a class="rc-doc" href="'+docData+'" target="_blank">&#128206; Ver doc</a>':'')
         +'<button class="btn-edit" data-action="edit" data-id="'+r.id+'">&#9998; Editar</button>'
@@ -1197,6 +1736,12 @@ function actualizarStats(){
   document.getElementById('statSolicitudes').textContent=Object.keys(sols).length;
   document.getElementById('statHoy').textContent=reservas.filter(function(r){return r.fecha===hoy;}).length;
   document.getElementById('statAmbientes').textContent=new Set(reservas.map(function(r){return r.ambiente;})).size;
+  // Conflictos
+  var pares=detectarConflictos();
+  var box=document.getElementById('statConfBox');
+  document.getElementById('statConflictos').textContent=pares.length;
+  if(pares.length>0)box.classList.remove('zero');
+  else box.classList.add('zero');
 }
 
 /* =================================================================
@@ -1205,18 +1750,22 @@ function actualizarStats(){
 var ultimoInforme=null; // cache para exportar
 function abrirInforme(){
   cerrarDrawer();
-  // Poblar filtros
   var facSel=document.getElementById('rpFacultad');
   var ambSel=document.getElementById('rpAmbiente');
-  var facs={};var ambs={};
-  reservas.forEach(function(r){if(r.facultad)facs[r.facultad]=true;if(r.ambiente)ambs[r.ambiente]=true;});
-  var h='<option value="">Todas</option>';
-  Object.keys(facs).sort().forEach(function(f){h+='<option>'+f+'</option>';});
+  var facs={},unis={},ambs={};
+  reservas.forEach(function(r){
+    if(r.tipo==='capacitacion'){if(r.unidad)unis[r.unidad]=true;}
+    else if(r.facultad)facs[r.facultad]=true;
+    if(r.ambiente)ambs[r.ambiente]=true;
+  });
+  var h='<option value="">Todas (Facultades + Unidades)</option>';
+  var fl=Object.keys(facs).sort(),ul=Object.keys(unis).sort();
+  if(fl.length){h+='<optgroup label="Facultades">';fl.forEach(function(f){h+='<option>'+f+'</option>';});h+='</optgroup>';}
+  if(ul.length){h+='<optgroup label="Unidades">';ul.forEach(function(u){h+='<option>'+u+'</option>';});h+='</optgroup>';}
   facSel.innerHTML=h;
   h='<option value="">Todos</option>';
   Object.keys(ambs).sort().forEach(function(a){h+='<option>'+a+'</option>';});
   ambSel.innerHTML=h;
-  // Set defaults
   document.getElementById('rpRango').value='all';
   document.getElementById('rpDesde').value='';
   document.getElementById('rpHasta').value='';
@@ -1250,7 +1799,10 @@ function getAtenciones(){
     if(r.fecha>hoy)return false; // solo realizadas
     if(r.fecha>hasta)return false;
     if(desde && r.fecha<desde)return false;
-    if(fac && r.facultad!==fac)return false;
+    if(fac){
+      var origen=r.tipo==='capacitacion'?r.unidad:r.facultad;
+      if(origen!==fac)return false;
+    }
     if(amb && r.ambiente!==amb)return false;
     return true;
   });
@@ -1265,68 +1817,42 @@ function renderInforme(){
     amb:document.getElementById('rpAmbiente').value};
 
   var body=document.getElementById('reportBody');
-
   if(!datos.length){
     body.innerHTML='<div class="empty-all" style="padding:60px 20px;"><span class="icon">&#128196;</span>Sin atenciones en el periodo seleccionado.</div>';
     return;
   }
 
-  // KPIs
-  var totalAt=datos.length;
-  var totalHoras=0;
-  var solsSet={};
-  var docentesSet={};
-  var ambContador={};
-  var docContador={};
-  var facContador={};
-  var swContador={};
+  var totalAt=datos.length,totalHoras=0;
+  var solsSet={},respSet={},ambC={},respC={},origenC={},swC={};
+  var totClases=0,totCaps=0;
+  var porMes={},porDow=[0,0,0,0,0,0,0];
   datos.forEach(function(r){
     totalHoras+=horasEntre(r.inicio,r.fin);
     if(r.solicitudId)solsSet[r.solicitudId]=true;
-    if(r.docente)docentesSet[r.docente]=true;
-    if(r.ambiente)ambContador[r.ambiente]=(ambContador[r.ambiente]||0)+1;
-    if(r.docente)docContador[r.docente]=(docContador[r.docente]||0)+1;
-    if(r.facultad)facContador[r.facultad]=(facContador[r.facultad]||0)+1;
-    if(r.software){
-      r.software.split(',').forEach(function(s){
-        var n=s.trim().replace(/\s+v[\d.]+$/,'');
-        if(n)swContador[n]=(swContador[n]||0)+1;
-      });
-    }
-  });
-
-  function topN(obj,n){
-    return Object.keys(obj).map(function(k){return{k:k,v:obj[k]};}).sort(function(a,b){return b.v-a.v;}).slice(0,n);
-  }
-  var topAmb=topN(ambContador,5);
-  var topDoc=topN(docContador,5);
-  var topFac=topN(facContador,10);
-  var topSw=topN(swContador,5);
-
-  var ambTop=topAmb[0]||{k:'-',v:0};
-  var docTop=topDoc[0]||{k:'-',v:0};
-  var facTop=topFac[0]||{k:'-',v:0};
-
-  // Por mes
-  var porMes={};
-  datos.forEach(function(r){
+    var resp=r.tipo==='capacitacion'?r.facilitador:r.docente;
+    var origen=r.tipo==='capacitacion'?r.unidad:r.facultad;
+    if(resp)respSet[resp]=true;
+    if(r.ambiente)ambC[r.ambiente]=(ambC[r.ambiente]||0)+1;
+    if(resp)respC[resp]=(respC[resp]||0)+1;
+    if(origen)origenC[origen]=(origenC[origen]||0)+1;
+    if(r.tipo==='capacitacion')totCaps++;else totClases++;
+    if(r.software)r.software.split(',').forEach(function(s){var n=s.trim().replace(/\s+v[\d.]+$/,'');if(n)swC[n]=(swC[n]||0)+1;});
     var ym=r.fecha.substring(0,7);
     porMes[ym]=(porMes[ym]||0)+1;
+    porDow[new Date(r.fecha+'T12:00:00').getDay()]++;
   });
+
+  function topN(o,n){return Object.keys(o).map(function(k){return{k:k,v:o[k]};}).sort(function(a,b){return b.v-a.v;}).slice(0,n||999);}
+  var ambAll=topN(ambC),respAll=topN(respC),origenAll=topN(origenC),swTop=topN(swC,5);
   var mesesOrd=Object.keys(porMes).sort();
 
-  // Por dia de semana
-  var porDow=[0,0,0,0,0,0,0];
-  datos.forEach(function(r){porDow[new Date(r.fecha+'T12:00:00').getDay()]++;});
-
-  // HTML
   var html='<div class="kpi-grid">'
     +kpiHTML('k-red','Atenciones realizadas',totalAt.toString(),Object.keys(solsSet).length+' solicitudes')
     +kpiHTML('k-green','Horas prestadas',totalHoras.toFixed(1)+' h',(totalHoras/Math.max(1,totalAt)).toFixed(1)+' h/atencion')
-    +kpiHTML('k-orange','Ambiente top',norm(ambTop.k),ambTop.v+' atenciones')
-    +kpiHTML('k-purple','Docente top',norm(docTop.k),docTop.v+' atenciones')
-    +kpiHTML('','Facultad top',norm(facTop.k),facTop.v+' atenciones')
-    +kpiHTML('','Docentes distintos',Object.keys(docentesSet).length.toString(),Object.keys(ambContador).length+' ambientes usados')
+    +kpiHTML('','Clases',totClases.toString(),'tipo clase')
+    +kpiHTML('k-orange','Capacitaciones',totCaps.toString(),'tipo capacitacion')
+    +kpiHTML('k-purple','Responsables',Object.keys(respSet).length.toString(),'docentes/facilitadores')
+    +kpiHTML('','Ambientes usados',Object.keys(ambC).length.toString(),'distintos')
     +'</div>';
 
   html+='<div class="chart-grid">';
@@ -1335,23 +1861,43 @@ function renderInforme(){
   html+='</div>';
 
   html+='<div class="chart-grid">';
-  html+=chartBarras('Top 5 ambientes mas usados',topAmb.map(function(x){return x.k;}),topAmb.map(function(x){return x.v;}),'#ffae4d',true);
-  html+=chartBarras('Top 5 docentes atendidos',topDoc.map(function(x){return x.k;}),topDoc.map(function(x){return x.v;}),'#c8a8ea',true);
+  html+=chartBarras('Top 5 ambientes mas usados',ambAll.slice(0,5).map(function(x){return x.k;}),ambAll.slice(0,5).map(function(x){return x.v;}),'#ffae4d',true);
+  html+=chartBarras('Top 5 responsables atendidos',respAll.slice(0,5).map(function(x){return x.k;}),respAll.slice(0,5).map(function(x){return x.v;}),'#c8a8ea',true);
   html+='</div>';
 
-  if(topSw.length){
+  if(swTop.length){
     html+='<div class="chart-grid" style="grid-template-columns:1fr;">';
-    html+=chartBarras('Software mas solicitado (Top 5)',topSw.map(function(x){return x.k;}),topSw.map(function(x){return x.v;}),'#ff7a85',true);
+    html+=chartBarras('Software mas solicitado (Top 5)',swTop.map(function(x){return x.k;}),swTop.map(function(x){return x.v;}),'#ff7a85',true);
     html+='</div>';
   }
 
-  // Tabla de detalle
-  html+='<div class="chart-box"><div class="chart-title">&#128196; Detalle por facultad</div>';
+  // Tabla todas las facultades / unidades
+  html+='<div class="chart-box"><div class="chart-title">&#128196; Detalle por Facultad / Unidad</div>';
   html+='<div style="overflow-x:auto;"><table style="min-width:unset;width:100%;">'
-    +'<thead><tr><th>Facultad</th><th style="text-align:right">Atenciones</th><th style="text-align:right">% del total</th></tr></thead><tbody>';
-  topFac.forEach(function(f){
+    +'<thead><tr><th>Facultad / Unidad</th><th style="text-align:right">Atenciones</th><th style="text-align:right">% del total</th></tr></thead><tbody>';
+  origenAll.forEach(function(f){
     var pct=((f.v/totalAt)*100).toFixed(1);
     html+='<tr><td>'+f.k+'</td><td style="text-align:right;font-weight:700;">'+f.v+'</td><td style="text-align:right;color:#7a8baa;">'+pct+'%</td></tr>';
+  });
+  html+='</tbody></table></div></div>';
+
+  // Tabla todos los ambientes
+  html+='<div class="chart-box" style="margin-top:14px;"><div class="chart-title">&#127979; Todos los ambientes utilizados</div>';
+  html+='<div style="overflow-x:auto;"><table style="min-width:unset;width:100%;">'
+    +'<thead><tr><th>#</th><th>Ambiente</th><th style="text-align:right">Atenciones</th><th style="text-align:right">%</th></tr></thead><tbody>';
+  ambAll.forEach(function(a,i){
+    var pct=((a.v/totalAt)*100).toFixed(1);
+    html+='<tr><td style="text-align:center;color:#7a8baa;">'+(i+1)+'</td><td>'+a.k+'</td><td style="text-align:right;font-weight:700;">'+a.v+'</td><td style="text-align:right;color:#7a8baa;">'+pct+'%</td></tr>';
+  });
+  html+='</tbody></table></div></div>';
+
+  // Tabla todos los responsables
+  html+='<div class="chart-box" style="margin-top:14px;"><div class="chart-title">&#128100; Todos los responsables atendidos</div>';
+  html+='<div style="overflow-x:auto;"><table style="min-width:unset;width:100%;">'
+    +'<thead><tr><th>#</th><th>Responsable</th><th style="text-align:right">Atenciones</th><th style="text-align:right">%</th></tr></thead><tbody>';
+  respAll.forEach(function(d,i){
+    var pct=((d.v/totalAt)*100).toFixed(1);
+    html+='<tr><td style="text-align:center;color:#7a8baa;">'+(i+1)+'</td><td>'+d.k+'</td><td style="text-align:right;font-weight:700;">'+d.v+'</td><td style="text-align:right;color:#7a8baa;">'+pct+'%</td></tr>';
   });
   html+='</tbody></table></div></div>';
 
@@ -1420,16 +1966,21 @@ function exportInformeExcel(){
   if(!ultimoInforme||!ultimoInforme.datos.length){Swal.fire({icon:'info',title:'Sin datos',background:'#131923',color:'#dde3f0'});return;}
   var datos=ultimoInforme.datos.map(function(r){
     return{
+      Tipo:r.tipo==='capacitacion'?'Capacitacion':'Clase',
       Fecha:fmtFecha(r.fecha),Dia:diaSemana(r.fecha),
       'Hora Inicio':r.inicio,'Hora Fin':r.fin,
       'Horas':horasEntre(r.inicio,r.fin).toFixed(2),
-      Facultad:r.facultad,Carrera:r.carrera,Materia:r.materia,
-      Docente:r.docente,Ambiente:r.ambiente,Software:r.software||'',
+      'Facultad/Unidad':r.tipo==='capacitacion'?(r.unidad||''):(r.facultad||''),
+      Carrera:r.carrera||'',
+      'Materia/Tema':r.tipo==='capacitacion'?(r.tema||''):(r.materia||''),
+      'Docente/Facilitador':r.tipo==='capacitacion'?(r.facilitador||''):(r.docente||''),
+      'Dirigido a':r.dirigidoA||'',
+      Ambiente:r.ambiente,Software:r.software||'',
       'ID Solicitud':r.solicitudId||''
     };
   });
   var ws=XLSX.utils.json_to_sheet(datos);
-  ws['!cols']=[{wch:12},{wch:10},{wch:10},{wch:10},{wch:8},{wch:22},{wch:24},{wch:28},{wch:25},{wch:20},{wch:30},{wch:14}];
+  ws['!cols']=[{wch:14},{wch:12},{wch:10},{wch:10},{wch:10},{wch:8},{wch:24},{wch:22},{wch:30},{wch:25},{wch:22},{wch:20},{wch:30},{wch:14}];
   var wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Atenciones');
   var nombre='informe_atenciones_'+new Date().toISOString().split('T')[0]+'.xlsx';
@@ -1455,37 +2006,43 @@ function exportInformePDF(){
   doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(160,195,255);
   var peri=(ultimoInforme.desde?fmtFecha(ultimoInforme.desde):'Inicio')+' -> '+(ultimoInforme.hasta?fmtFecha(ultimoInforme.hasta):fmtFecha(getHoyStr()));
   var filtros=[];
-  if(ultimoInforme.fac)filtros.push('Fac: '+ultimoInforme.fac);
+  if(ultimoInforme.fac)filtros.push('Fac/Unidad: '+ultimoInforme.fac);
   if(ultimoInforme.amb)filtros.push('Amb: '+ultimoInforme.amb);
   doc.text('Periodo: '+peri+(filtros.length?' | '+filtros.join(' | '):''),29,23);
   doc.setTextColor(160,170,200);doc.setFontSize(6);
   doc.text('Generado: '+new Date().toLocaleDateString('es-ES'),W-6,7,{align:'right'});
 
-  // Calcular metricas (igual que en renderInforme)
+  // Calcular metricas
   var datos=ultimoInforme.datos;
   var totalAt=datos.length,totalHoras=0;
-  var solsSet={},docSet={},ambC={},docC={},facC={},swC={};
+  var solsSet={},respSet={},ambC={},respC={},origenC={};
+  var totClases=0,totCaps=0;
   datos.forEach(function(r){
     totalHoras+=horasEntre(r.inicio,r.fin);
     if(r.solicitudId)solsSet[r.solicitudId]=true;
-    if(r.docente)docSet[r.docente]=true;
+    var resp=r.tipo==='capacitacion'?r.facilitador:r.docente;
+    var origen=r.tipo==='capacitacion'?r.unidad:r.facultad;
+    if(resp)respSet[resp]=true;
     if(r.ambiente)ambC[r.ambiente]=(ambC[r.ambiente]||0)+1;
-    if(r.docente)docC[r.docente]=(docC[r.docente]||0)+1;
-    if(r.facultad)facC[r.facultad]=(facC[r.facultad]||0)+1;
-    if(r.software)r.software.split(',').forEach(function(s){var n=s.trim().replace(/\s+v[\d.]+$/,'');if(n)swC[n]=(swC[n]||0)+1;});
+    if(resp)respC[resp]=(respC[resp]||0)+1;
+    if(origen)origenC[origen]=(origenC[origen]||0)+1;
+    if(r.tipo==='capacitacion')totCaps++;else totClases++;
   });
-  function topN(o,n){return Object.keys(o).map(function(k){return{k:k,v:o[k]};}).sort(function(a,b){return b.v-a.v;}).slice(0,n);}
-  var topAmb=topN(ambC,5),topDoc=topN(docC,5),topFac=topN(facC,10),topSw=topN(swC,5);
+  // Ordenar todos los datos (sin TOP - mostrar todos)
+  function ordenarDescV(o){return Object.keys(o).map(function(k){return{k:k,v:o[k]};}).sort(function(a,b){return b.v-a.v;});}
+  var ambListados=ordenarDescV(ambC);
+  var respListados=ordenarDescV(respC);
+  var origenListados=ordenarDescV(origenC);
 
   // KPIs en 2x3 grid
   var kpiY=35;
   var kpis=[
     ['Atenciones realizadas',String(totalAt),Object.keys(solsSet).length+' solicitudes',[224,32,48]],
     ['Horas prestadas',totalHoras.toFixed(1)+' h',(totalHoras/Math.max(1,totalAt)).toFixed(1)+' h/atencion',[110,215,154]],
-    ['Ambiente top',truncar(norm((topAmb[0]||{k:'-'}).k),22),((topAmb[0]||{v:0}).v)+' atenciones',[255,174,77]],
-    ['Docente top',truncar(norm((topDoc[0]||{k:'-'}).k),22),((topDoc[0]||{v:0}).v)+' atenciones',[139,95,191]],
-    ['Facultad top',truncar(norm((topFac[0]||{k:'-'}).k),22),((topFac[0]||{v:0}).v)+' atenciones',[34,85,164]],
-    ['Docentes distintos',String(Object.keys(docSet).length),Object.keys(ambC).length+' ambientes',[100,130,170]]
+    ['Clases',String(totClases),'atenciones tipo clase',[34,85,164]],
+    ['Capacitaciones',String(totCaps),'atenciones tipo capacitacion',[255,174,77]],
+    ['Responsables distintos',String(Object.keys(respSet).length),'docentes / facilitadores',[139,95,191]],
+    ['Ambientes usados',String(Object.keys(ambC).length),'distintos en el periodo',[100,130,170]]
   ];
   var kpiW=(W-15)/3,kpiH=22;
   kpis.forEach(function(k,i){
@@ -1503,82 +2060,239 @@ function exportInformePDF(){
     doc.text(norm(k[2]),x+4,y+18);
   });
 
-  // Tabla de detalle por facultad
+  // Tabla detalle por facultad / unidad (TODAS, sin Top)
   var tablaY=kpiY+2*(kpiH+3)+6;
   doc.setTextColor(40,60,120);doc.setFont('helvetica','bold');doc.setFontSize(9);
-  doc.text('Detalle por Facultad',5,tablaY);
+  doc.text('Detalle por Facultad / Unidad',5,tablaY);
   doc.autoTable({
-    head:[['Facultad','Atenciones','% del total']],
-    body:topFac.map(function(f){return[norm(f.k),String(f.v),((f.v/totalAt)*100).toFixed(1)+'%'];}),
+    head:[['Facultad / Unidad','Atenciones','% del total']],
+    body:origenListados.map(function(f){return[norm(f.k),String(f.v),((f.v/totalAt)*100).toFixed(1)+'%'];}),
     startY:tablaY+2,theme:'grid',
     styles:{font:'helvetica',fontSize:8,cellPadding:2.5,textColor:[20,35,60]},
     headStyles:{fillColor:[20,50,110],textColor:[255,255,255],fontSize:7.5},
     alternateRowStyles:{fillColor:[240,245,252]},
     columnStyles:{0:{cellWidth:110},1:{halign:'right',cellWidth:30,fontStyle:'bold'},2:{halign:'right',cellWidth:30,textColor:[100,120,160]}},
-    margin:{left:5,right:5}
+    margin:{left:5,right:5,bottom:6}
   });
 
-  // Top ambientes
+  // Tabla todos los ambientes
   var y2=doc.lastAutoTable.finalY+8;
-  if(y2>H-60){doc.addPage();y2=15;}
+  if(y2>H-30){doc.addPage();y2=15;}
   doc.setTextColor(40,60,120);doc.setFont('helvetica','bold');doc.setFontSize(9);
-  doc.text('Top Ambientes',5,y2);
+  doc.text('Ambientes utilizados',5,y2);
   doc.autoTable({
-    head:[['#','Ambiente','Atenciones']],
-    body:topAmb.map(function(a,i){return[String(i+1),norm(a.k),String(a.v)];}),
+    head:[['#','Ambiente','Atenciones','% del total']],
+    body:ambListados.map(function(a,i){return[String(i+1),norm(a.k),String(a.v),((a.v/totalAt)*100).toFixed(1)+'%'];}),
     startY:y2+2,theme:'grid',
     styles:{font:'helvetica',fontSize:8,cellPadding:2.5},
     headStyles:{fillColor:[20,50,110],textColor:[255,255,255],fontSize:7.5},
     alternateRowStyles:{fillColor:[240,245,252]},
-    columnStyles:{0:{halign:'center',cellWidth:10,fontStyle:'bold'},1:{cellWidth:120},2:{halign:'right',cellWidth:30,fontStyle:'bold',textColor:[20,60,160]}},
-    margin:{left:5,right:5}
+    columnStyles:{0:{halign:'center',cellWidth:10,fontStyle:'bold'},1:{cellWidth:100},2:{halign:'right',cellWidth:30,fontStyle:'bold',textColor:[20,60,160]},3:{halign:'right',cellWidth:30,textColor:[100,120,160]}},
+    margin:{left:5,right:5,bottom:6}
   });
 
-  // Top docentes
+  // Tabla todos los responsables (docentes + facilitadores)
   var y3=doc.lastAutoTable.finalY+8;
-  if(y3>H-60){doc.addPage();y3=15;}
+  if(y3>H-30){doc.addPage();y3=15;}
   doc.setTextColor(40,60,120);doc.setFont('helvetica','bold');doc.setFontSize(9);
-  doc.text('Top Docentes',5,y3);
+  doc.text('Responsables atendidos (docentes / facilitadores)',5,y3);
   doc.autoTable({
-    head:[['#','Docente','Atenciones']],
-    body:topDoc.map(function(d,i){return[String(i+1),norm(d.k),String(d.v)];}),
+    head:[['#','Responsable','Atenciones','% del total']],
+    body:respListados.map(function(d,i){return[String(i+1),norm(d.k),String(d.v),((d.v/totalAt)*100).toFixed(1)+'%'];}),
     startY:y3+2,theme:'grid',
     styles:{font:'helvetica',fontSize:8,cellPadding:2.5},
     headStyles:{fillColor:[139,95,191],textColor:[255,255,255],fontSize:7.5},
     alternateRowStyles:{fillColor:[247,240,253]},
-    columnStyles:{0:{halign:'center',cellWidth:10,fontStyle:'bold'},1:{cellWidth:120},2:{halign:'right',cellWidth:30,fontStyle:'bold',textColor:[90,50,130]}},
-    margin:{left:5,right:5}
+    columnStyles:{0:{halign:'center',cellWidth:10,fontStyle:'bold'},1:{cellWidth:100},2:{halign:'right',cellWidth:30,fontStyle:'bold',textColor:[90,50,130]},3:{halign:'right',cellWidth:30,textColor:[100,120,160]}},
+    margin:{left:5,right:5,bottom:6}
   });
-
-  // Top software (si hay)
-  if(topSw.length){
-    var y4=doc.lastAutoTable.finalY+8;
-    if(y4>H-50){doc.addPage();y4=15;}
-    doc.setTextColor(40,60,120);doc.setFont('helvetica','bold');doc.setFontSize(9);
-    doc.text('Software mas solicitado',5,y4);
-    doc.autoTable({
-      head:[['#','Software','Atenciones']],
-      body:topSw.map(function(s,i){return[String(i+1),norm(s.k),String(s.v)];}),
-      startY:y4+2,theme:'grid',
-      styles:{font:'helvetica',fontSize:8,cellPadding:2.5},
-      headStyles:{fillColor:[224,32,48],textColor:[255,255,255],fontSize:7.5},
-      alternateRowStyles:{fillColor:[253,240,242]},
-      columnStyles:{0:{halign:'center',cellWidth:10,fontStyle:'bold'},1:{cellWidth:120},2:{halign:'right',cellWidth:30,fontStyle:'bold',textColor:[180,30,40]}},
-      margin:{left:5,right:5}
-    });
-  }
 
   doc.save('informe_atenciones_'+new Date().toISOString().split('T')[0]+'.pdf');
 }
 
 /* =================================================================
-   EXPORTACIONES (Excel y PDFs originales)
+   DETECCION DE CONFLICTOS EXISTENTES
    ================================================================= */
+function detectarConflictos(){
+  var pares=[];
+  // Indexar por ambiente+fecha para optimizar
+  var grp={};
+  reservas.forEach(function(r){
+    var k=(r.ambiente||'')+'|'+r.fecha;
+    if(!grp[k])grp[k]=[];
+    grp[k].push(r);
+  });
+  Object.keys(grp).forEach(function(k){
+    var arr=grp[k];
+    if(arr.length<2)return;
+    for(var i=0;i<arr.length;i++){
+      for(var j=i+1;j<arr.length;j++){
+        var a=arr[i],b=arr[j];
+        if(a.inicio<b.fin && a.fin>b.inicio)pares.push([a,b]);
+      }
+    }
+  });
+  return pares;
+}
+
+function reservasConConflicto(){
+  var ids={};
+  detectarConflictos().forEach(function(p){ids[p[0].id]=true;ids[p[1].id]=true;});
+  return ids;
+}
+
+function abrirConflictos(){
+  cerrarDrawer();
+  var pares=detectarConflictos();
+  var body=document.getElementById('confBody');
+  if(!pares.length){
+    body.innerHTML='<div class="empty-all" style="padding:40px 20px;"><span class="icon">&#x2705;</span>Sin conflictos detectados.</div>';
+  }else{
+    var h='';
+    pares.forEach(function(p,idx){
+      var a=p[0],b=p[1];
+      h+='<div class="conf-item">'
+        +'<div style="font-weight:700;color:#ff7a85;font-size:.85rem;margin-bottom:4px;">&#9888; Conflicto #'+(idx+1)+' &middot; '+fmtFecha(a.fecha)+' &middot; '+a.ambiente+'</div>'
+        +'<div class="conf-pair">'
+        +renderConfCard(a)
+        +renderConfCard(b)
+        +'</div></div>';
+    });
+    body.innerHTML=h;
+  }
+  document.getElementById('confOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function cerrarConflictos(){document.getElementById('confOverlay').classList.remove('open');document.body.style.overflow='';}
+function renderConfCard(r){
+  var titulo=r.tipo==='capacitacion'?(r.tema||'(sin tema)'):(r.materia||'(sin materia)');
+  var origen=r.tipo==='capacitacion'?(r.unidad||'-'):(r.facultad+' &middot; '+r.carrera);
+  var resp=r.tipo==='capacitacion'?(r.facilitador||'-'):(r.docente||'-');
+  return '<div class="conf-card">'
+    +'<div class="conf-card-title">'+(r.tipo==='capacitacion'?'CAPACITACION':'CLASE')+' &middot; '+r.inicio+' - '+r.fin+'</div>'
+    +'<div class="conf-card-info"><b>'+titulo+'</b><br>'
+    +origen+'<br>&#128100; '+resp+'</div>'
+    +'<div class="conf-card-actions">'
+    +'<button class="btn btn-edit" data-action="edit" data-id="'+r.id+'">&#9998; Editar</button>'
+    +'<button class="btn btn-del" data-action="del" data-id="'+r.id+'">&#x2715;</button>'
+    +'</div></div>';
+}
+
+/* =================================================================
+   TABLA DE SOLICITUDES
+   ================================================================= */
+function abrirSolicitudes(){
+  cerrarDrawer();
+  document.getElementById('solOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  document.getElementById('solBuscar').value='';
+  document.getElementById('solFilTipo').value='';
+  renderSolicitudes();
+}
+function cerrarSolicitudes(){document.getElementById('solOverlay').classList.remove('open');document.body.style.overflow='';}
+
+function agruparSolicitudes(){
+  var grp={};
+  reservas.forEach(function(r){
+    var sid=r.solicitudId||r.id;
+    if(!grp[sid])grp[sid]={solicitudId:sid,reservas:[]};
+    grp[sid].reservas.push(r);
+  });
+  return Object.keys(grp).map(function(k){
+    var s=grp[k];
+    var rs=s.reservas;
+    var primera=rs[0];
+    s.tipo=primera.tipo||'clase';
+    s.cantidad=rs.length;
+    var fechas=rs.map(function(r){return r.fecha;}).sort();
+    s.fechaMin=fechas[0];s.fechaMax=fechas[fechas.length-1];
+    s.ambiente=primera.ambiente;
+    if(s.tipo==='capacitacion'){
+      s.tema=primera.tema||'';s.unidad=primera.unidad||'';
+      s.responsable=primera.facilitador||'';s.dirigidoA=primera.dirigidoA||'';
+    }else{
+      s.tema=primera.materia||'';s.unidad=(primera.facultad||'')+(primera.carrera?' / '+primera.carrera:'');
+      s.responsable=primera.docente||'';
+    }
+    s.software=primera.software||'';
+    return s;
+  });
+}
+
+function renderSolicitudes(){
+  var tipo=document.getElementById('solFilTipo').value;
+  var q=document.getElementById('solBuscar').value.toLowerCase().trim();
+  var lista=agruparSolicitudes();
+  if(tipo)lista=lista.filter(function(s){return s.tipo===tipo;});
+  if(q)lista=lista.filter(function(s){
+    return [s.tema,s.unidad,s.responsable,s.ambiente,s.software].some(function(x){return x&&x.toLowerCase().indexOf(q)>=0;});
+  });
+  // ordenar por fechaMin desc (mas recientes primero)
+  lista.sort(function(a,b){return (b.fechaMin||'').localeCompare(a.fechaMin||'');});
+  var tb=document.getElementById('solTbody');
+  if(!lista.length){
+    tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted);">Sin solicitudes que coincidan.</td></tr>';
+    return;
+  }
+  var h='';
+  lista.forEach(function(s){
+    var idPrimera=s.reservas[0].id;
+    var tipoTag=s.tipo==='capacitacion'?'<span class="tag-tipo t-cap">&#127891; CAP</span>':'<span class="tag-tipo t-clase">&#127979; CLASE</span>';
+    var periodo=s.fechaMin===s.fechaMax?fmtFecha(s.fechaMin):(fmtFecha(s.fechaMin)+' &rarr; '+fmtFecha(s.fechaMax));
+    h+='<tr>'
+      +'<td>'+tipoTag+'</td>'
+      +'<td><strong>'+s.tema+'</strong></td>'
+      +'<td>'+s.responsable+'</td>'
+      +'<td style="font-size:.72rem;color:var(--muted)">'+s.unidad+'</td>'
+      +'<td>'+s.ambiente+'</td>'
+      +'<td style="text-align:center;font-weight:700;color:#c8a8ea;">'+s.cantidad+'</td>'
+      +'<td style="font-size:.72rem;color:#7eaaff;">'+periodo+'</td>'
+      +'<td><div class="td-actions">'
+      +'<button class="btn-edit" data-action="edit-sol" data-id="'+idPrimera+'" title="Editar solicitud">&#9998;</button>'
+      +'<button class="btn-del" data-action="del-sol" data-sid="'+s.solicitudId+'" title="Eliminar solicitud">&#x2715;</button>'
+      +'</div></td>'
+      +'</tr>';
+  });
+  tb.innerHTML=h;
+}
+
+function editarSolicitudDirecto(idCualquiera){
+  // Forzar el modo solicitud directamente
+  var r=reservas.filter(function(x){return x.id===idCualquiera;})[0];
+  if(!r)return;
+  cerrarSolicitudes();
+  var hermanos=r.solicitudId?reservas.filter(function(x){return x.solicitudId===r.solicitudId;}):[r];
+  if(hermanos.length<=1){_editMode='one';abrirModalEdicion(r);}
+  else{_editMode='solicitud';abrirModalEdicion(r);}
+}
+function eliminarSolicitudDirecto(sid){
+  var lista=reservas.filter(function(r){return r.solicitudId===sid;});
+  if(!lista.length)return;
+  Swal.fire({icon:'warning',title:'Eliminar solicitud completa?',text:'Se eliminaran '+lista.length+' reservas. No se puede deshacer.',
+    showCancelButton:true,confirmButtonText:'Si, eliminar',cancelButtonText:'Cancelar',
+    background:'#131923',color:'#dde3f0',confirmButtonColor:'#e02030'
+  }).then(function(r){
+    if(r.isConfirmed){
+      doEliminar(lista,false);
+      cerrarSolicitudes();
+      setTimeout(function(){abrirSolicitudes();},300);
+    }
+  });
+}
 function exportExcel(){
   var datos=getReservasFiltradas().map(function(r){
-    return{Fecha:fmtFecha(r.fecha),Dia:diaSemana(r.fecha),'Hora Inicio':r.inicio,'Hora Fin':r.fin,
-      Facultad:r.facultad,Carrera:r.carrera,Materia:r.materia,Docente:r.docente,
-      Ambiente:r.ambiente,Software:r.software||'','ID Solicitud':r.solicitudId||''};
+    return{
+      Tipo:r.tipo==='capacitacion'?'Capacitacion':'Clase',
+      Fecha:fmtFecha(r.fecha),Dia:diaSemana(r.fecha),
+      'Hora Inicio':r.inicio,'Hora Fin':r.fin,
+      'Facultad/Unidad':r.tipo==='capacitacion'?(r.unidad||''):(r.facultad||''),
+      Carrera:r.carrera||'',
+      'Materia/Tema':r.tipo==='capacitacion'?(r.tema||''):(r.materia||''),
+      'Docente/Facilitador':r.tipo==='capacitacion'?(r.facilitador||''):(r.docente||''),
+      'Dirigido a':r.dirigidoA||'',
+      Ambiente:r.ambiente,Software:r.software||'',
+      'ID Solicitud':r.solicitudId||''
+    };
   });
   if(!datos.length){Swal.fire({icon:'info',title:'Sin datos',background:'#131923',color:'#dde3f0'});return;}
   var ws=XLSX.utils.json_to_sheet(datos);
@@ -1944,9 +2658,9 @@ function abrirDrawer(){document.getElementById('sidebar').classList.add('drawer-
 function cerrarDrawer(){document.getElementById('sidebar').classList.remove('drawer-open');document.getElementById('sideOverlay').classList.remove('open');document.getElementById('btnCerrarDrawer').style.display='none';document.body.style.overflow='';}
 
 /* MODAL ESTRUCTURA */
-function abrirModal(){cerrarDrawer();document.getElementById('modalEstructura').classList.add('open');syncModalSelects();renderLstFac();}
+function abrirModal(){cerrarDrawer();document.getElementById('modalEstructura').classList.add('open');syncModalSelects();renderLstFac();syncModalSelectsUni();renderLstUni();}
 function cerrarModal(){document.getElementById('modalEstructura').classList.remove('open');initForm();mostrar();}
-function switchTab(id,btn){document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('on');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});document.getElementById(id).classList.add('on');btn.classList.add('on');syncModalSelects();}
+function switchTab(id,btn){document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('on');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});document.getElementById(id).classList.add('on');btn.classList.add('on');syncModalSelects();syncModalSelectsUni();}
 function syncModalSelects(){
   var facs=Object.keys(estructura);
   ['selFacCar','selFacMat'].forEach(function(sid){
@@ -1980,6 +2694,31 @@ function renderLstMat(){
   document.getElementById('lstMat').innerHTML=h;
 }
 function addMateria(){var f=document.getElementById('selFacMat').value,c=document.getElementById('selCarMat').value,v=document.getElementById('inMat').value.trim();if(!f||!c||!v)return;if(!estructura[f][c])estructura[f][c]=[];if(estructura[f][c].indexOf(v)>=0){alert('Ya existe.');return;}estructura[f][c].push(v);saveEst();document.getElementById('inMat').value='';renderLstMat();}
+
+/* === UNIDADES Y TEMAS (CAPACITACIONES) === */
+function renderLstUni(){
+  var keys=Object.keys(unidades),h='';
+  if(!keys.length)h='<p style="color:var(--muted);font-size:.8rem">Sin unidades.</p>';
+  else keys.forEach(function(u){h+='<div class="item-row"><span>&#127970; '+u+'</span><button class="btn btn-del js-del-uni" data-u="'+u+'">&#x2715;</button></div>';});
+  document.getElementById('lstUni').innerHTML=h;
+}
+function addUnidad(){var v=document.getElementById('inUni').value.trim();if(!v)return;if(unidades[v]){alert('Ya existe.');return;}unidades[v]=[];saveUni();document.getElementById('inUni').value='';renderLstUni();syncModalSelectsUni();}
+function syncModalSelectsUni(){
+  var unis=Object.keys(unidades);
+  var el=document.getElementById('selUniTem');if(!el)return;
+  var v=el.value,h='';
+  unis.forEach(function(u){h+='<option'+(u===v?' selected':'')+'>'+u+'</option>';});
+  el.innerHTML=h;
+  renderLstTem();
+}
+function renderLstTem(){
+  var u=document.getElementById('selUniTem').value;
+  var items=u&&unidades[u]?unidades[u]:[],h='';
+  if(!items.length)h='<p style="color:var(--muted);font-size:.8rem">Sin temas.</p>';
+  else items.forEach(function(t){h+='<div class="item-row"><span>&#127891; '+t+'</span><button class="btn btn-del js-del-tem" data-u="'+u+'" data-t="'+t+'">&#x2715;</button></div>';});
+  document.getElementById('lstTem').innerHTML=h;
+}
+function addTema(){var u=document.getElementById('selUniTem').value,v=document.getElementById('inTem').value.trim();if(!u||!v)return;if(!unidades[u])unidades[u]=[];if(unidades[u].indexOf(v)>=0){alert('Ya existe.');return;}unidades[u].push(v);saveUni();document.getElementById('inTem').value='';renderLstTem();}
 
 /* LIMPIAR */
 function limpiarStorage(){Swal.fire({icon:'warning',title:'Limpiar todos los datos?',html:'Esto eliminara <b>todas las reservas</b>. No se puede deshacer.',showCancelButton:true,confirmButtonText:'Si, limpiar',cancelButtonText:'Cancelar',background:'#131923',color:'#dde3f0',confirmButtonColor:'#e02030'}).then(function(r){if(r.isConfirmed){localStorage.removeItem('rsv3');reservas=[];mostrar();actualizarStats();Swal.fire({icon:'success',title:'Datos limpiados',timer:1400,showConfirmButton:false,background:'#131923',color:'#dde3f0'});}});}
@@ -2021,7 +2760,7 @@ function abrirBackup(){
 function exportarJSON(){
   var docs={};
   try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf('doc_')===0)docs[k]=localStorage.getItem(k);}}catch(e){}
-  var data={version:'2.0',exportadoEn:new Date().toISOString(),sistema:'Sistema de Reservas - Campus Las Palmas',reservas:reservas,estructura:estructura,documentos:docs};
+  var data={version:'3.0',exportadoEn:new Date().toISOString(),sistema:'Sistema de Reservas - Campus Las Palmas',reservas:reservas,estructura:estructura,unidades:unidades,documentos:docs};
   var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');a.href=url;a.download='respaldo_reservas_'+new Date().toISOString().split('T')[0]+'.json';
@@ -2060,7 +2799,9 @@ function aplicarImport(data,modo){
       var borrar=[];
       for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf('doc_')===0)borrar.push(k);}
       borrar.forEach(function(k){localStorage.removeItem(k);});
-      reservas=data.reservas||[];estructura=data.estructura||{};
+      reservas=data.reservas||[];
+      estructura=data.estructura||{};
+      if(data.unidades)unidades=data.unidades;
     }else{
       var porId={};reservas.forEach(function(r){porId[r.id]=r;});
       (data.reservas||[]).forEach(function(r){
@@ -2077,18 +2818,31 @@ function aplicarImport(data,modo){
           });
         });
       }
+      if(data.unidades){
+        Object.keys(data.unidades).forEach(function(u){
+          if(!unidades[u])unidades[u]=[];
+          (data.unidades[u]||[]).forEach(function(t){if(unidades[u].indexOf(t)<0)unidades[u].push(t);});
+        });
+      }
     }
     if(data.documentos){Object.keys(data.documentos).forEach(function(k){try{localStorage.setItem(k,data.documentos[k]);}catch(e){}});}
     migrarSolicitudes();
-    saveRsv();saveEst();initForm();mostrar();actualizarStats();syncFiltroFac();
+    saveRsv();saveEst();saveUni();initForm();mostrar();actualizarStats();syncFiltroFac();
     Swal.fire({icon:'success',title:'Datos importados',timer:2000,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
   }catch(e){Swal.fire({icon:'error',title:'Error al importar',text:e.message,background:'#131923',color:'#dde3f0'});}
 }
 function exportarExcelBackup(){
   if(!reservas.length){Swal.fire({icon:'info',title:'Sin datos',background:'#131923',color:'#dde3f0'});return;}
-  var datos=reservas.map(function(r){return{ID:r.id,'ID Solicitud':r.solicitudId||'',Fecha:r.fecha,'Hora Inicio':r.inicio,'Hora Fin':r.fin,Facultad:r.facultad||'',Carrera:r.carrera||'',Materia:r.materia||'',Docente:r.docente||'',Ambiente:r.ambiente||'',Software:r.software||''};});
+  var datos=reservas.map(function(r){return{
+    ID:r.id,'ID Solicitud':r.solicitudId||'',
+    Tipo:r.tipo==='capacitacion'?'Capacitacion':'Clase',
+    Fecha:r.fecha,'Hora Inicio':r.inicio,'Hora Fin':r.fin,
+    Facultad:r.facultad||'',Carrera:r.carrera||'',Materia:r.materia||'',Docente:r.docente||'',
+    Unidad:r.unidad||'',Tema:r.tema||'',Facilitador:r.facilitador||'','Dirigido a':r.dirigidoA||'',
+    Ambiente:r.ambiente||'',Software:r.software||''
+  };});
   var ws=XLSX.utils.json_to_sheet(datos);
-  ws['!cols']=[{wch:14},{wch:14},{wch:12},{wch:10},{wch:10},{wch:22},{wch:24},{wch:28},{wch:25},{wch:20},{wch:30}];
+  ws['!cols']=[{wch:14},{wch:14},{wch:14},{wch:12},{wch:10},{wch:10},{wch:22},{wch:24},{wch:28},{wch:25},{wch:22},{wch:28},{wch:25},{wch:22},{wch:20},{wch:30}];
   var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Reservas');
   XLSX.writeFile(wb,'backup_reservas_'+new Date().toISOString().split('T')[0]+'.xlsx');
 }
@@ -2124,21 +2878,41 @@ function importarExcel(){
           var fecha=parseFecha(pick(o,['Fecha','fecha','FECHA','Date']));
           var inicio=parseHora(pick(o,['Hora Inicio','HoraInicio','Inicio']));
           var fin=parseHora(pick(o,['Hora Fin','HoraFin','Fin']));
+          var tipoStr=pick(o,['Tipo','tipo','TIPO']).toLowerCase();
+          var tipo=(tipoStr.indexOf('cap')>=0)?'capacitacion':'clase';
           var facultad=pick(o,['Facultad','facultad']);
           var carrera=pick(o,['Carrera','carrera']);
           var materia=pick(o,['Materia','materia','Asignatura']);
           var docente=pick(o,['Docente','docente','Profesor']);
+          var unidad=pick(o,['Unidad','unidad','UNIDAD']);
+          var tema=pick(o,['Tema','tema','TEMA']);
+          var facilitador=pick(o,['Facilitador','facilitador','Instructor']);
+          var dirigidoA=pick(o,['Dirigido a','DirigidoA','dirigidoA']);
           var ambiente=pick(o,['Ambiente','ambiente','Aula']);
           var software=pick(o,['Software','software']);
           var solId=pick(o,['ID Solicitud','IDSolicitud','solicitudId']);
-          if(!fecha||!inicio||!fin||!docente||!ambiente){errores++;return;}
-          nuevas.push({
+          // Auto-detectar tipo si no viene explicito
+          if(!tipoStr){
+            if(unidad||tema||facilitador)tipo='capacitacion';
+            else tipo='clase';
+          }
+          var responsable=tipo==='capacitacion'?facilitador:docente;
+          if(!fecha||!inicio||!fin||!responsable||!ambiente){errores++;return;}
+          var nueva={
             id:pick(o,['ID','id'])||nextId(),
             solicitudId:solId||null,
+            tipo:tipo,
             fecha:fecha,inicio:inicio,fin:fin,
-            facultad:facultad,carrera:carrera,materia:materia,
-            docente:docente,ambiente:ambiente,software:software,docId:null
-          });
+            ambiente:ambiente,software:software,docId:null
+          };
+          if(tipo==='capacitacion'){
+            nueva.unidad=unidad;nueva.tema=tema;nueva.facilitador=facilitador;nueva.dirigidoA=dirigidoA;
+            nueva.facultad='';nueva.carrera='';nueva.materia='';nueva.docente='';
+          }else{
+            nueva.facultad=facultad;nueva.carrera=carrera;nueva.materia=materia;nueva.docente=docente;
+            nueva.unidad='';nueva.tema='';nueva.facilitador='';nueva.dirigidoA='';
+          }
+          nuevas.push(nueva);
         });
         if(!nuevas.length){Swal.fire({icon:'error',title:'No se pudo leer ninguna fila',background:'#131923',color:'#dde3f0'});return;}
         Swal.fire({
@@ -2155,7 +2929,10 @@ function importarExcel(){
             nuevas.forEach(function(x){if(porId[x.id])x.id=nextId();porId[x.id]=x;});
             reservas=Object.keys(porId).map(function(k){return porId[k];});
           }else return;
-          nuevas.forEach(function(x){registrarEstructuraAuto(x.facultad,x.carrera,x.materia);});
+          nuevas.forEach(function(x){
+            if(x.tipo==='capacitacion')registrarUnidadAuto(x.unidad,x.tema);
+            else registrarEstructuraAuto(x.facultad,x.carrera,x.materia);
+          });
           migrarSolicitudes();
           saveRsv();mostrar();actualizarStats();syncFiltroFac();
           Swal.fire({icon:'success',title:'Datos importados',timer:2000,showConfirmButton:false,background:'#131923',color:'#dde3f0'});
